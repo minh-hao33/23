@@ -31,4 +31,5 @@ public class DepartmentController {
     public void deleteDepartment(@PathVariable Long id) {
         departmentService.deleteDepartment(id);
     }
+
 }

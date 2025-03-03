@@ -6,4 +6,3 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 mybatis:
   type-aliases-package: com.example.hrms.model
-  mapper-locations: classpath:mybatis/mapper/*.xml
