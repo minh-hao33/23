@@ -1,4 +1,3 @@
-
 spring:
     datasource:
         url: jdbc:mysql://prodserver:3306/HRMS

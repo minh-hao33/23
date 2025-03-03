@@ -1,9 +1,9 @@
 spring:
-    datasource:
-        url: jdbc:mysql://localhost:3306/HRMS
-        username: username
-        password: password
-        driver-class-name: com.mysql.cj.jdbc.Driver
+  datasource:
+    url: jdbc:mysql://localhost:3306/HRMS
+    username: username
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
 mybatis:
-    type-aliases-package: com.example.hrms.model
-    mapper-locations: classpath:mybatis/mapper/*.xml
+  type-aliases-package: com.example.hrms.model
+  mapper-locations: classpath:mybatis/mapper/*.xml

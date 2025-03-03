@@ -1,4 +1,3 @@
-# application-dev.yml
 spring:
     datasource:
         url: jdbc:mysql://devserver:3306/HRMS
