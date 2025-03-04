@@ -1,0 +1,207 @@
+CREATE DATABASE HRMS;
+
+USE HRMS;
+
+-- 1. TẠO CÁC BẢNG DỮ LIỆU
+-- ==============================================
+-- Bảng Quản lý Vai Trò (Roles)
+CREATE TABLE Roles (
+    role_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    role_name VARCHAR(64) NOT NULL UNIQUE,
+    INDEX (role_name)
+);
+
+-- Bảng Quản lý Phòng Ban (Departments)
+CREATE TABLE Departments (
+    department_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    department_name VARCHAR(128) NOT NULL UNIQUE,
+    role_id BIGINT NOT NULL,
+    FOREIGN KEY (role_id) REFERENCES Roles(role_id),
+    INDEX (department_name),
+    INDEX (role_id)
+);
+
+-- Bảng Quản lý Người Dùng (Users)
+CREATE TABLE Users (
+    username VARCHAR(64) PRIMARY KEY,
+    password VARCHAR(256) NOT NULL, 
+    department_id BIGINT,
+    role VARCHAR(64) NOT NULL,
+    is_supervisor BOOLEAN DEFAULT FALSE,
+    status VARCHAR(64) NOT NULL,
+    FOREIGN KEY (department_id) REFERENCES Departments(department_id),
+    UNIQUE (username),
+    INDEX (department_id),
+    INDEX (role),
+    INDEX (status)
+);
+
+-- Bảng Yêu Cầu (Requests)
+CREATE TABLE Requests (
+    request_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(64) NOT NULL,
+    department_id BIGINT NOT NULL,
+    request_type VARCHAR(64) NOT NULL,
+    request_reason TEXT NOT NULL,
+    request_status VARCHAR(64) NOT NULL,
+    approver_username VARCHAR(64) NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    approved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (username) REFERENCES Users(username),
+    FOREIGN KEY (approver_username) REFERENCES Users(username),
+    INDEX (username),
+    INDEX (request_status),
+    INDEX (start_time),
+    INDEX (end_time),
+    INDEX (approver_username)
+);
+
+-- Bảng Quản lý Phòng Họp (Meeting_Rooms)
+CREATE TABLE Meeting_Rooms (
+    room_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    room_name VARCHAR(128) NOT NULL,
+    location VARCHAR(256) NOT NULL,
+    capacity INT NOT NULL,
+    INDEX (room_name),
+    INDEX (location)
+);
+
+-- Bảng Đặt Phòng Họp (Bookings)
+CREATE TABLE Bookings (
+    booking_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(64) NOT NULL,
+    room_id BIGINT NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    status VARCHAR(64) DEFAULT 'Requested',
+    FOREIGN KEY (username) REFERENCES Users(username),
+    FOREIGN KEY (room_id) REFERENCES Meeting_Rooms(room_id),
+    INDEX (username),
+    INDEX (room_id),
+    INDEX (start_time),
+    INDEX (end_time),
+    INDEX (status)
+);
+
+-- 2. CHÈN DỮ LIỆU MẪU
+-- ==============================================
+-- Chèn dữ liệu vào bảng Roles
+INSERT INTO Roles (role_name) VALUES
+('employee'),
+('supervisor'),
+('admin');
+
+-- Chèn dữ liệu vào bảng Departments
+INSERT INTO Departments (department_name, role_id) VALUES
+('HR', 1),
+('Finance', 2),
+('IT', 3);
+
+-- Chèn dữ liệu vào bảng Users với mật khẩu đã mã hóa
+INSERT INTO Users (username, password, role_id, department_id, is_supervisor, status) VALUES -- 123456
+('Trung Du Nguyen', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 1, 1, FALSE, 'Active'),
+('Minh Hao Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 2, 1, TRUE, 'Active'),
+('Khac Khanh Bui', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 3, 2, TRUE, 'Active'),
+('Nhat Minh Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 1, 3, FALSE, 'Inactive'),
+('Huu Tien Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 2, 2, FALSE, 'Active');
+
+-- Chèn dữ liệu vào bảng Requests
+INSERT INTO Requests (username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time) VALUES
+('Trung Du Nguyen', 1, 'Nghỉ phép có lương', 'Nghỉ phép cá nhân', 'Rejected', 'Minh Hao Pham', '2025-02-28 09:00:00', '2025-02-28 17:00:00'),
+('Minh Hao Pham', 1, 'Nghỉ phép có lương', 'Nghỉ phép đột xuất', 'Approved', 'Khac Khanh Bui', '2025-02-27 09:00:00', '2025-02-27 17:00:00'),
+('Trung Du Nguyen', 1, 'Nghỉ phép không lương', 'Làm việc từ xa do bệnh', 'Rejected', 'Minh Hao Pham', '2025-02-26 09:00:00', '2025-02-26 17:00:00'),
+('Khac Khanh Bui', 2, 'Nghỉ phép có lương', 'Xin nghỉ phép do việc gia đình', 'Rejected', 'Khac Khanh Bui', '2025-02-25 09:00:00', '2025-02-25 17:00:00'),
+('Nhat Minh Pham', 3, 'Nghỉ phép không lương', 'Làm việc tại nhà', 'Approved', 'Minh Hao Pham', '2025-02-24 09:00:00', '2025-02-24 17:00:00');
+
+-- Chèn dữ liệu vào bảng Meeting_Rooms
+INSERT INTO Meeting_Rooms (room_name, location, capacity) VALUES
+('Sky Room', 'Floor 1', 10),
+('Star Room', 'Floor 2', 15),
+('Admin Room', 'Floor 3', 20);
+
+-- Chèn dữ liệu vào bảng Bookings
+INSERT INTO Bookings (username, room_id, start_time, end_time, status) VALUES
+('Trung Du Nguyen', 1, '2025-03-01 10:00:00', '2025-03-01 12:00:00', 'Requested'),
+('Minh Hao Pham', 2, '2025-03-02 14:00:00', '2025-03-02 16:00:00', 'Confirmed'),
+('Khac Khanh Bui', 3, '2025-03-03 09:00:00', '2025-03-03 11:00:00', 'Cancelled'),
+('Nhat Minh Pham', 1, '2025-03-04 13:00:00', '2025-03-04 15:00:00', 'Requested'),
+('Huu Tien Pham', 2, '2025-03-05 08:00:00', '2025-03-05 10:00:00', 'Confirmed');
+
+
+-- kiểm tra vai trò của người phê duyệt
+DELIMITER //
+
+CREATE PROCEDURE ApproveRequest (
+    IN p_request_id BIGINT,
+    IN p_approver_username VARCHAR(64)
+)
+BEGIN
+    DECLARE v_department_id BIGINT;
+    DECLARE v_is_supervisor BOOLEAN;
+
+    -- Lấy department_id của yêu cầu
+    SELECT department_id INTO v_department_id
+    FROM Requests
+    WHERE request_id = p_request_id;
+
+    -- Kiểm tra vai trò của người phê duyệt
+    SELECT is_supervisor INTO v_is_supervisor
+    FROM Users
+    WHERE username = p_approver_username
+    AND department_id = v_department_id;
+
+    -- Nếu người phê duyệt là supervisor, cập nhật trạng thái yêu cầu
+    IF v_is_supervisor THEN
+        UPDATE Requests
+        SET request_status = 'Approved', approver_username = p_approver_username, approved_at = CURRENT_TIMESTAMP
+        WHERE request_id = p_request_id;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Người phê duyệt không có quyền phê duyệt yêu cầu này';
+    END IF;
+END //
+
+DELIMITER ;
+
+CALL ApproveRequest(1, 'Khac Khanh Bui');
+
+-- Account Management (Users)
+-- update
+UPDATE Users
+SET role_id = 2, status = 'Active'
+WHERE username = 'Khac Khanh Bui';
+-- vô hiệu hóa tài khỏan
+UPDATE Users
+SET status = 'Inactive'
+WHERE username = 'Khac Khanh Bui';
+
+-- Requests Management
+-- create
+INSERT INTO Requests (username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time)
+VALUES ('Khac Khanh Bui', 1, 'Nghỉ phép có lương', 'Đi khám bệnh', 'Rejected', 'Minh Hao Pham', '2025-03-10 09:00:00', '2025-03-10 14:00:00');
+-- cancel
+DELETE FROM Requests
+WHERE request_id = 1;
+-- Query
+SELECT *
+FROM Requests
+WHERE start_time BETWEEN '2025-03-01 00:00:00' AND '2025-03-31 23:59:59';
+
+
+-- Quản lý Đặt Phòng Họp
+-- create
+INSERT INTO Bookings (username, room_id, start_time, end_time, status)
+VALUES ('Khac Khanh Bui', 1, '2025-03-15 10:00:00', '2025-03-15 12:00:00', 'Requested');
+-- update
+UPDATE Bookings
+SET status = 'Requested'
+WHERE booking_id = 1;
+-- delete
+DELETE FROM Bookings
+WHERE booking_id = 1;
+-- Query booking schedule for specific time period
+SELECT *
+FROM Bookings
+WHERE start_time BETWEEN '2025-03-01 00:00:00' AND '2025-03-31 23:59:59';
