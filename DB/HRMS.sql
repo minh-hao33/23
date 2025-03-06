@@ -101,7 +101,7 @@ INSERT INTO Departments (department_name, role_id) VALUES
 ('IT', 3);
 
 -- Chèn dữ liệu vào bảng Users với mật khẩu đã mã hóa
-INSERT INTO Users (username, password, role_id, department_id, is_supervisor, status) VALUES -- 123456
+INSERT INTO Users (username, password, role, department_id, is_supervisor, status) VALUES -- 123456
 ('Trung Du Nguyen', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 1, 1, FALSE, 'Active'),
 ('Minh Hao Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 2, 1, TRUE, 'Active'),
 ('Khac Khanh Bui', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 3, 2, TRUE, 'Active'),
@@ -130,78 +130,3 @@ INSERT INTO Bookings (username, room_id, start_time, end_time, status) VALUES
 ('Nhat Minh Pham', 1, '2025-03-04 13:00:00', '2025-03-04 15:00:00', 'Requested'),
 ('Huu Tien Pham', 2, '2025-03-05 08:00:00', '2025-03-05 10:00:00', 'Confirmed');
 
-
--- kiểm tra vai trò của người phê duyệt
-DELIMITER //
-
-CREATE PROCEDURE ApproveRequest (
-    IN p_request_id BIGINT,
-    IN p_approver_username VARCHAR(64)
-)
-BEGIN
-    DECLARE v_department_id BIGINT;
-    DECLARE v_is_supervisor BOOLEAN;
-
-    -- Lấy department_id của yêu cầu
-    SELECT department_id INTO v_department_id
-    FROM Requests
-    WHERE request_id = p_request_id;
-
-    -- Kiểm tra vai trò của người phê duyệt
-    SELECT is_supervisor INTO v_is_supervisor
-    FROM Users
-    WHERE username = p_approver_username
-    AND department_id = v_department_id;
-
-    -- Nếu người phê duyệt là supervisor, cập nhật trạng thái yêu cầu
-    IF v_is_supervisor THEN
-        UPDATE Requests
-        SET request_status = 'Approved', approver_username = p_approver_username, approved_at = CURRENT_TIMESTAMP
-        WHERE request_id = p_request_id;
-    ELSE
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Người phê duyệt không có quyền phê duyệt yêu cầu này';
-    END IF;
-END //
-
-DELIMITER ;
-
-CALL ApproveRequest(1, 'Khac Khanh Bui');
-
--- Account Management (Users)
--- update
-UPDATE Users
-SET role_id = 2, status = 'Active'
-WHERE username = 'Khac Khanh Bui';
--- vô hiệu hóa tài khỏan
-UPDATE Users
-SET status = 'Inactive'
-WHERE username = 'Khac Khanh Bui';
-
--- Requests Management
--- create
-INSERT INTO Requests (username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time)
-VALUES ('Khac Khanh Bui', 1, 'Nghỉ phép có lương', 'Đi khám bệnh', 'Rejected', 'Minh Hao Pham', '2025-03-10 09:00:00', '2025-03-10 14:00:00');
--- cancel
-DELETE FROM Requests
-WHERE request_id = 1;
--- Query
-SELECT *
-FROM Requests
-WHERE start_time BETWEEN '2025-03-01 00:00:00' AND '2025-03-31 23:59:59';
-
-
--- Quản lý Đặt Phòng Họp
--- create
-INSERT INTO Bookings (username, room_id, start_time, end_time, status)
-VALUES ('Khac Khanh Bui', 1, '2025-03-15 10:00:00', '2025-03-15 12:00:00', 'Requested');
--- update
-UPDATE Bookings
-SET status = 'Requested'
-WHERE booking_id = 1;
--- delete
-DELETE FROM Bookings
-WHERE booking_id = 1;
--- Query booking schedule for specific time period
-SELECT *
-FROM Bookings
-WHERE start_time BETWEEN '2025-03-01 00:00:00' AND '2025-03-31 23:59:59';
