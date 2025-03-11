@@ -17,4 +17,13 @@ public class Page {
         return (pageNo * pageSize);
     }
 
+    public void validate() {
+        if (pageSize < 1) {
+            pageSize = 10; // Default value
+        }
+        if (pageNo < 0) {
+            pageNo = 0; // Default to the first page
+        }
+    }
+
 }

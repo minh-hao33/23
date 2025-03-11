@@ -1,9 +1,7 @@
 package com.example.hrms.biz.booking.service;
 
-import com.example.hrms.biz.booking.model.Booking;
-import com.example.hrms.biz.booking.repository.BookingMapper;
-import com.example.hrms.biz.main.booking.model.*;
-import com.example.hrms.biz.main.booking.repository.*;
+import com.example.hrms.biz.booking.model.*;
+import com.example.hrms.biz.booking.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

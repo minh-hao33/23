@@ -2,10 +2,11 @@ package com.example.hrms.biz.sample.repository;
 
 import com.example.hrms.biz.sample.model.Sample;
 import com.example.hrms.biz.sample.model.criteria.SampleCriteria;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
-//@Mapper
+@Mapper
 public interface SampleMapper {
 
     void insert(Sample sample);
