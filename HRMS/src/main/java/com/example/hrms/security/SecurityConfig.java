@@ -18,18 +18,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin((form) -> form
-                        .loginPage("/login")
-                        .permitAll()
-                )
-                .logout(LogoutConfigurer::permitAll
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().permitAll() // Allow all requests without authentication
                 );
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
