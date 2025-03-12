@@ -1,23 +1,28 @@
 package com.example.hrms.biz.booking.service;
 
 import com.example.hrms.biz.booking.model.Booking;
+import com.example.hrms.biz.booking.model.criteria.BookingCriteria;
+import com.example.hrms.biz.booking.model.dto.BookingDTO;
 import com.example.hrms.biz.booking.repository.BookingMapper;
-import com.example.hrms.biz.main.booking.model.*;
-import com.example.hrms.biz.main.booking.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class BookingService {
-    @Autowired
-    private BookingMapper bookingMapper;
 
-    public Booking getBookingById(Long bookingId) {
-        return bookingMapper.getBookingById(bookingId);
+    private final BookingMapper bookingMapper;
+
+    public BookingService(BookingMapper bookingMapper) {
+        this.bookingMapper = bookingMapper;
     }
 
-    public void insertBooking(Booking booking) {
-        bookingMapper.insertBooking(booking);
+    public Booking getBookingById(Long bookingId) {
+        return bookingMapper.selectById(bookingId);
+    }
+
+    public void insert(BookingDTO.Req req) {
+        Booking booking = req.toBooking();
+        bookingMapper.insert(booking);
     }
 
     public void updateBooking(Booking booking) {
@@ -26,5 +31,19 @@ public class BookingService {
 
     public void deleteBooking(Long bookingId) {
         bookingMapper.deleteBooking(bookingId);
+    }
+
+    public boolean isConflict(Booking booking) {
+        List<Booking> conflictingBookings = bookingMapper.findConflictingBookings(booking.getRoomId(), booking.getStartTime(), booking.getEndTime());
+        return !conflictingBookings.isEmpty();
+    }
+
+    public int count(BookingCriteria criteria) {
+        return bookingMapper.count(criteria);
+    }
+
+    public List<BookingDTO.Resp> list(BookingCriteria criteria) {
+        List<Booking> bookings = bookingMapper.select(criteria);
+        return bookings.stream().map(BookingDTO.Resp::toResponse).toList();
     }
 }

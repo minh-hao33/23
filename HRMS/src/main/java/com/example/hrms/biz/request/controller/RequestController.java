@@ -18,11 +18,13 @@ public class RequestController {
 
     @PostMapping
     public void insertRequest(@RequestBody Request request) {
+        System.out.println("Received request: " + request);
         requestService.insertRequest(request);
     }
 
     @PutMapping("/{id}")
     public void updateRequest(@PathVariable Long id, @RequestBody Request request) {
+        System.out.println("Received request: " + request);
         request.setRequestId(id);
         requestService.updateRequest(request);
     }
