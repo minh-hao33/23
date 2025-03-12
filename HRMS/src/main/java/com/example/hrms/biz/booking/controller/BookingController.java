@@ -2,8 +2,6 @@ package com.example.hrms.biz.booking.controller;
 
 import com.example.hrms.biz.booking.model.Booking;
 import com.example.hrms.biz.booking.service.BookingService;
-import com.example.hrms.biz.main.booking.model.*;
-import com.example.hrms.biz.main.booking.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
