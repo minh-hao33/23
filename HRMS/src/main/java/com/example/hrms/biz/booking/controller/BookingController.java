@@ -1,34 +1,16 @@
 package com.example.hrms.biz.booking.controller;
 
 import com.example.hrms.biz.booking.model.Booking;
-import com.example.hrms.biz.booking.service.BookingService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController
-@RequestMapping("/bookings")
+@Controller("/bookings")
 public class BookingController {
-    @Autowired
-    private BookingService bookingService;
 
-    @GetMapping("/{id}")
-    public Booking getBookingById(@PathVariable Long id) {
-        return bookingService.getBookingById(id);
-    }
-
-    @PostMapping
-    public void insertBooking(@RequestBody Booking booking) {
-        bookingService.insertBooking(booking);
-    }
-
-    @PutMapping("/{id}")
-    public void updateBooking(@PathVariable Long id, @RequestBody Booking booking) {
-        booking.setBookingId(id);
-        bookingService.updateBooking(booking);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteBooking(@PathVariable Long id) {
-        bookingService.deleteBooking(id);
+    @RequestMapping("")
+    public String openBookingView(Model model) {
+        model.addAttribute("booking", new Booking());
+        return "bookings";
     }
 }

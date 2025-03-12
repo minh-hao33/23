@@ -1,9 +1,13 @@
 spring:
     datasource:
         url: jdbc:mysql://prodserver:3306/HRMS
-        username: produser
-        password: prodpass
+        username: username
+        password: password
         driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.MySQL8Dialect
 mybatis:
     type-aliases-package: com.example.hrms.biz.main.booking.model,
                           com.example.hrms.biz.main.department.model,
