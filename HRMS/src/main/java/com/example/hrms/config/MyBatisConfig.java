@@ -1,4 +1,4 @@
-package com.example.hrms.biz.config;
+package com.example.hrms.config;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -20,7 +20,7 @@ public class MyBatisConfig {
     @Bean
     public MapperScannerConfigurer mapperScannerConfigurer() {
         MapperScannerConfigurer configurer = new MapperScannerConfigurer();
-        configurer.setBasePackage("com.example.hrms.repository");
+        configurer.setBasePackage("com.example.hrms.biz.booking.repository,com.example.hrms.biz.meetingroom.repository,com.example.hrms.biz.department.repository,com.example.hrms.biz.request.repository,com.example.hrms.biz.role.repository,com.example.hrms.biz.user.repository");
         return configurer;
     }
 }

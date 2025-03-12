@@ -1,7 +1,6 @@
 package com.example.hrms.biz.department.repository;
 
 import com.example.hrms.biz.department.model.Department;
-import com.example.hrms.biz.main.department.model.*;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
