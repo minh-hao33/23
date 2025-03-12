@@ -8,4 +8,9 @@ logging:
     level:
         root: DEBUG
 mybatis:
-    type-aliases-package: com.example.hrms.biz.booking.model,com.example.hrms.biz.department.model,com.example.hrms.biz.meetingroom.model,com.example.hrms.biz.request.model,com.example.hrms.biz.role.model,com.example.hrms.biz.user.model
+    type-aliases-package: com.example.hrms.biz.booking.model,
+                            com.example.hrms.biz.department.model,
+                            com.example.hrms.biz.meetingroom.model,
+                            com.example.hrms.biz.request.model,
+                            com.example.hrms.biz.role.model,
+                            com.example.hrms.biz.user.model

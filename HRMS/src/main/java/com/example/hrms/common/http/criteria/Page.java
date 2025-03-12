@@ -14,15 +14,15 @@ public class Page {
     private int total = 0;
 
     public int getOffset() {
-        return (pageNo * pageSize);
+        return (pageNo - 1) * pageSize;
     }
 
     public void validate() {
         if (pageSize < 1) {
             pageSize = 10; // Default value
         }
-        if (pageNo < 0) {
-            pageNo = 0; // Default to the first page
+        if (pageNo < 1) {
+            pageNo = 1; // Default to the first page
         }
     }
 
