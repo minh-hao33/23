@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface MeetingRoomMapper {
 
-    @Select("SELECT COUNT(*) FROM meeting_rooms")
+    @Select("SELECT COUNT(room_id) FROM meeting_rooms")
     int count(MeetingRoomCriteria criteria);
 
     @Select("SELECT room_id AS roomId, " +

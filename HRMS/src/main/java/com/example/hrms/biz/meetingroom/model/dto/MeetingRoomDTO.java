@@ -6,18 +6,12 @@ import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
 public class MeetingRoomDTO {
+    @Getter
+    @Setter
     public static class Req{
-        @Getter
-        @Setter
         private Long roomId;
-        @Getter
-        @Setter
         private String roomName;
-        @Getter
-        @Setter
         private String location;
-        @Getter
-        @Setter
         private Integer capacity;
 
         public MeetingRoom toMeetingRoom() {
@@ -26,21 +20,13 @@ public class MeetingRoomDTO {
             return meetingRoom;
         }
     }
-
+    @Getter
+    @Setter
     public static class Resp{
-        @Getter
-        @Setter
         private Long roomId;
-        @Getter
-        @Setter
         private String roomName;
-        @Getter
-        @Setter
         private String location;
-        @Getter
-        @Setter
         private Integer capacity;
-
         public static Resp toResponse(MeetingRoom meetingRoom) {
             Resp resp = new Resp();
             BeanUtils.copyProperties(meetingRoom, resp);

@@ -11,32 +11,6 @@ import java.util.List;
 
 @Service
 public class MeetingRoomService {
-//    @Autowired
-//    private MeetingRoomMapper meetingRoomMapper;
-//
-//    public List<MeetingRoomDTO.Resp> listMeetingRooms(MeetingRoomCriteria criteria) {
-//        List<MeetingRoom> rooms = meetingRoomMapper.getMeetingRooms(criteria);
-//        return rooms.stream()
-//                .map(MeetingRoomDTO.Resp::toResponse)
-//                .toList();
-//    }
-//
-//    public MeetingRoom getMeetingRoomById(Long roomId) {
-//        return meetingRoomMapper.getMeetingRoomById(roomId);
-//    }
-//
-//    public void insertMeetingRoom(MeetingRoom meetingRoom) {
-//        meetingRoomMapper.insertMeetingRoom(meetingRoom);
-//    }
-//
-//    public void updateMeetingRoom(MeetingRoom meetingRoom) {
-//        meetingRoomMapper.updateMeetingRoom(meetingRoom);
-//    }
-//
-//    public void deleteMeetingRoom(Long roomId) {
-//        meetingRoomMapper.deleteMeetingRoom(roomId);
-//    }
-
     private final MeetingRoomMapper mapper;
 
     public MeetingRoomService(MeetingRoomMapper mapper) {
