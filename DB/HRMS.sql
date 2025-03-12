@@ -130,3 +130,7 @@ INSERT INTO Bookings (username, room_id, start_time, end_time, status) VALUES
 ('Nhat Minh Pham', 1, '2025-03-04 13:00:00', '2025-03-04 15:00:00', 'Requested'),
 ('Huu Tien Pham', 2, '2025-03-05 08:00:00', '2025-03-05 10:00:00', 'Confirmed');
 
+select * from Bookings;
+select * from Requests;
+
+DELETE FROM bookings WHERE booking_id = 9;

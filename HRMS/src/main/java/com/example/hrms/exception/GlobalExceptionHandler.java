@@ -48,6 +48,12 @@ public class GlobalExceptionHandler {
     return new ResultData<>(Result.UNAUTHORIZED, ex.getMessage(), null);
   }
 
+  @ExceptionHandler(InvalidArgumentException.class)
+  @ResponseStatus(HttpStatus.OK)
+  public ResultData<?> handleInvalidArgument(InvalidArgumentException ex) {
+    return new ResultData<>(Result.PARAM_ERROR, ex.getMessage(), null);
+  }
+
   /**
    * Spring MVC
    *
