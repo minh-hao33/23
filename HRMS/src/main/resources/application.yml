@@ -1,6 +1,6 @@
 spring:
     profiles:
-        active: loc
+        active: @profile@
     application:
         name: HRMS
 mybatis:

@@ -1,5 +1,9 @@
 package com.example.hrms.biz.department.controller;
 
+import com.example.hrms.biz.department.model.Department;
+import com.example.hrms.biz.department.service.DepartmentService;
+import com.example.hrms.biz.main.department.model.*;
+import com.example.hrms.biz.main.department.service.*;
 import com.example.hrms.biz.department.model.*;
 import com.example.hrms.biz.department.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
