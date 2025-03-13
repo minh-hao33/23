@@ -1,28 +1,35 @@
 package com.example.hrms.biz.meetingroom.service;
 
 import com.example.hrms.biz.meetingroom.model.MeetingRoom;
+import com.example.hrms.biz.meetingroom.model.criteria.MeetingRoomCriteria;
+import com.example.hrms.biz.meetingroom.model.dto.MeetingRoomDTO;
 import com.example.hrms.biz.meetingroom.repository.MeetingRoomMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.hrms.common.http.criteria.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class MeetingRoomService {
-    @Autowired
-    private MeetingRoomMapper meetingRoomMapper;
+    private final MeetingRoomMapper mapper;
 
-    public MeetingRoom getMeetingRoomById(Long roomId) {
-        return meetingRoomMapper.getMeetingRoomById(roomId);
+    public MeetingRoomService(MeetingRoomMapper mapper) {
+        this.mapper = mapper;
     }
 
-    public void insertMeetingRoom(MeetingRoom meetingRoom) {
-        meetingRoomMapper.insertMeetingRoom(meetingRoom);
+    public int count(MeetingRoomCriteria criteria) {
+        return mapper.count(criteria);
     }
-
-    public void updateMeetingRoom(MeetingRoom meetingRoom) {
-        meetingRoomMapper.updateMeetingRoom(meetingRoom);
-    }
-
-    public void deleteMeetingRoom(Long roomId) {
-        meetingRoomMapper.deleteMeetingRoom(roomId);
+    public List<MeetingRoomDTO.Resp> list(Page page, MeetingRoomCriteria criteria) {
+        page.validate();
+        List<MeetingRoom> meetings = mapper.select(
+                page.getPageSize(),
+                page.getOffset(),
+                criteria.getRoomId(),
+                criteria.getRoomName(),
+                criteria.getLocation(),
+                criteria.getCapacity()
+        );
+        return meetings.stream().map(MeetingRoomDTO.Resp::toResponse).toList();
     }
 }

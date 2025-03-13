@@ -3,5 +3,8 @@ spring:
         active: "loc"
     application:
         name: HRMS
+mybatis:
+    configuration:
+        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 server:
     port: 8080

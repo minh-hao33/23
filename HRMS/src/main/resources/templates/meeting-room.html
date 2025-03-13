@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Room List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Meeting Room List</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Room ID</th>
+            <th>Room Name</th>
+            <th>Location</th>
+            <th>Capacity</th>
+        </tr>
+        </thead>
+        <tbody id="room-list">
+        <!-- Data rows will be inserted here -->
+        </tbody>
+    </table>
+</div>
+<script>
+    // Example JavaScript to dynamically populate room data
+    const rooms = [
+        { roomId: 1, roomName: "Conference Room A", location: "1st Floor", capacity: 10 },
+        { roomId: 2, roomName: "Meeting Room B", location: "2nd Floor", capacity: 20 },
+        { roomId: 3, roomName: "Board Room", location: "3rd Floor", capacity: 15 },
+    ];
+
+    const roomList = document.getElementById("room-list");
+
+    rooms.forEach(room => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+                <td>${room.roomId}</td>
+                <td>${room.roomName}</td>
+                <td>${room.location}</td>
+                <td>${room.capacity}</td>
+            `;
+        roomList.appendChild(row);
+    });
+</script>
+</body>
+</html>
