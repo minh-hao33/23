@@ -17,11 +17,12 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/bookings/**").permitAll()
+                        .requestMatchers("/meeting-room/**").permitAll()
                         .anyRequest().permitAll() // Allow all requests without authentication
                 );
         return http.build();
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
