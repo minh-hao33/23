@@ -6,10 +6,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 
-@Controller("/meeting-room")
+@Controller
+@RequestMapping("/meeting-room")
 public class MeetingRoomController {
     @RequestMapping("")
-    public String openSampleView(Model model) {
+    public String openMeetingView(Model model) {
         model.addAttribute("meeting-room", new MeetingRoom());
         return "meeting-room"; }
 }
