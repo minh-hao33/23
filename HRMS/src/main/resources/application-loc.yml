@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/HRMS
-    username: username
-    password: password
+    username: root
+    password: 039402
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     properties:
