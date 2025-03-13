@@ -5,6 +5,8 @@ import com.example.hrms.enumation.RequestStatusEnum;
 import com.example.hrms.enumation.RequestTypeEnum;
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
+
 @Mapper
 public interface RequestMapper {
     @Select("SELECT * FROM Requests WHERE request_id = #{requestId}")
@@ -13,7 +15,8 @@ public interface RequestMapper {
             @Result(property = "requestStatus", column = "request_status", javaType = RequestStatusEnum.class)
     })
     Request getRequestById(Long requestId);
-
+@Select("SELECT * FROM RequestMapper ")
+List<Request> getAllRequests();
     @Insert("INSERT INTO Requests(username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time, created_at, updated_at, approved_at) VALUES(#{username}, #{departmentId}, #{requestType}, #{requestReason}, #{requestStatus}, #{approverUsername}, #{startTime}, #{endTime}, #{createdAt}, #{updatedAt}, #{approvedAt})")
     void insertRequest(Request request);
 

@@ -1,8 +1,11 @@
 package com.example.hrms.common.http.model;
 
+import com.example.hrms.biz.user.model.User;
 import com.example.hrms.common.http.criteria.Page;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import java.util.List;
 
 @JsonSerialize
 public class ResultPageData<T> extends Result {
@@ -19,7 +22,7 @@ public class ResultPageData<T> extends Result {
 	@JsonProperty("data")
 	private T resultData;
 
-	public ResultPageData() {
+	public ResultPageData(Object status, int total, List<User> userList) {
 		super();
 	}
 

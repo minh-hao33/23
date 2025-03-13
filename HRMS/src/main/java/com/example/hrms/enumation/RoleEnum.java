@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum RoleEnum {
-    EMPLOYEE("employee"),
-    SUPERVISOR("supervisor"),
-    ADMIN("admin");
+    EMPLOYEE("EMPLOYEE"),
+    SUPERVISOR("SUPERVISOR"),
+    ADMIN("ADMIN");
 
     private final String value;
 
@@ -14,4 +14,12 @@ public enum RoleEnum {
         this.value = value;
     }
 
+    public static RoleEnum fromString(String value) {
+        for (RoleEnum role : values()) {
+            if (role.value.equalsIgnoreCase(value)) {
+                return role;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant for value: " + value);
+    }
 }

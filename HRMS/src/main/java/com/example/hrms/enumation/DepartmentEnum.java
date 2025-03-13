@@ -14,4 +14,8 @@ public enum DepartmentEnum {
         this.value = value;
     }
 
+    @Override
+    public String toString() {
+        return value; // Trả về giá trị tương ứng
+    }
 }
