@@ -1,17 +1,29 @@
 package com.example.hrms.biz.department.service;
 
 import com.example.hrms.biz.department.model.Department;
+import com.example.hrms.biz.department.model.criteria.DepartmentCriteria;
+import com.example.hrms.biz.department.model.dto.DepartmentDTO;
 import com.example.hrms.biz.department.repository.DepartmentMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class DepartmentService {
-    @Autowired
-    private DepartmentMapper departmentMapper;
+    private final DepartmentMapper departmentMapper;
 
-    public Department getDepartmentById(Long departmentId) {
-        return departmentMapper.getDepartmentById(departmentId);
+    public DepartmentService(DepartmentMapper departmentMapper) {
+        this.departmentMapper = departmentMapper;
+    }
+
+    public int count(DepartmentCriteria criteria) {
+        return departmentMapper.count(criteria);
+    }
+
+    public List<DepartmentDTO.Resp> list(DepartmentCriteria criteria) {
+        List<Department> departments = departmentMapper.select(criteria);
+        System.out.println("Departments: " + departments);
+        return departments.stream().map(DepartmentDTO.Resp::toResponse).toList();
     }
 
     public void insertDepartment(Department department) {

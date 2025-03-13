@@ -1,7 +1,6 @@
 CREATE DATABASE HRMS;
 
 USE HRMS;
-
 -- 1. TẠO CÁC BẢNG DỮ LIỆU
 -- ==============================================
 -- Bảng Quản lý Vai Trò (Roles)
@@ -99,7 +98,7 @@ INSERT INTO Departments (department_name, role_id) VALUES
 ('HR', 1),
 ('Finance', 2),
 ('IT', 3);
-
+select*from Departments;
 -- Chèn dữ liệu vào bảng Users với mật khẩu đã mã hóa
 INSERT INTO Users (username, password, role, department_id, is_supervisor, status) VALUES -- 123456
 ('Trung Du Nguyen', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 1, 1, FALSE, 'Active'),
