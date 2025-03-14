@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Phòng Ban</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+        th:first-child, td:first-child {
+            width: 50px; /* Điều chỉnh độ rộng nếu cần */
+        }
+        /* Kiểu dáng cho modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            -top: 60px;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 40%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover{
+            text-decoration: none;
+            cursor: pointer;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #888;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #888;
+        }
+        /* Kiểu dáng cho thanh tìm kiếm */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .search-container input[type="text"] {
+            width: 300px;
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            border-radius: 50px;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .search-container input[type="text"]:focus {
+            border-color: #888;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            outline: none;
+        }
+        /* Cách bảng 10px */
+        #addDepartmentBtn {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Thông Tin Phòng Ban</h1>
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Tìm kiếm...">
+</div>
+<button id="addDepartmentBtn">Thêm Phòng Ban</button>
+<table id="departmentTable">
+    <thead>
+    <tr>
+        <th>STT</th>
+        <th>Tên Phòng Ban</th>
+        <th>Tên Nhân Viên</th>
+        <th>Vai Trò</th>
+        <th>Hành Động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Dữ liệu sẽ được chèn vào đây bằng JavaScript -->
+    </tbody>
+</table>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalTitle">Thêm Phòng Ban Mới</h2>
+        <form id="addDepartmentForm">
+            <label for="departmentName">Tên Phòng Ban:</label>
+            <input type="text" id="departmentName" name="departmentName">
+            <label for="userName">Tên Nhân Viên:</label>
+            <input type="text" id="userName" name="userName">
+            <label for="roleName">Vai Trò:</label>
+            <input type="text" id="roleName" name="roleName">
+            <input type="submit" value="Thêm Phòng Ban">
+        </form>
+    </div>
+</div>
+
+<script>
+    let editIndex = null;
+
+    // Hàm để điền dữ liệu vào bảng
+    function populateTable(data) {
+        const tableBody = document.getElementById('departmentTable').getElementsByTagName('tbody')[0];
+        tableBody.innerHTML = ''; // Xóa các hàng hiện có
+        data.forEach((department, index) => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = index + 1; // Số thứ tự
+            row.insertCell(1).textContent = department.departmentName;
+            row.insertCell(2).textContent = department.userName;
+            row.insertCell(3).textContent = department.roleName;
+            const actionCell = row.insertCell(4);
+            actionCell.innerHTML = `
+            <button onclick="editDepartment(${index}, '${department.departmentName}', '${department.userName}', '${department.roleName}')">✏️</button>
+            <button onclick="deleteDepartment(${index})">🗑️</button>
+        `;
+        });
+    }
+
+    // Lấy dữ liệu từ API backend
+    async function fetchData() {
+        try {
+            const response = await fetch('/api/v1/departments/all'); // Điều chỉnh URL để phù hợp với endpoint API của bạn
+            const data = await response.json();
+            populateTable(data);
+        } catch (error) {
+            console.error('Lỗi khi lấy dữ liệu:', error);
+        }
+    }
+
+    // Hàm xử lý khi nhấn nút Thêm Phòng Ban
+    function addDepartment() {
+        editIndex = null;
+        document.getElementById('modalTitle').textContent = 'Thêm Phòng Ban Mới';
+        document.getElementById('departmentName').value = '';
+        document.getElementById('userName').value = '';
+        document.getElementById('roleName').value = '';
+        document.getElementById('addDepartmentForm').querySelector('input[type="submit"]').value = 'Thêm Phòng Ban';
+        const modal = document.getElementById('myModal');
+        modal.style.display = 'block';
+    }
+
+    // Hàm xử lý khi gửi biểu mẫu
+    document.getElementById('addDepartmentForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const departmentName = document.getElementById('departmentName').value;
+        const userName = document.getElementById('userName').value;
+        const roleName = document.getElementById('roleName').value;
+
+        if (editIndex !== null) {
+            // Logic để cập nhật phòng ban (ví dụ: gửi dữ liệu cập nhật đến backend)
+            console.log('Cập nhật Phòng Ban:', { departmentName, userName, roleName });
+        } else {
+            // Logic để thêm phòng ban mới (ví dụ: gửi dữ liệu đến backend)
+            console.log('Phòng Ban Mới:', { departmentName, userName, roleName });
+        }
+
+        // Đóng modal
+        document.getElementById('myModal').style.display = 'none';
+    });
+
+    // Đóng modal khi người dùng nhấn vào <span> (x)
+    document.getElementsByClassName('close')[0].onclick = function() {
+        document.getElementById('myModal').style.display = 'none';
+    }
+
+    // Đóng modal khi người dùng nhấn vào bất kỳ đâu bên ngoài modal
+    window.onclick = function(event) {
+        const modal = document.getElementById('myModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Thêm sự kiện lắng nghe cho nút Thêm Phòng Ban
+    document.getElementById('addDepartmentBtn').addEventListener('click', addDepartment);
+
+    // Điền dữ liệu vào bảng khi tải trang
+    document.addEventListener('DOMContentLoaded', fetchData);
+
+    // Hàm để tìm kiếm trong bảng
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.getElementById('departmentTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        Array.from(rows).forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            const match = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(filter));
+            row.style.display = match ? '' : 'none';
+        });
+    });
+
+    // Hàm để sửa phòng ban
+    function editDepartment(index, departmentName, userName, roleName) {
+        editIndex = index;
+        document.getElementById('modalTitle').textContent = 'Sửa Phòng Ban';
+        document.getElementById('departmentName').value = departmentName;
+        document.getElementById('userName').value = userName;
+        document.getElementById('roleName').value = roleName;
+        document.getElementById('addDepartmentForm').querySelector('input[type="submit"]').value = 'Cập Nhật Phòng Ban';
+        const modal = document.getElementById('myModal');
+        modal.style.display = 'block';
+    }
+
+    // Hàm để xoá phòng ban
+    function deleteDepartment(index) {
+        // Logic để xoá phòng ban (ví dụ: gửi yêu cầu xoá đến backend)
+        console.log('Xoá phòng ban:', index);
+    }
+</script>
+</body>
+</html>

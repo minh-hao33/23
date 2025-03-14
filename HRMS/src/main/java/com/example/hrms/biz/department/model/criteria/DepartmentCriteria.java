@@ -10,12 +10,16 @@ public class DepartmentCriteria extends Page {
     private Long departmentId;
     private String departmentName;
     private Long roleId;
+    private String roleName;
+    private String userName; // Add this field
 
     public DepartmentCriteria() {}
 
-    public DepartmentCriteria(Long departmentId, String departmentName, Long roleId, String roleName) {
+    public DepartmentCriteria(Long departmentId, String departmentName, Long roleId, String roleName, String userName) {
         this.departmentId = departmentId;
         this.departmentName = departmentName;
         this.roleId = roleId;
+        this.roleName = roleName;
+        this.userName = userName; // Add this field
     }
 }

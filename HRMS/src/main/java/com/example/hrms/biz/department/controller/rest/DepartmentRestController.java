@@ -12,9 +12,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.web.bind.annotation.*;
-
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,13 +48,13 @@ public class DepartmentRestController {
         return response;
     }
 
-    @Operation(summary = "Get department by ID")
+    @Operation(summary = "Get all departments")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get success",
                     content = @Content) })
-    @GetMapping("/{id}")
-    public Department getDepartmentById(@PathVariable Long id) {
-        return departmentService.getDepartmentById(id);
+    @GetMapping("/all")
+    public List<Department> getAllDepartments() {
+        return departmentService.getAllDepartments();
     }
 
     @Operation(summary = "Create department")

@@ -13,6 +13,7 @@ public class DepartmentDTO {
         private String departmentName;
         private Long roleId;
         private String roleName;
+        private String userName; // Add this field
 
         public Department toDepartment() {
             Department department = new Department();
@@ -28,6 +29,7 @@ public class DepartmentDTO {
         private String departmentName;
         private Long roleId;
         private String roleName;
+        private String userName; // Add this field
 
         public static Resp toResponse(Department department) {
             Resp resp = new Resp();
