@@ -2,13 +2,15 @@ package com.example.hrms.biz.department.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Controller("/departments")
+@Controller
+@RequestMapping("/departments")
 public class DepartmentController {
 
-    @RequestMapping("")
+    @GetMapping("")
     public String openDepartmentView(Model model) {
-        return "department";
+        return "department"; // Ensure this matches the name of your HTML file
     }
 }

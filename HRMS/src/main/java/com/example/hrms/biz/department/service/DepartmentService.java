@@ -17,10 +17,6 @@ public class DepartmentService {
         this.departmentMapper = departmentMapper;
     }
 
-    public Department getDepartmentById(Long departmentId) {
-        return departmentMapper.selectById(departmentId);
-    }
-
     public void insert(DepartmentDTO.Req req) {
         Department department = req.toDepartment();
         departmentMapper.insertDepartment(department);
@@ -40,7 +36,11 @@ public class DepartmentService {
     }
 
     public List<DepartmentDTO.Resp> list(DepartmentCriteria criteria) {
-        List<Department> departments = departmentMapper.select(criteria);
+        List<Department> departments = departmentMapper.selectAll();
         return departments.stream().map(DepartmentDTO.Resp::toResponse).toList();
+    }
+
+    public List<Department> getAllDepartments() {
+        return departmentMapper.selectAll();
     }
 }
