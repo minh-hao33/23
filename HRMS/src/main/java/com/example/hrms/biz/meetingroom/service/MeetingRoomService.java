@@ -5,10 +5,12 @@ import com.example.hrms.biz.meetingroom.model.criteria.MeetingRoomCriteria;
 import com.example.hrms.biz.meetingroom.model.dto.MeetingRoomDTO;
 import com.example.hrms.biz.meetingroom.repository.MeetingRoomMapper;
 import com.example.hrms.common.http.criteria.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class MeetingRoomService {
     private final MeetingRoomMapper mapper;
@@ -18,18 +20,30 @@ public class MeetingRoomService {
     }
 
     public int count(MeetingRoomCriteria criteria) {
+        log.info("Counting meeting rooms with criteria: {}", criteria);
         return mapper.count(criteria);
     }
-    public List<MeetingRoomDTO.Resp> list(Page page, MeetingRoomCriteria criteria) {
+    public List<MeetingRoomDTO.Resp> list(Page page, MeetingRoomCriteria mCriteria) {
         page.validate();
-        List<MeetingRoom> meetings = mapper.select(
-                page.getPageSize(),
-                page.getOffset(),
-                criteria.getRoomId(),
-                criteria.getRoomName(),
-                criteria.getLocation(),
-                criteria.getCapacity()
-        );
-        return meetings.stream().map(MeetingRoomDTO.Resp::toResponse).toList();
+        log.info("Fetching meeting room list with criteria: {}", mCriteria);
+        try {
+            List<MeetingRoom> meetings = mapper.select(
+                    page.getPageSize(),
+                    page.getOffset(),
+                    mCriteria.getRoomId(),
+                    mCriteria.getRoomName(),
+                    mCriteria.getLocation(),
+                    mCriteria.getCapacity(),
+                    mCriteria.getUsername(),
+                    mCriteria.getStartTime(),
+                    mCriteria.getEndTime(),
+                    mCriteria.getStatus()
+            );
+            log.info("Number of meeting rooms fetched: {}", meetings.size());
+            return meetings.stream().map(MeetingRoomDTO.Resp::toResponse).toList();
+        } catch (Exception e) {
+            log.error("Error fetching meeting room list", e);
+            throw new RuntimeException("Could not fetch meeting room list, please try again later.");
+        }
     }
 }
