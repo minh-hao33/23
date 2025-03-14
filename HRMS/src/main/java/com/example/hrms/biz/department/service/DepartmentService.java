@@ -10,23 +10,19 @@ import java.util.List;
 
 @Service
 public class DepartmentService {
+
     private final DepartmentMapper departmentMapper;
 
     public DepartmentService(DepartmentMapper departmentMapper) {
         this.departmentMapper = departmentMapper;
     }
 
-    public int count(DepartmentCriteria criteria) {
-        return departmentMapper.count(criteria);
+    public Department getDepartmentById(Long departmentId) {
+        return departmentMapper.selectById(departmentId);
     }
 
-    public List<DepartmentDTO.Resp> list(DepartmentCriteria criteria) {
-        List<Department> departments = departmentMapper.select(criteria);
-        System.out.println("Departments: " + departments);
-        return departments.stream().map(DepartmentDTO.Resp::toResponse).toList();
-    }
-
-    public void insertDepartment(Department department) {
+    public void insert(DepartmentDTO.Req req) {
+        Department department = req.toDepartment();
         departmentMapper.insertDepartment(department);
     }
 
@@ -35,6 +31,16 @@ public class DepartmentService {
     }
 
     public void deleteDepartment(Long departmentId) {
+        departmentMapper.deleteUsersByDepartmentId(departmentId);
         departmentMapper.deleteDepartment(departmentId);
+    }
+
+    public int count(DepartmentCriteria criteria) {
+        return departmentMapper.count(criteria);
+    }
+
+    public List<DepartmentDTO.Resp> list(DepartmentCriteria criteria) {
+        List<Department> departments = departmentMapper.select(criteria);
+        return departments.stream().map(DepartmentDTO.Resp::toResponse).toList();
     }
 }
