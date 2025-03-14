@@ -1,5 +1,6 @@
 package com.example.hrms.biz.meetingroom.controller.rest;
 
+import com.example.hrms.biz.booking.model.criteria.BookingCriteria;
 import com.example.hrms.biz.meetingroom.model.criteria.MeetingRoomCriteria;
 import com.example.hrms.biz.meetingroom.model.dto.MeetingRoomDTO;
 import com.example.hrms.biz.meetingroom.service.MeetingRoomService;
@@ -39,11 +40,11 @@ public class MeetingRoomRestController {
             @ApiResponse(responseCode = "400", description = "Invalid request",
                     content = @Content)})
     @GetMapping("")
-    public ResultPageData<List<MeetingRoomDTO.Resp>> list(Page page, MeetingRoomCriteria criteria) {
-        int total = meetingRoomService.count(criteria);
-        ResultPageData<List<MeetingRoomDTO.Resp>> response = new ResultPageData<>(criteria, total);
+    public ResultPageData<List<MeetingRoomDTO.Resp>> list(Page page, MeetingRoomCriteria mCriteria) {
+        int total = meetingRoomService.count(mCriteria);
+        ResultPageData<List<MeetingRoomDTO.Resp>> response = new ResultPageData<>(mCriteria, total);
         if (total > 0) {
-            response.setResultData(meetingRoomService.list(page, criteria));
+            response.setResultData(meetingRoomService.list(page, mCriteria));
         } else {
             response.setResultData(Collections.emptyList());
         }

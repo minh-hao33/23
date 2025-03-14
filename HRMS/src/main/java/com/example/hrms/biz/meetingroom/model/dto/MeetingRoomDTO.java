@@ -1,36 +1,48 @@
 package com.example.hrms.biz.meetingroom.model.dto;
 
 import com.example.hrms.biz.meetingroom.model.MeetingRoom;
+import com.example.hrms.enumation.BookingStatusEnum;
+import com.example.hrms.utils.MeetingRoomUtils;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.BeanUtils;
 
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
 public class MeetingRoomDTO {
-    @Getter
-    @Setter
-    public static class Req{
+
+    public static class Req {
         private Long roomId;
         private String roomName;
         private String location;
         private Integer capacity;
+        private String username;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+        private BookingStatusEnum status;
 
+        // Convert to MeetingRoom using Utils
         public MeetingRoom toMeetingRoom() {
-            MeetingRoom meetingRoom = new MeetingRoom();
-            BeanUtils.copyProperties(this, meetingRoom);
-            return meetingRoom;
+            return MeetingRoomUtils.toMeetingRoom(this);
         }
     }
+
     @Getter
     @Setter
-    public static class Resp{
+    public static class Resp {
         private Long roomId;
         private String roomName;
         private String location;
         private Integer capacity;
+        private String username;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+        private BookingStatusEnum status;
+
+        // Convert from MeetingRoom using Utils
         public static Resp toResponse(MeetingRoom meetingRoom) {
-            Resp resp = new Resp();
-            BeanUtils.copyProperties(meetingRoom, resp);
-            return resp;
+            return MeetingRoomUtils.toResponse(meetingRoom);
         }
     }
 }
