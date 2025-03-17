@@ -1,6 +1,7 @@
 package com.example.hrms.biz.user.controller.rest;
 
 import com.example.hrms.biz.user.model.User;
+import com.example.hrms.biz.user.model.criteria.UserCriteria;
 import com.example.hrms.biz.user.model.dto.UserDTO;
 import com.example.hrms.biz.user.service.UserService;
 import com.example.hrms.common.http.model.Result;
@@ -11,19 +12,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
-
+import java.util.Collections;
 import java.util.List;
 
 @Tag(name = "User API v1")
 @RestController
-@RequestMapping("/api/v1/users/rest")
+@RequestMapping("/api/v1/users")
 public class UserRestController {
 
     private final UserService userService;
-
 
     public UserRestController(UserService userService) {
         this.userService = userService;
@@ -33,36 +33,130 @@ public class UserRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get success",
                     content = { @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = UserDTO.Resp.class)))
-                    }),
+                            array = @ArraySchema(schema = @Schema(implementation = UserDTO.Resp.class))) }),
             @ApiResponse(responseCode = "400", description = "Invalid request",
-                    content = @Content)})
-    @GetMapping("/list")
-    public ResultPageData<List<UserDTO.Resp>> listUsers(@RequestParam(required = false) List<Long> departmentIds,
-                                                        @RequestParam(required = false) List<String> roles) {
-        List<User> userList = userService.searchUsers(departmentIds, roles);
-        int total = userList.size();
-        return new ResultPageData<>(null, total, userList);
+                    content = @Content) })
+    @GetMapping("")
+    public ResultPageData<List<UserDTO.Resp>> list(UserCriteria criteria) {
+        int total = userService.count(criteria);
+        ResultPageData<List<UserDTO.Resp>> response = new ResultPageData<>(criteria, total);
+        if (total > 0) {
+            response.setResultData(userService.list(criteria));
+        } else {
+            response.setResultData(Collections.emptyList());
+        }
+        return response;
+    }
+
+    @Operation(summary = "Get all users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get success",
+                    content = @Content) })
+    @GetMapping("/all")
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
     }
 
     @Operation(summary = "Create user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "User created successfully",
+            @ApiResponse(responseCode = "201", description = "User created",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Result.class)) }),
+            @ApiResponse(responseCode = "409", description = "Conflict",
+                    content = @Content) })
+    @PostMapping("")
+    public Result createUser(@RequestBody UserDTO.Req userReq) {
+        User user = userReq.toUser();
+        userService.insertUser(user);
+        return new Result("Success", "User created successfully.");
+    }
+
+    @Operation(summary = "Update user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User updated",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Result.class)) }),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content) })
+    @PutMapping("/{username}")
+    public Result updateUser(@PathVariable String username, @RequestBody UserDTO.Req userReq) {
+        User user = userReq.toUser();
+        user.setUsername(username);
+        userService.updateUser(user);
+        return new Result("Success", "User updated successfully.");
+    }
+
+    @Operation(summary = "Delete user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User deleted",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Result.class)) }),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content) })
+    @DeleteMapping("/{username}")
+    public Result deleteUser(@PathVariable String username) {
+        userService.deleteUser(username);
+        return new Result("Success", "User deleted successfully.");
+    }
+    @GetMapping("/getUserByUsername/{username}")
+    public User getUserByUsername(@PathVariable String username) {
+        User user = userService.getUserByUsername(username);
+        return user != null ? user : null;
+    }
+    @Operation(summary = "Get departments and roles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get success",
+                    content = { @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = UserDTO.DepartmentAndRole.class))) }),
+            @ApiResponse(responseCode = "400", description = "Invalid request",
+                    content = @Content) })
+    @GetMapping("/departments-and-roles")
+    public List<UserDTO.DepartmentAndRole> getDepartmentsAndRoles() {
+        return userService.getDepartmentsAndRoles();
+    }
+    @Operation(summary = "Create account")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Account created",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Result.class)) }),
             @ApiResponse(responseCode = "400", description = "Invalid request",
-                    content = @Content)})
-    @PostMapping("/create")
-    public Result createUser(@RequestBody UserDTO.Req req) {
-        User user = new User();
-        user.setUsername(req.getUsername());
-        user.setPassword(req.getPassword());
-        user.setDepartmentId(req.getDepartmentId());
-        user.setRole(req.getRole());
-        user.setIsSupervisor(req.isSupervisor());
-        user.setStatus(req.getStatus());
+                    content = @Content),
+            @ApiResponse(responseCode = "409", description = "Conflict",
+                    content = @Content) })
+    @PostMapping("/create-account")
+    public Result createAccount(@RequestBody UserDTO.Req userReq) {
+        // Kiểm tra tính hợp lệ của username
+        if (userService.getUserByUsername(userReq.getUsername()) != null) {
+            return new Result("Conflict", "Username already exists.");
+        }
 
+        // Kiểm tra độ dài của tên nhân viên
+        if (userReq.getUsername().length() > 50) {
+            return new Result("Invalid request", "Tên nhân viên không được vượt quá 50 ký tự.");
+        }
+
+        // Tạo email dựa trên username
+        String email = userReq.getUsername() + "@cmcglobal.com.vn";
+        userReq.setEmail(email);
+
+        // Kiểm tra độ dài và tính hợp lệ của mật khẩu
+        if (!isValidPassword(userReq.getPassword())) {
+            return new Result("Invalid request", "Mật khẩu phải dài ít nhất 10 ký tự và bao gồm chữ hoa, chữ thường và ít nhất một ký tự đặc biệt.");
+        }
+
+        // Tạo đối tượng User từ UserDTO.Req
+        User user = userReq.toUser();
         userService.insertUser(user);
-        return new Result();
+        return new Result("Success", "Account created successfully.");
+    }
+
+    private boolean isValidPassword(String password) {
+        if (password.length() < 10) {
+            return false;
+        }
+        boolean hasUppercase = !password.equals(password.toLowerCase());
+        boolean hasLowercase = !password.equals(password.toUpperCase());
+        boolean hasSpecial = password.matches(".*[^a-zA-Z0-9].*");
+        return hasUppercase && hasLowercase && hasSpecial;
     }
 }
