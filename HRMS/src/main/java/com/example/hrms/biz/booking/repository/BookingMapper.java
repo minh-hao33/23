@@ -13,16 +13,35 @@ public interface BookingMapper {
     @Insert("INSERT INTO bookings (booking_id, username, room_id, start_time, end_time, status) VALUES (#{bookingId}, #{username}, #{roomId}, #{startTime}, #{endTime}, #{status})")
     void insert(Booking booking);
 
-    Booking selectById(long id);
+    @Select("SELECT booking_id, username, room_id, start_time, end_time, status FROM bookings WHERE booking_id = #{bookingId}")
+    @Results({
+            @Result(property = "bookingId", column = "booking_id"),
+            @Result(property = "username", column = "username"),
+            @Result(property = "roomId", column = "room_id"),
+            @Result(property = "startTime", column = "start_time"),
+            @Result(property = "endTime", column = "end_time"),
+            @Result(property = "status", column = "status")
+    })
+    Booking selectById(@Param("bookingId") long bookingId);
 
     int count(BookingCriteria criteria);
 
     List<Booking> select(BookingCriteria criteria);
 
-    @Select("SELECT * FROM bookings WHERE room_id = #{roomId} AND ((start_time < #{endTime} AND end_time > #{startTime}))")
+    @Select("SELECT booking_id, username, room_id, start_time, end_time, status FROM bookings WHERE room_id = #{roomId} AND ((start_time < #{endTime} AND end_time > #{startTime}))")
+    @Results({
+            @Result(property = "bookingId", column = "booking_id"),
+            @Result(property = "username", column = "username"),
+            @Result(property = "roomId", column = "room_id"),
+            @Result(property = "startTime", column = "start_time"),
+            @Result(property = "endTime", column = "end_time"),
+            @Result(property = "status", column = "status")
+    })
     List<Booking> findConflictingBookings(@Param("roomId") Long roomId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
+    @Update("UPDATE bookings SET username = #{username}, room_id = #{roomId}, start_time = #{startTime}, end_time = #{endTime}, status = #{status} WHERE booking_id = #{bookingId}")
     void updateBooking(Booking booking);
 
-    void deleteBooking(Long bookingId);
+    @Delete("DELETE FROM bookings WHERE booking_id = #{bookingId}")
+    void deleteBooking(@Param("bookingId") Long bookingId);
 }

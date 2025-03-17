@@ -6,10 +6,10 @@ spring:
     username: root
     password: Cmcuni@2025
     driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+#  jpa:
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL8Dialect
 mybatis:
     type-aliases-package: com.example.hrms.biz.booking.model,
         com.example.hrms.biz.department.model,
