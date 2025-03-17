@@ -11,7 +11,10 @@ public class User {
     private RoleEnum role;
     private boolean isSupervisor;
     private String status;
+    private String email;
 
-    public void setIsSupervisor(boolean supervisor) {
+    public void setSupervisor(boolean isSupervisor) {
+        this.isSupervisor = isSupervisor;
     }
+
 }
