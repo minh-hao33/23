@@ -8,7 +8,6 @@ import lombok.*;
 public class Department {
     private Long departmentId;
     private String departmentName;
-    private Long roleId;
     private String roleName;
     private String userName; // Add this field
 }
