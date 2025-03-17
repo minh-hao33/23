@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Tag(name = "Department API v1")
 @RestController
@@ -36,25 +37,33 @@ public class DepartmentRestController {
                             array = @ArraySchema(schema = @Schema(implementation = DepartmentDTO.Resp.class))) }),
             @ApiResponse(responseCode = "400", description = "Invalid request",
                     content = @Content) })
+
     @GetMapping("")
     public ResultPageData<List<DepartmentDTO.Resp>> list(DepartmentCriteria criteria) {
         int total = departmentService.count(criteria);
         ResultPageData<List<DepartmentDTO.Resp>> response = new ResultPageData<>(criteria, total);
-        if (total > 0) {
-            response.setResultData(departmentService.list(criteria));
-        } else {
-            response.setResultData(Collections.emptyList());
-        }
+        response.setResultData(total > 0 ? departmentService.list(criteria) : Collections.emptyList());
         return response;
     }
 
     @Operation(summary = "Get all departments")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get success",
-                    content = @Content) })
     @GetMapping("/all")
     public List<Department> getAllDepartments() {
         return departmentService.getAllDepartments();
+    }
+
+    @Operation(summary = "Get department by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Department not found")
+    })
+    @GetMapping("/{id}")
+    public List<Department> getDepartmentById(@PathVariable Long id) {
+        List<Department> departments = departmentService.findById(id);
+        if (departments.isEmpty()) {
+            throw new RuntimeException("Department not found");
+        }
+        return departments;
     }
 
     @Operation(summary = "Create department")
@@ -66,10 +75,10 @@ public class DepartmentRestController {
                     content = @Content) })
     @PostMapping("")
     public Result createDepartment(@RequestBody DepartmentDTO.Req departmentReq) {
-        Department department = departmentReq.toDepartment();
         departmentService.insert(departmentReq);
         return new Result("Success", "Department created successfully.");
     }
+
 
     @Operation(summary = "Update department")
     @ApiResponses(value = {
@@ -78,13 +87,13 @@ public class DepartmentRestController {
                             schema = @Schema(implementation = Result.class)) }),
             @ApiResponse(responseCode = "404", description = "Department not found",
                     content = @Content) })
+
     @PutMapping("/{id}")
     public Result updateDepartment(@PathVariable Long id, @RequestBody DepartmentDTO.Req departmentReq) {
-        Department department = departmentReq.toDepartment();
-        department.setDepartmentId(id);
-        departmentService.updateDepartment(department);
+        departmentService.updateDepartment(id, departmentReq);
         return new Result("Success", "Department updated successfully.");
     }
+
 
     @Operation(summary = "Delete department")
     @ApiResponses(value = {
@@ -93,6 +102,7 @@ public class DepartmentRestController {
                             schema = @Schema(implementation = Result.class)) }),
             @ApiResponse(responseCode = "404", description = "Department not found",
                     content = @Content) })
+
     @DeleteMapping("/{id}")
     public Result deleteDepartment(@PathVariable Long id) {
         departmentService.deleteDepartment(id);

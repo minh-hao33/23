@@ -14,10 +14,7 @@ CREATE TABLE Roles (
 CREATE TABLE Departments (
     department_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     department_name VARCHAR(128) NOT NULL UNIQUE,
-    role_id BIGINT NOT NULL,
-    FOREIGN KEY (role_id) REFERENCES Roles(role_id),
-    INDEX (department_name),
-    INDEX (role_id)
+    INDEX (department_name)
 );
 
 -- Bảng Quản lý Người Dùng (Users)

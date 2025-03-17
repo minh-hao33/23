@@ -11,7 +11,6 @@ public class DepartmentDTO {
     public static class Req {
         private Long departmentId;
         private String departmentName;
-        private Long roleId;
         private String roleName;
         private String userName; // Add this field
 
@@ -27,7 +26,6 @@ public class DepartmentDTO {
     public static class Resp {
         private Long departmentId;
         private String departmentName;
-        private Long roleId;
         private String roleName;
         private String userName; // Add this field
 
