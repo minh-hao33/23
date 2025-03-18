@@ -20,7 +20,7 @@ public interface DepartmentMapper {
     int countUserInDepartment(@Param("userName") String userName, @Param("departmentId") Long departmentId);
 
     @Insert("""
-    INSERT INTO Users (username, password, department_id, role, is_supervisor, status) 
+    INSERT INTO Users (username, password, department_id, role_name, is_supervisor, status) 
     VALUES (#{userName}, 'default_password', #{departmentId}, 
             (SELECT role_id FROM Roles WHERE role_name = #{roleName} LIMIT 1), false, 'ACTIVE');
 """)
@@ -35,7 +35,7 @@ public interface DepartmentMapper {
            u.username AS userName
     FROM Departments d
     JOIN Users u ON d.department_id = u.department_id
-    JOIN Roles r ON u.role = r.role_id
+    JOIN Roles r ON u.role_name = r.role_id
     WHERE d.department_id = #{id}
     ORDER BY r.role_name ASC
 """)
@@ -49,7 +49,7 @@ public interface DepartmentMapper {
                r.role_name AS roleName
         FROM Users u
         JOIN Departments d ON u.department_id = d.department_id
-        JOIN Roles r ON u.role = r.role_id
+        JOIN Roles r ON u.role_name = r.role_id
         WHERE 1=1
         <if test='departmentId != null'> 
             AND d.department_id = #{departmentId} 

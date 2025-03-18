@@ -1,6 +1,7 @@
 CREATE DATABASE HRMS;
 
 USE HRMS;
+
 -- 1. TẠO CÁC BẢNG DỮ LIỆU
 -- ==============================================
 -- Bảng Quản lý Vai Trò (Roles)
@@ -21,14 +22,16 @@ CREATE TABLE Departments (
 CREATE TABLE Users (
     username VARCHAR(64) PRIMARY KEY,
     password VARCHAR(256) NOT NULL, 
+    email VARCHAR(128) NOT NULL UNIQUE,
     department_id BIGINT,
-    role VARCHAR(64) NOT NULL,
+    role_name VARCHAR(64) NOT NULL,
     is_supervisor BOOLEAN DEFAULT FALSE,
     status VARCHAR(64) NOT NULL,
     FOREIGN KEY (department_id) REFERENCES Departments(department_id),
+    FOREIGN KEY (role_name) REFERENCES Roles(role_name),
     UNIQUE (username),
     INDEX (department_id),
-    INDEX (role),
+    INDEX (role_name),
     INDEX (status)
 );
 
@@ -70,6 +73,8 @@ CREATE TABLE Bookings (
     booking_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(64) NOT NULL,
     room_id BIGINT NOT NULL,
+    title VARCHAR(128) NOT NULL,
+    attendees VARCHAR(255) NOT NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,
     status VARCHAR(64) DEFAULT 'Requested',
@@ -86,23 +91,23 @@ CREATE TABLE Bookings (
 -- ==============================================
 -- Chèn dữ liệu vào bảng Roles
 INSERT INTO Roles (role_name) VALUES
-('employee'),
-('supervisor'),
-('admin');
+('EMPLOYEE'),
+('SUPERVISOR'),
+('ADMIN');
 
 -- Chèn dữ liệu vào bảng Departments
-INSERT INTO Departments (department_name, role_id) VALUES
-('HR', 1),
-('Finance', 2),
-('IT', 3);
-select*from Departments;
+INSERT INTO Departments (department_name) VALUES
+('HR'),
+('Finance'),
+('IT');
+
 -- Chèn dữ liệu vào bảng Users với mật khẩu đã mã hóa
-INSERT INTO Users (username, password, role, department_id, is_supervisor, status) VALUES -- 123456
-('Trung Du Nguyen', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 1, 1, FALSE, 'Active'),
-('Minh Hao Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 2, 1, TRUE, 'Active'),
-('Khac Khanh Bui', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 3, 2, TRUE, 'Active'),
-('Nhat Minh Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 1, 3, FALSE, 'Inactive'),
-('Huu Tien Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 2, 2, FALSE, 'Active');
+INSERT INTO Users (username, password, email, role_name, department_id, is_supervisor, status) VALUES
+('Trung Du Nguyen', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 'trungdu@cmcglobal.com.vn', 'EMPLOYEE', 1, FALSE, 'Active'),
+('Minh Hao Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 'minhhao@cmcglobal.com.vn', 'SUPERVISOR', 1, TRUE, 'Active'),
+('Khac Khanh Bui', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 'khackhanh@cmcglobal.com.vn', 'ADMIN', 2, TRUE, 'Active'),
+('Nhat Minh Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 'nhatminh@cmcglobal.com.vn', 'EMPLOYEE', 3, FALSE, 'Inactive'),
+('Huu Tien Pham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 'huutien@cmcglobal.com.vn', 'SUPERVISOR', 2, FALSE, 'Active');
 
 -- Chèn dữ liệu vào bảng Requests
 INSERT INTO Requests (username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time) VALUES
@@ -119,14 +124,10 @@ INSERT INTO Meeting_Rooms (room_name, location, capacity) VALUES
 ('Admin Room', 'Floor 3', 20);
 
 -- Chèn dữ liệu vào bảng Bookings
-INSERT INTO Bookings (username, room_id, start_time, end_time, status) VALUES
-('Trung Du Nguyen', 1, '2025-03-01 10:00:00', '2025-03-01 12:00:00', 'Requested'),
-('Minh Hao Pham', 2, '2025-03-02 14:00:00', '2025-03-02 16:00:00', 'Confirmed'),
-('Khac Khanh Bui', 3, '2025-03-03 09:00:00', '2025-03-03 11:00:00', 'Cancelled'),
-('Nhat Minh Pham', 1, '2025-03-04 13:00:00', '2025-03-04 15:00:00', 'Requested'),
-('Huu Tien Pham', 2, '2025-03-05 08:00:00', '2025-03-05 10:00:00', 'Confirmed');
-
-select * from Bookings;
-select * from Requests;
-
-DELETE FROM bookings WHERE booking_id = 9;
+INSERT INTO Bookings (username, room_id, title, attendees, start_time, end_time, status) VALUES
+('Trung Du Nguyen', 1, 'DKR1_Training 1 (Draft)', 'ntdu, pmhao, pnminh, bkkhanh, nhtien', '2025-03-01 10:00:00', '2025-03-01 12:00:00', 'Requested'),
+('Minh Hao Pham', 2, 'Finance Meeting', 'pmhao, bkkhanh', '2025-03-02 14:00:00', '2025-03-02 16:00:00', 'Confirmed'),
+('Khac Khanh Bui', 3, 'IT Strategy Session', 'bkkhanh, ntdu', '2025-03-03 09:00:00', '2025-03-03 11:00:00', 'Cancelled'),
+('Nhat Minh Pham', 1, 'HR Policy Review', 'nhtien, pmhao', '2025-03-04 13:00:00', '2025-03-04 15:00:00', 'Requested'),
+('Huu Tien Pham', 2, 'Project Kickoff', 'htpham, ntdu', '2025-03-05 08:00:00', '2025-03-05 10:00:00', 'Confirmed');
+select * from users;

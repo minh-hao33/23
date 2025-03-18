@@ -6,6 +6,7 @@ import com.example.hrms.biz.user.model.dto.UserDTO;
 import com.example.hrms.biz.user.service.UserService;
 import com.example.hrms.common.http.model.Result;
 import com.example.hrms.common.http.model.ResultPageData;
+import com.example.hrms.enumation.RoleEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,8 +14,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,28 +68,37 @@ public class UserRestController {
                             schema = @Schema(implementation = Result.class)) }),
             @ApiResponse(responseCode = "409", description = "Conflict",
                     content = @Content) })
-    @PostMapping("")
-    public Result createUser(@RequestBody UserDTO.Req userReq) {
-        User user = userReq.toUser();
-        userService.insertUser(user);
-        return new Result("Success", "User created successfully.");
-    }
 
-    @Operation(summary = "Update user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User updated",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Result.class)) }),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content) })
-    @PutMapping("/{username}")
-    public Result updateUser(@PathVariable String username, @RequestBody UserDTO.Req userReq) {
-        User user = userReq.toUser();
-        user.setUsername(username);
-        userService.updateUser(user);
-        return new Result("Success", "User updated successfully.");
-    }
+    @PutMapping("/update-account/{username}")
+    @Secured({"ROLE_SUPERVISOR", "ROLE_ADMIN"})
+    public Result updateAccount(@PathVariable String username, @RequestBody UserDTO.UpdateReq userReq, Principal principal) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        User userToUpdate = userService.getUserByUsername(username);
 
+        if (userToUpdate == null) {
+            return new Result("Error", "User not found.");
+        }
+
+        // Supervisor không thể cập nhật phòng ban trừ khi đó là tài khoản của chính họ
+        if (currentUser.getRole_name() == RoleEnum.SUPERVISOR && !currentUser.getUsername().equals(username)) {
+            userReq.setDepartmentId(userToUpdate.getDepartmentId());
+        }
+
+        // Supervisor không thể gán vai trò Admin
+        if (currentUser.getRole_name() == RoleEnum.SUPERVISOR && userReq.getRole_name() == RoleEnum.ADMIN) {
+            return new Result("Error", "Supervisor không thể gán vai trò Admin.");
+        }
+
+        // Cập nhật thông tin người dùng
+        userToUpdate.setPassword(userReq.getPassword());
+        userToUpdate.setRole_name(String.valueOf(userReq.getRole_name()));
+        userToUpdate.setSupervisor(userReq.isSupervisor());
+        userToUpdate.setStatus(userReq.getStatus());
+        userToUpdate.setEmail(userReq.getEmail()); // Cho phép cập nhật email
+
+        userService.updateUser(userToUpdate);
+        return new Result("Success", "Tài khoản đã được cập nhật thành công.");
+    }
     @Operation(summary = "Delete user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User deleted",
@@ -158,5 +171,10 @@ public class UserRestController {
         boolean hasLowercase = !password.equals(password.toUpperCase());
         boolean hasSpecial = password.matches(".*[^a-zA-Z0-9].*");
         return hasUppercase && hasLowercase && hasSpecial;
+    }
+    @GetMapping("/check-username")
+    public Result checkUsernameExists(@RequestParam String username) {
+        boolean isDuplicated = userService.isUsernameDuplicated(username);
+        return new Result("Success", isDuplicated ? "Username is already taken" : "Username is available");
     }
 }
