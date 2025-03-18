@@ -11,7 +11,7 @@ public class UserDTO {
         private String username;
         private String password;
         private Long departmentId;
-        private RoleEnum role;
+        private RoleEnum role_name;
         private boolean isSupervisor;
         private String status;
         private String email;
@@ -21,7 +21,7 @@ public class UserDTO {
             user.setUsername(this.username);
             user.setPassword(this.password);
             user.setDepartmentId(this.departmentId);
-            user.setRole(this.role);
+            user.setRole_name(String.valueOf(this.role_name));
             user.setSupervisor(this.isSupervisor);
             user.setStatus(this.status);
             user.setEmail(this.email);
@@ -33,7 +33,7 @@ public class UserDTO {
     public static class Resp {
         private String username;
         private Long departmentId;
-        private RoleEnum role;
+        private RoleEnum role_name;
         private boolean isSupervisor;
         private String status;
         private String email;
@@ -46,6 +46,17 @@ public class UserDTO {
     @Data
     public static class DepartmentAndRole {
         private Long departmentId;
-        private RoleEnum role;
+        private RoleEnum role_name;
     }
+    @Data
+    public static class UpdateReq {
+        private String password;
+        private Long departmentId;
+        private RoleEnum role_name;
+        private boolean isSupervisor;
+        private String status;
+        private String email;
+
+    }
+
 }

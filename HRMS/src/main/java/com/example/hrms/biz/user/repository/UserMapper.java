@@ -11,19 +11,19 @@ import java.util.List;
 public interface UserMapper {
 
     // Lấy tất cả người dùng
-    @Select("SELECT username, email, password, department_id, role, is_supervisor, status FROM Users")
+    @Select("SELECT username, email, password, department_id, role_name, is_supervisor, status FROM Users")
     List<User> getAllUsers();
 
     // Lấy người dùng theo tên người dùng
-    @Select("SELECT username, email, password, department_id, role, is_supervisor, status FROM Users WHERE username = #{username}")
+    @Select("SELECT username, email, password, department_id, role_name, is_supervisor, status FROM Users WHERE username = #{username}")
     User getUserByUsername(String username);
 
     // Thêm người dùng mới
-    @Insert("INSERT INTO Users(username, email, password, department_id, role, is_supervisor, status) VALUES(#{username}, #{email}, #{password}, #{departmentId}, #{role}, #{isSupervisor}, #{status})")
+    @Insert("INSERT INTO Users(username, email, password, department_id, role_name, is_supervisor, status) VALUES(#{username}, #{email}, #{password}, #{departmentId}, #{role_name}, #{isSupervisor}, #{status})")
     void insertUser(User user);
 
     // Cập nhật thông tin người dùng
-    @Update("UPDATE Users SET email = #{email}, password = #{password}, department_id = #{departmentId}, role = #{role}, is_supervisor = #{isSupervisor}, status = #{status} WHERE username = #{username}")
+    @Update("UPDATE Users SET email = #{email}, password = #{password}, department_id = #{departmentId}, role_name = #{role}, is_supervisor = #{isSupervisor}, status = #{status} WHERE username = #{username}")
     void updateUser(User user);
 
     // Xóa người dùng theo tên người dùng
@@ -52,6 +52,8 @@ public interface UserMapper {
     int count(UserCriteria criteria);
 
     // Lấy đơn vị và quyền của tất cả người dùng
-    @Select("SELECT department_id, role FROM Users")
+    @Select("SELECT department_id, role_name FROM Users")
     List<User> getDepartmentsAndRoles();
+    @Select("SELECT COUNT(*) FROM Users WHERE username = #{username}")
+    int checkUsernameExists(String username);
 }

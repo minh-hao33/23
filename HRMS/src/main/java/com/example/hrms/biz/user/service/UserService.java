@@ -52,7 +52,7 @@ public class UserService {
                     UserDTO.Resp resp = new UserDTO.Resp();
                     resp.setUsername(user.getUsername());
                     resp.setDepartmentId(user.getDepartmentId());
-                    resp.setRole(user.getRole());
+                    resp.setRole_name(user.getRole_name());
                     resp.setIsSupervisor(user.isSupervisor());
                     resp.setStatus(user.getStatus());
                     return resp;
@@ -67,9 +67,12 @@ public class UserService {
                 .map(user -> {
                     UserDTO.DepartmentAndRole resp = new UserDTO.DepartmentAndRole();
                     resp.setDepartmentId(user.getDepartmentId());
-                    resp.setRole(user.getRole());
+                    resp.setRole_name(user.getRole_name());
                     return resp;
                 })
                 .collect(Collectors.toList());
+    }
+    public boolean isUsernameDuplicated(String username) {
+        return userMapper.checkUsernameExists(username) > 0;
     }
 }
