@@ -1,83 +1,795 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meeting Room List</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            background: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #f9f9f9;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h1>Meeting Room List</h1>
-    <table>
-        <thead>
-        <tr>
-            <th>Room ID</th>
-            <th>Room Name</th>
-            <th>Location</th>
-            <th>Capacity</th>
-        </tr>
-        </thead>
-        <tbody id="room-list">
-        <!-- Data rows will be inserted here -->
-        </tbody>
-    </table>
-</div>
-<script>
-    // Example JavaScript to dynamically populate room data
-    const rooms = [
-        { roomId: 1, roomName: "Conference Room A", location: "1st Floor", capacity: 10 },
-        { roomId: 2, roomName: "Meeting Room B", location: "2nd Floor", capacity: 20 },
-        { roomId: 3, roomName: "Board Room", location: "3rd Floor", capacity: 15 },
-    ];
+    <title>CMC Global Meeting</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700,800,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="/css/animate.css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+    <link rel="stylesheet" href="/css/aos.css">
+    <link rel="stylesheet" href="/css/ionicons.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="/css/jquery.timepicker.css">
+    <link rel="stylesheet" href="/css/flaticon.css">
+    <link rel="stylesheet" href="/css/icomoon.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+        <style>
+            :root {
+                --primary-color: #007bff;
+                --secondary-color: #f5f6fa;
+                --border-color: #e0e0e0;
+                --text-color: #333;
+                --time-slot-height: 15px;
+            }
 
-    const roomList = document.getElementById("room-list");
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 0;
+                color: var(--text-color);
+                overflow-x: hidden; /* Prevent horizontal scrolling */
+            }
 
-    rooms.forEach(room => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-                <td>${room.roomId}</td>
-                <td>${room.roomName}</td>
-                <td>${room.location}</td>
-                <td>${room.capacity}</td>
-            `;
-        roomList.appendChild(row);
-    });
-</script>
+            .topnav {
+                display: flex;
+                align-items: center;
+                background-color: white;
+                padding: 10px 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+
+            .logo {
+                font-size: 24px;
+                color: var(--primary-color);
+                margin-right: 20px;
+            }
+
+            .menu-item {
+                text-decoration: none;
+                color: var(--text-color);
+                margin: 0 15px;
+                font-weight: 500;
+            }
+
+            .menu-item.active {
+                color: var(--primary-color);
+                border-bottom: 2px solid var(--primary-color);
+            }
+
+            .user-profile {
+                margin-left: auto;
+                display: flex;
+                align-items: center;
+            }
+
+            .avatar {
+                width: 30px;
+                height: 30px;
+                background-color: var(--primary-color);
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 10px;
+            }
+
+            .filter-bar {
+                display: flex;
+                padding: 15px 0;
+                background-color: var(--secondary-color);
+                flex-wrap: wrap;
+                gap: 10px;
+                width: 100%;
+                padding-left: 60px; /* Align with the room cards */
+            }
+
+            .filter-input {
+                padding: 8px 12px;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                margin-right: 10px;
+            }
+
+            .btn {
+                padding: 8px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                border: none;
+                font-weight: 500;
+            }
+
+            .btn-filter {
+                background-color: var(--primary-color);
+                color: white;
+            }
+
+            .btn-reset {
+                background-color: white;
+                border: 1px solid var(--border-color);
+            }
+
+            .room-list {
+                display: flex;
+                padding: 15px 0;
+                overflow-x: hidden; /* Hide overflow and use navigation */
+                border-bottom: 1px solid var(--border-color);
+                position: relative;
+                scroll-behavior: smooth; /* Smooth scrolling */
+                width: 100%;
+            }
+
+            .room-card {
+                border-radius: 4px;
+                width: 24%; /* Fixed width to match grid column */
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                margin-right: 15px;
+                padding: 10px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                flex: 0 0 auto; /* Don't grow or shrink */
+            }
+
+            /* First room card needs margin-left */
+            .room-list .room-card:first-child {
+                margin-left: 60px; /* Match the width of time column */
+            }
+
+            .room-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+
+            .room-name {
+                margin: 0;
+                color: var(--primary-color);
+            }
+
+            .room-info {
+                color: #666;
+                font-size: 0.85em;
+                margin-top: 5px;
+            }
+
+            .schedule-container {
+                display: flex;
+                position: relative;
+                overflow-x: auto;
+                margin: 0;
+                border: 1px solid var(--border-color);
+                border-radius: 0;
+                scroll-behavior: smooth; /* Smooth scrolling */
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .time-column {
+                min-width: 60px;
+                border-right: 1px solid var(--border-color);
+                background-color: var(--secondary-color);
+            }
+
+            .time-slot {
+                height: 60px; /* 15px * 4 = 60px per hour */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-bottom: 1px solid var(--border-color);
+                font-size: 0.85em;
+            }
+
+            .grid-container {
+                display: flex;
+                flex-grow: 1;
+            }
+
+            .room-column {
+                flex: 0 0 25%; /* Fixed width to match room card */
+                width: 25%;
+                border-right: 1px solid var(--border-color);
+                position: relative;
+            }
+
+            .event-grid {
+                position: relative;
+                height: 100%;
+            }
+
+            .time-cell {
+                height: 15px;
+                border-bottom: 1px dashed #e0e0e0;
+                position: relative;
+            }
+
+            .time-cell.hour-marker {
+                border-bottom: 1px solid #c0c0c0;
+            }
+
+            .meeting-event {
+                position: absolute;
+                left: 5px;
+                right: 5px;
+                background-color: rgba(0, 123, 255, 0.8);
+                color: white;
+                border-radius: 4px;
+                padding: 5px;
+                font-size: 0.85em;
+                cursor: pointer;
+                overflow: hidden;
+                z-index: 5;
+            }
+
+            .meeting-title {
+                font-weight: bold;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .meeting-organizer {
+                font-size: 0.85em;
+                margin-top: 2px;
+            }
+
+            .meeting-description {
+                margin-top: 4px;
+                font-size: 0.8em;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .nav-arrow {
+                position: absolute;
+                top: 180px; /* Position at the room list level */
+                transform: translateY(-50%);
+                width: 40px;
+                height: 40px;
+                background-color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                cursor: pointer;
+                z-index: 100;
+            }
+
+            .nav-left {
+                left: 10px;
+            }
+
+            .nav-right {
+                right: 10px;
+            }
+
+            .selected-room {
+                background-color: #e6f2ff;
+                border: 2px solid var(--primary-color);
+            }
+
+            /* Draggable event styles */
+            .meeting-event.draggable {
+                cursor: move;
+            }
+
+            .meeting-event.dragging {
+                opacity: 0.7;
+                z-index: 100;
+            }
+
+            .resizer {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                cursor: ns-resize;
+            }
+
+            /* Add event hover */
+            .time-cell:hover {
+                background-color: rgba(0, 123, 255, 0.1);
+            }
+
+            footer {
+                padding: 15px 0;
+                text-align: center;
+                background-color: var(--secondary-color);
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+    <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Meeting</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="oi oi-menu"></span> Menu
+            </button>
+            <div class="collapse navbar-collapse" id="ftco-nav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link">Office</a></li>
+                    <li class="nav-item"><a href="bookings.html" class="nav-link">Meeting</a></li>
+                    <li class="nav-item cta mr-md-2"><a href="#" class="nav-link">Account</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Top Navigation -->
+    <div class="topnav">
+        <div class="logo">
+            <i class="fas fa-cloud"></i>
+        </div>
+        <a href="#" class="menu-item">OFFICE</a>
+        <a href="#" class="menu-item active">MEETING</a>
+        <div class="user-profile">
+            <span>Hey, A </span>
+            <div class="avatar">A</div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="container-fluid px-0">
+        <div class="filter-bar">
+            <input type="date" class="filter-input date-input" value="2024-10-15">
+            <!-- Start Time -->
+            <input type="datetime-local" id="startTime" class="filter-input time-input" name="startTime" placeholder="Start time">
+            <!-- End Time -->
+            <input type="datetime-local" id="endTime" class="filter-input time-input" name="endTime" placeholder="End time">
+            <select class="filter-input duration-input">
+                <option>Duration</option>
+                <option>15'</option>
+                <option>30'</option>
+                <option>1h</option>
+                <option>2h</option>
+            </select>
+            <select class="filter-input seats-input">
+                <option>Capacity</option>
+                <option>4 seats</option>
+                <option>6 seats</option>
+                <option>8 seats</option>
+                <option>12 seats</option>
+            </select>
+            <select class="filter-input location-input">
+                <option>789 tower</option>
+            </select>
+            <input type="text" class="filter-input search-input" placeholder="Search by room name">
+            <button class="btn btn-filter">Filter</button>
+            <button class="btn btn-reset">Reset</button>
+        </div>
+    </div>
+
+    <!-- Room List -->
+    <div class="container-fluid px-0">
+        <div class="room-list" id="roomList">
+            <div class="room-card selected-room" data-room="ha-noi">
+                <div class="room-header">
+                    <h4 class="room-name">Hà Nội</h4>
+                    <div class="room-info">
+                        <span>789 tower</span>
+                    </div>
+                    <div class="room-info">
+                        <span>1 VNĐh - 12 seats</span>
+                    </div>
+                </div>
+            </div>
+            <div class="room-card" data-room="ho-chi-minh">
+                <div class="room-header">
+                    <h4 class="room-name">Hồ Chí Minh</h4>
+                    <div class="room-info">
+                        <span>789 tower</span>
+                    </div>
+                    <div class="room-info">
+                        <span>1 VNĐh - 12 seats</span>
+                    </div>
+                </div>
+            </div>
+            <div class="room-card" data-room="da-nang">
+                <div class="room-header">
+                    <h4 class="room-name">Đà Nẵng</h4>
+                    <div class="room-info">
+                        <span>789 tower</span>
+                    </div>
+                    <div class="room-info">
+                        <span>1 VNĐh - 4 seats</span>
+                    </div>
+                </div>
+            </div>
+            <div class="room-card" data-room="booth-tokyo">
+                <div class="room-header">
+                    <h4 class="room-name">Booth Tokyo</h4>
+                    <div class="room-info">
+                        <span>789 tower</span>
+                    </div>
+                    <div class="room-info">
+                        <span>1 VNĐh - 1 seats</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Grid -->
+    <div class="container-fluid px-0">
+        <div class="schedule-container">
+            <!-- Time Column -->
+            <div class="time-column" id="timeColumn">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <!-- Grid -->
+            <div class="grid-container" id="gridContainer">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Arrows - Moved outside schedule container for better positioning -->
+    <div class="nav-arrow nav-left">
+        <i class="fas fa-chevron-left"></i>
+    </div>
+    <div class="nav-arrow nav-right">
+        <i class="fas fa-chevron-right"></i>
+    </div>
+
+    <footer class="container-fluid">
+        <p>&copy; 2025 Meeting Room Reservation System</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.easing.1.3.js"></script>
+    <script src="/js/jquery.waypoints.min.js"></script>
+    <script src="/js/jquery.stellar.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/aos.js"></script>
+    <script src="/js/jquery.animateNumber.min.js"></script>
+    <script src="/js/scrollax.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+    <script src="/js/google-map.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Sample data for meetings
+            const meetingData = [
+                {
+                    room: 'ho-chi-minh',
+                    title: 'SBT Team Daily Report (Phòng Hồ Chí Minh)',
+                    organizer: 'nt',
+                    description: 'Dear SBT Team',
+                    startTime: '10:00',
+                    duration: 60 // minutes
+                },
+                {
+                    room: 'da-nang',
+                    title: 'NSSOL weekly with customer',
+                    organizer: 'dh',
+                    description: '',
+                    startTime: '10:45',
+                    duration: 30
+                },
+                {
+                    room: 'da-nang',
+                    title: 'Daily team',
+                    organizer: 'dh',
+                    description: '',
+                    startTime: '11:30',
+                    duration: 30
+                },
+                {
+                    room: 'booth-tokyo',
+                    title: 'meeting',
+                    organizer: 'nson9',
+                    description: '',
+                    startTime: '09:15',
+                    duration: 25
+                },
+                {
+                    room: 'booth-tokyo',
+                    title: 'Avanade PRMS',
+                    organizer: 'shingi',
+                    description: '',
+                    startTime: '11:30',
+                    duration: 30
+                }
+            ];
+
+            // Generate time slots (8:00 - 18:00)
+            const startHour = 8;
+            const endHour = 18;
+
+            // Generate time column
+            function generateTimeColumn() {
+                const timeColumn = $('#timeColumn');
+                timeColumn.empty();
+
+                for (let hour = startHour; hour <= endHour; hour++) {
+                    const formattedHour = hour.toString().padStart(2, '0') + ':00';
+                    timeColumn.append(`<div class="time-slot">${formattedHour}</div>`);
+                }
+            }
+
+            // Generate grid for each room
+            function generateRoomGrid() {
+                const gridContainer = $('#gridContainer');
+                gridContainer.empty();
+
+                // Get all room names from room-list
+                const roomCards = $('.room-card');
+
+                roomCards.each(function() {
+                    const roomId = $(this).data('room');
+                    const roomColumn = $(`<div class="room-column" data-room="${roomId}"></div>`);
+                    const eventGrid = $(`<div class="event-grid"></div>`);
+
+                    // Create time cells (15 min intervals) for 8:00 - 18:00
+                    for (let hour = startHour; hour <= endHour; hour++) {
+                        for (let minute = 0; minute < 60; minute += 15) {
+                            const isHourMarker = minute === 0;
+                            const timeCell = $(`<div class="time-cell ${isHourMarker ? 'hour-marker' : ''}"
+                                                data-time="${hour}:${minute.toString().padStart(2, '0')}"></div>`);
+                            eventGrid.append(timeCell);
+                        }
+                    }
+
+                    roomColumn.append(eventGrid);
+                    gridContainer.append(roomColumn);
+                });
+
+                // Add meetings to the grid
+                addMeetingsToGrid();
+
+                // Make events draggable
+                makeEventsDraggable();
+            }
+
+            // Add meetings to the grid based on the data
+            function addMeetingsToGrid() {
+                meetingData.forEach(meeting => {
+                    const [hours, minutes] = meeting.startTime.split(':').map(Number);
+
+                    // Calculate position
+                    const startTimeMinutes = (hours - startHour) * 60 + minutes;
+                    const topPosition = startTimeMinutes * (15 / 15); // pixels per minute
+                    const height = meeting.duration * (15 / 15); // meeting.duration in minutes
+
+                    // Create the meeting event element
+                    const meetingEvent = $(`
+                        <div class="meeting-event draggable"
+                             style="top: ${topPosition}px; height: ${height}px;"
+                             data-room="${meeting.room}"
+                             data-start="${meeting.startTime}"
+                             data-duration="${meeting.duration}">
+                            <div class="meeting-title">${meeting.title}</div>
+                            <div class="meeting-organizer">${meeting.organizer}</div>
+                            ${meeting.description ? `<div class="meeting-description">${meeting.description}</div>` : ''}
+                            <div class="resizer"></div>
+                        </div>
+                    `);
+
+                    // Append to the correct room column
+                    $(`.room-column[data-room="${meeting.room}"] .event-grid`).append(meetingEvent);
+                });
+            }
+
+            // Make events draggable and resizable
+            function makeEventsDraggable() {
+                $('.meeting-event.draggable').draggable({
+                    axis: 'y',
+                    grid: [15, 15],
+                    containment: '.event-grid',
+                    start: function(event, ui) {
+                        $(this).addClass('dragging');
+                    },
+                    stop: function(event, ui) {
+                        $(this).removeClass('dragging');
+
+                        // Update the meeting time based on position
+                        const topPosition = ui.position.top;
+                        const startMinutes = topPosition * (15 / 15);
+                        const startHour = Math.floor(startMinutes / 60) + startHour;
+                        const startMinute = startMinutes % 60;
+
+                        // Format the new start time
+                        const newStartTime = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+
+                        // Update data attributes
+                        $(this).attr('data-start', newStartTime);
+
+                        // You would typically update the backend here
+                        console.log(`Meeting "${$(this).find('.meeting-title').text()}" moved to ${newStartTime}`);
+                    }
+                });
+
+                // Make events resizable
+                $('.meeting-event .resizer').mousedown(function(e) {
+                    e.preventDefault();
+
+                    const meetingEvent = $(this).parent();
+                    const startY = e.clientY;
+                    const startHeight = meetingEvent.height();
+
+                    $(document).mousemove(function(e) {
+                        const delta = e.clientY - startY;
+                        const newHeight = Math.max(15, Math.round((startHeight + delta) / 15) * 15); // Snap to 15px grid
+                        meetingEvent.height(newHeight);
+
+                        // Update duration
+                        const newDuration = newHeight * (15 / 15); // Convert back to minutes
+                        meetingEvent.attr('data-duration', newDuration);
+                    });
+
+                    $(document).mouseup(function() {
+                        $(document).off('mousemove');
+                        $(document).off('mouseup');
+
+                        // You would typically update the backend here
+                        console.log(`Meeting "${meetingEvent.find('.meeting-title').text()}" resized to ${meetingEvent.attr('data-duration')} minutes`);
+                    });
+                });
+            }
+
+            // Allow adding new events by clicking on empty time cells
+            function setupAddNewEvent() {
+                $(document).on('dblclick', '.time-cell', function() {
+                    const clickedTime = $(this).data('time');
+                    const roomId = $(this).closest('.room-column').data('room');
+
+                    // Default 30-minute meeting
+                    const newMeeting = {
+                        room: roomId,
+                        title: 'New Meeting',
+                        organizer: 'Current User',
+                        description: '',
+                        startTime: clickedTime,
+                        duration: 30
+                    };
+
+                    // Add to meetingData
+                    meetingData.push(newMeeting);
+
+                    // Refresh the grid
+                    addMeetingsToGrid();
+                    makeEventsDraggable();
+
+                    // You would typically call a modal/form here to edit the new meeting details
+                    console.log(`New meeting created at ${clickedTime} in room ${roomId}`);
+                });
+            }
+
+            // Room card selection is now handled in the navigation function
+            // to ensure sync between room list and grid
+
+            // Initialize the grid
+            generateTimeColumn();
+            generateRoomGrid();
+            setupAddNewEvent();
+
+            // Handle the room navigation arrows
+            let currentRoomIndex = 0;
+            const roomCards = $('.room-card');
+            const totalRooms = roomCards.length;
+
+            function updateRoomScrollPosition() {
+                // Calculate the scroll position based on the current room index
+                const scrollPosition = currentRoomIndex * 215; // 200px width + 15px margin
+                $('.room-list').animate({ scrollLeft: scrollPosition }, 300);
+
+                // Also scroll the grid container to show the corresponding column
+                const gridScrollPosition = currentRoomIndex * 200; // 200px column width
+                $('.schedule-container').scrollLeft(gridScrollPosition);
+
+                // Update selected room
+                roomCards.removeClass('selected-room');
+                $(roomCards[currentRoomIndex]).addClass('selected-room');
+            }
+
+            $('.nav-left').on('click', function() {
+                if (currentRoomIndex > 0) {
+                    currentRoomIndex--;
+                    updateRoomScrollPosition();
+                }
+            });
+
+            $('.nav-right').on('click', function() {
+                if (currentRoomIndex < totalRooms - 1) {
+                    currentRoomIndex++;
+                    updateRoomScrollPosition();
+                }
+            });
+
+            // Also update grid scroll when room is clicked
+            $('.room-card').on('click', function() {
+                const roomIndex = $(this).index();
+                currentRoomIndex = roomIndex;
+                updateRoomScrollPosition();
+            });
+
+            // Filter functionality
+            $('.btn-filter').on('click', function() {
+                // This would typically filter the meetings shown based on filter inputs
+                alert('Filter functionality would be implemented here');
+            });
+
+            $('.btn-reset').on('click', function() {
+                // Reset all filter inputs
+                $('.filter-input').val('');
+                $('select.filter-input').prop('selectedIndex', 0);
+            });
+        });
+        // Simple JavaScript to make filter inputs interactive
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers for the filter and reset buttons
+            document.querySelector('.btn-filter').addEventListener('click', function() {
+                alert('Filter applied!');
+            });
+
+            document.querySelector('.btn-reset').addEventListener('click', function() {
+                document.querySelectorAll('.filter-input').forEach(input => {
+                    if (input.type === 'text') {
+                        input.value = '';
+                    } else if (input.tagName === 'SELECT') {
+                        input.selectedIndex = 0;
+                    }
+                });
+            });
+
+            // Add navigation for the room list
+            const navLeft = document.querySelector('.nav-left');
+            const navRight = document.querySelector('.nav-right');
+            const roomList = document.querySelector('.room-list');
+
+            navLeft.addEventListener('click', function() {
+                roomList.scrollBy({ left: -300, behavior: 'smooth' });
+            });
+
+            navRight.addEventListener('click', function() {
+                roomList.scrollBy({ left: 300, behavior: 'smooth' });
+            });
+        });
+        // JavaScript to handle form submission and validation
+        const searchForm = document.getElementById("searchForm");
+        searchForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            // Gather form data
+            const formData = new FormData(searchForm);
+            const queryParams = new URLSearchParams();
+            formData.forEach((value, key) => {
+                if (value) queryParams.append(key, value); // Only include non-empty fields
+            });
+
+            // Example: Send an AJAX request to the backend API with query parameters
+            fetch(`/api/meeting-rooms?${queryParams.toString()}`)
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("Search Results:", data);
+                // Handle data (e.g., populate the calendar or table with results)
+            })
+            .catch((error) => console.error("Error fetching data:", error));
+        });
+    </script>
 </body>
 </html>
