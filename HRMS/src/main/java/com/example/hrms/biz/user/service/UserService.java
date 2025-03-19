@@ -6,6 +6,8 @@ import com.example.hrms.biz.user.model.dto.UserDTO;
 import com.example.hrms.enumation.RoleEnum;
 import com.example.hrms.biz.user.repository.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,19 @@ public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public UserService(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    public boolean checkUsernamePassword(String username, String rawPassword) {
+        String encodedPassword = userMapper.getPasswordByUsername(username);
+        if (encodedPassword == null) {
+            return false; // Username không tồn tại
+        }
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
 
     public User getUserByUsername(String username) {
         return userMapper.getUserByUsername(username);

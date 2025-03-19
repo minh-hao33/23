@@ -21,49 +21,50 @@ public interface DepartmentMapper {
 
     @Insert("""
     INSERT INTO Users (username, password, department_id, role_name, is_supervisor, status) 
-    VALUES (#{userName}, 'default_password', #{departmentId}, 
-            (SELECT role_id FROM Roles WHERE role_name = #{roleName} LIMIT 1), false, 'ACTIVE');
+    VALUES (#{userName}, 'default_password', #{departmentId}, #{roleName}, false, 'ACTIVE');
 """)
     void insertUserForDepartment(@Param("userName") String userName,
                                  @Param("roleName") String roleName,
                                  @Param("departmentId") Long departmentId);
 
+
     @Select("""
-    SELECT d.department_id AS departmentId, 
-           d.department_name AS departmentName, 
-           r.role_name AS roleName, 
+    SELECT d.department_id AS departmentId,
+           d.department_name AS departmentName,
+           r.role_name AS roleName,
            u.username AS userName
     FROM Departments d
     JOIN Users u ON d.department_id = u.department_id
-    JOIN Roles r ON u.role_name = r.role_id
+    JOIN Roles r ON u.role_name = r.role_name
     WHERE d.department_id = #{id}
-    ORDER BY r.role_name ASC
+    ORDER BY r.role_name ASC;
 """)
     List<Department> findById(Long id);
 
     @Select("""
     <script>
-        SELECT d.department_id AS departmentId, 
-               d.department_name AS departmentName, 
-               u.username AS userName, 
+        SELECT d.department_id AS departmentId,
+               d.department_name AS departmentName,
+               u.username AS userName,
                r.role_name AS roleName
         FROM Users u
         JOIN Departments d ON u.department_id = d.department_id
-        JOIN Roles r ON u.role_name = r.role_id
+        JOIN Roles r ON u.role_name = r.role_name
         WHERE 1=1
-        <if test='departmentId != null'> 
-            AND d.department_id = #{departmentId} 
+        <if test='departmentId != null'>
+            AND d.department_id = #{departmentId}
         </if>
-        <if test='departmentName != null'> 
-            AND d.department_name LIKE CONCAT('%', #{departmentName}, '%') 
+        <if test='departmentName != null'>
+            AND d.department_name LIKE CONCAT('%', #{departmentName}, '%')
         </if>
-        <if test='userName != null'> 
-            AND u.username LIKE CONCAT('%', #{userName}, '%') 
+        <if test='userName != null'>
+            AND u.username LIKE CONCAT('%', #{userName}, '%')
         </if>
-        <if test='roleName != null'> 
-            AND r.role_name LIKE CONCAT('%', #{roleName}, '%') 
+        <if test='roleName != null'>
+            AND r.role_name LIKE CONCAT('%', #{roleName}, '%')
         </if>
-        ORDER BY d.department_name ASC, r.role_name ASC
+        ORDER BY d.department_name ASC, r.role_name ASC;
+        
     </script>
 """)
     List<Department> filterByCriteria(DepartmentCriteria criteria);
@@ -83,9 +84,9 @@ public interface DepartmentMapper {
     int count(DepartmentCriteria criteria);
 
     @Update("""
-    UPDATE Users 
-    SET password = 'default_password', department_id = #{departmentId}, role = (SELECT role_id FROM Roles WHERE role_name = #{roleName} LIMIT 1), is_supervisor = false, status = 'ACTIVE'
-    WHERE username = #{userName}
+    UPDATE Users
+    SET password = 'default_password', department_id = #{departmentId}, role_name = #{roleName}, is_supervisor = false, status = 'ACTIVE'
+    WHERE username = #{userName};
 """)
     void updateUserForDepartment(@Param("userName") String userName, @Param("roleName") String roleName, @Param("departmentId") Long departmentId);
     @Update("UPDATE Departments SET department_name = #{departmentName} WHERE department_id = #{departmentId} ")

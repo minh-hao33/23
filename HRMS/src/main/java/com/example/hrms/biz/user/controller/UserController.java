@@ -14,4 +14,8 @@ public class UserController {
         model.addAttribute("user", new Booking());
         return "user";
     }
+    @RequestMapping("/login")
+    public String loginPage() {
+        return "login"; // Trả về trang login.html
+    }
 }

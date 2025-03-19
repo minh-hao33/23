@@ -104,6 +104,16 @@
         #addDepartmentBtn {
             margin-bottom: 10px;
         }
+        button svg {
+            fill: #000; /* Change the color */
+            width: 24px;
+            height: 24px;
+        }
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -162,9 +172,15 @@
             row.insertCell(3).textContent = department.roleName;
             const actionCell = row.insertCell(4);
             actionCell.innerHTML = `
-            <button onclick="editDepartment(${department.departmentId}, '${department.departmentName}', '${department.userName}', '${department.roleName}')">✏️</button>
-            <button onclick="deleteDepartment(${department.departmentId})">🗑️</button>
-        `;
+              <button onclick="editDepartment(${department.departmentId}, '${department.departmentName}', '${department.userName}', '${department.roleName}')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g id="Layer_12" data-name="Layer 12"><path d="M49.28,27.25a1.5,1.5,0,0,0-1.5,1.5V46a1.32,1.32,0,0,1-1.32,1.32H18A1.32,1.32,0,0,1,16.69,46V17.54A1.32,1.32,0,0,1,18,16.22H35.24a1.5,1.5,0,0,0,0-3H18a4.33,4.33,0,0,0-4.32,4.32V46A4.33,4.33,0,0,0,18,50.31H46.46A4.33,4.33,0,0,0,50.78,46V28.75A1.5,1.5,0,0,0,49.28,27.25Z"></path><path d="M51.68,12.32a6.23,6.23,0,0,0-8.79,0L31.56,23.65a1.49,1.49,0,0,0-.36.59l-3.31,10a1.5,1.5,0,0,0,1.89,1.89l10-3.31a1.49,1.49,0,0,0,.59-.36L51.68,21.11A6.23,6.23,0,0,0,51.68,12.32ZM38.48,30.07l-6.81,2.26,2.26-6.81,8.16-8.15,4.54,4.54ZM49.56,19l-.81.8-4.54-4.54.8-.81A3.22,3.22,0,0,1,49.56,19Z"></path></g></svg>
+              </button>
+              <button onclick="deleteDepartment(${department.departmentId})">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M11 2C10.4477 2 10 2.44772 10 3V4H14V3C14 2.44772 13.5523 2 13 2H11ZM16 4V3C16 1.34315 14.6569 0 13 0H11C9.34315 0 8 1.34315 8 3V4H3C2.44772 4 2 4.44772 2 5C2 5.55228 2.44772 6 3 6H3.10496L4.80843 21.3313C4.97725 22.8506 6.26144 24 7.79009 24H16.2099C17.7386 24 19.0228 22.8506 19.1916 21.3313L20.895 6H21C21.5523 6 22 5.55228 22 5C22 4.44772 21.5523 4 21 4H16ZM18.8827 6H5.11726L6.7962 21.1104C6.85247 21.6169 7.28054 22 7.79009 22H16.2099C16.7195 22 17.1475 21.6169 17.2038 21.1104L18.8827 6ZM10 9C10.5523 9 11 9.44771 11 10V18C11 18.5523 10.5523 19 10 19C9.44772 19 9 18.5523 9 18V10C9 9.44771 9.44772 9 10 9ZM14 9C14.5523 9 15 9.44771 15 10V18C15 18.5523 14.5523 19 14 19C13.4477 19 13 18.5523 13 18V10C13 9.44771 13.4477 9 14 9Z" fill="#293644"></path>
+</svg>
+              </button>
+            `;
         });
     }
 
