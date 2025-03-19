@@ -1,41 +1,29 @@
 package com.example.hrms.biz.role.controller;
 
-import com.example.hrms.biz.role.model.Role;
+import com.example.hrms.biz.role.model.dto.RoleDTO;
+import com.example.hrms.biz.role.model.criteria.RoleCriteria;
 import com.example.hrms.biz.role.service.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/roles")
 public class RoleController {
-    @Autowired
-    private RoleService roleService;
 
-    @GetMapping
-    public List<Role> getAllRoles() {
-        return roleService.getAllRoles();
+    private final RoleService roleService;
+
+    public RoleController(RoleService roleService) {
+        this.roleService = roleService;
     }
 
-    @GetMapping("/{id}")
-    public Role getRoleById(@PathVariable Long id) {
-        return roleService.getRoleById(id);
-    }
-
-    @PostMapping
-    public void insertRole(@RequestBody Role role) {
-        roleService.insertRole(role);
-    }
-
-    @PutMapping("/{id}")
-    public void updateRole(@PathVariable Long id, @RequestBody Role role) {
-        role.setRoleId(id);
-        roleService.updateRole(role);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteRole(@PathVariable Long id) {
-        roleService.deleteRole(id);
+    @GetMapping("")
+    public String openRoleView(Model model) {
+        List<RoleDTO.Resp> roles = roleService.list(new RoleCriteria());
+        model.addAttribute("roles", roles);
+        return "role"; // Ensure this matches the name of your HTML file
     }
 }
