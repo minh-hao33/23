@@ -6,6 +6,9 @@ import com.example.hrms.biz.user.model.dto.UserDTO;
 import com.example.hrms.enumation.RoleEnum;
 import com.example.hrms.biz.user.repository.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -89,5 +92,29 @@ public class UserService {
     }
     public boolean isUsernameDuplicated(String username) {
         return userMapper.checkUsernameExists(username) > 0;
+    }
+    public RoleEnum getCurrentUserRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        // Lấy tên quyền từ danh sách Authorities
+        String roleName = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse(null);
+
+        if (roleName == null) {
+            return null;
+        }
+
+        try {
+            // Chuyển đổi thành RoleEnum
+            return RoleEnum.valueOf(roleName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null; // Nếu không khớp với Enum
+        }
     }
 }

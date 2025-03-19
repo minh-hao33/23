@@ -50,6 +50,7 @@ public class UserDTO {
     }
     @Data
     public static class UpdateReq {
+        private String username;
         private String password;
         private Long departmentId;
         private RoleEnum role_name;
