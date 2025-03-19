@@ -89,43 +89,42 @@ public class UserRestController {
         return new Result("Success", "Login successful.");
     }
 
-    @Operation(summary = "Create user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "User created",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Result.class)) }),
-            @ApiResponse(responseCode = "409", description = "Conflict",
-                    content = @Content) })
-
     @PutMapping("/update-account/{username}")
-    @Secured({"ROLE_SUPERVISOR", "ROLE_ADMIN"})
-    public Result updateAccount(@PathVariable String username, @RequestBody UserDTO.UpdateReq userReq, Principal principal) {
-        User currentUser = userService.getUserByUsername(principal.getName());
-        User userToUpdate = userService.getUserByUsername(username);
-
-        if (userToUpdate == null) {
+    @PreAuthorize("hasAnyAuthority('Admin', 'Supervisor')")
+    public Result updateAccount(@PathVariable String username, @RequestBody UserDTO.UpdateReq userReq) {
+        User existingUser = userService.getUserByUsername(username);
+        if (existingUser == null) {
             return new Result("Error", "User not found.");
         }
 
-        // Supervisor không thể cập nhật phòng ban trừ khi đó là tài khoản của chính họ
-        if (currentUser.getRole_name() == RoleEnum.SUPERVISOR && !currentUser.getUsername().equals(username)) {
-            userReq.setDepartmentId(userToUpdate.getDepartmentId());
+        // Không cho phép cập nhật Username và Email
+        if (!existingUser.getUsername().equals(userReq.getUsername()) ||
+                !existingUser.getEmail().equals(userReq.getEmail())) {
+            return new Result("Error", "Username and Email cannot be updated.");
         }
 
-        // Supervisor không thể gán vai trò Admin
-        if (currentUser.getRole_name() == RoleEnum.SUPERVISOR && userReq.getRole_name() == RoleEnum.ADMIN) {
-            return new Result("Error", "Supervisor không thể gán vai trò Admin.");
+        // Lấy role của người đang đăng nhập
+        RoleEnum currentUserRole = userService.getCurrentUserRole();
+
+        // Nếu người dùng là Supervisor, cấm cập nhật Department và Role là Admin
+        if ("Supervisor".equals(currentUserRole)) {
+            if (userReq.getDepartmentId() != null) {
+                return new Result("Error", "Supervisors are not allowed to update Department.");
+            }
+            if ("Admin".equals(userReq.getRole_name())) {
+                return new Result("Error", "Supervisors are not allowed to assign Admin role.");
+            }
         }
 
-        // Cập nhật thông tin người dùng
-        userToUpdate.setPassword(userReq.getPassword());
-        userToUpdate.setRole_name(String.valueOf(userReq.getRole_name()));
-        userToUpdate.setSupervisor(userReq.isSupervisor());
-        userToUpdate.setStatus(userReq.getStatus());
-        userToUpdate.setEmail(userReq.getEmail()); // Cho phép cập nhật email
+        // Cập nhật thông tin hợp lệ
+        existingUser.setPassword(userReq.getPassword());
+        existingUser.setDepartmentId(userReq.getDepartmentId());
+        existingUser.setRole_name(String.valueOf(userReq.getRole_name()));
+        existingUser.setSupervisor(userReq.isSupervisor());
+        existingUser.setStatus(userReq.getStatus());
 
-        userService.updateUser(userToUpdate);
-        return new Result("Success", "Tài khoản đã được cập nhật thành công.");
+        userService.updateUser(existingUser);
+        return new Result("Success", "Account updated successfully.");
     }
     @Operation(summary = "Delete user")
     @ApiResponses(value = {

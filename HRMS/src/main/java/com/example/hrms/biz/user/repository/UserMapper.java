@@ -22,11 +22,11 @@ public interface UserMapper {
     String getPasswordByUsername(String username);
 
     // Thêm người dùng mới
-    @Insert("INSERT INTO Users(username, email, password, department_id, role_name, is_supervisor, status) VALUES(#{username}, #{email}, #{password}, #{departmentId}, #{role_name}, #{isSupervisor}, #{status})")
-    void insertUser(User user);
+    @Update("UPDATE Users SET email = #{email}, password = #{password}, department_id = #{departmentId}, role_name = #{role_name}, is_supervisor = #{isSupervisor}, status = #{status} WHERE username = #{username}")
+    void updateUser(User user);
 
     // Cập nhật thông tin người dùng
-    @Update("UPDATE Users SET email = #{email}, password = #{password}, department_id = #{departmentId}, role_name = #{role}, is_supervisor = #{isSupervisor}, status = #{status} WHERE username = #{username}")
+    @Update("UPDATE Users SET email = #{email}, password = #{password}, department_id = #{departmentId}, role_name = #{role_name}, is_supervisor = #{isSupervisor}, status = #{status} WHERE username = #{username}")
     void updateUser(User user);
 
     // Xóa người dùng theo tên người dùng
