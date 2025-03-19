@@ -2,16 +2,14 @@ package com.example.hrms.biz.request.model;
 
 import com.example.hrms.enumation.RequestStatusEnum;
 import com.example.hrms.enumation.RequestTypeEnum;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
 public class Request {
     private Long requestId;
     private String username;
@@ -25,4 +23,6 @@ public class Request {
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private Timestamp approvedAt;
+
+
 }
