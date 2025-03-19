@@ -18,6 +18,9 @@ public interface UserMapper {
     @Select("SELECT username, email, password, department_id, role_name, is_supervisor, status FROM Users WHERE username = #{username}")
     User getUserByUsername(String username);
 
+    @Select("SELECT password FROM users WHERE username = #{username}")
+    String getPasswordByUsername(String username);
+
     // Thêm người dùng mới
     @Insert("INSERT INTO Users(username, email, password, department_id, role_name, is_supervisor, status) VALUES(#{username}, #{email}, #{password}, #{departmentId}, #{role_name}, #{isSupervisor}, #{status})")
     void insertUser(User user);

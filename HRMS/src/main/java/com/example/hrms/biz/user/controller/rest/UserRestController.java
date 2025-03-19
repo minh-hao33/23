@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -28,11 +29,12 @@ import java.util.List;
 public class UserRestController {
 
     private final UserService userService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public UserRestController(UserService userService) {
         this.userService = userService;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
-
     @Operation(summary = "List users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get success",
@@ -59,6 +61,32 @@ public class UserRestController {
     @GetMapping("/all")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @Operation(summary = "Check username and password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login success",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content)
+    })
+    @PostMapping("/check-login")
+    public Result checkLogin(@RequestBody UserDTO.Req loginRequest) {
+        User user = userService.getUserByUsername(loginRequest.getUsername());
+
+        if (user == null) {
+            return new Result("Error", "Username not found.");
+        }
+
+        boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+        if (!passwordMatches) {
+            return new Result("Error", "Invalid password.");
+        }
+
+        return new Result("Success", "Login successful.");
     }
 
     @Operation(summary = "Create user")
