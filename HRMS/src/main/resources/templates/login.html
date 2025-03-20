@@ -100,6 +100,45 @@
     </div>
 </footer>
 <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelector(".request-form").addEventListener("submit", async function (event) {
+            event.preventDefault(); // Ngăn chặn load lại trang mặc định
+
+            // Lấy giá trị từ input
+            const username = document.querySelector(".request-form input[placeholder='Username']").value.trim();
+            const password = document.querySelector(".request-form input[placeholder='Password ']").value.trim();
+
+            if (!username || !password) {
+                alert("Vui lòng nhập đầy đủ Username và Password!");
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/v1/users/check-login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("Đăng nhập thành công!");
+                    localStorage.setItem("token", data.token); // Lưu token vào localStorage
+                    window.location.href = "index.html"; // Chuyển hướng về index.html
+                } else {
+                    alert(data.message || "Đăng nhập thất bại. Vui lòng thử lại!");
+                }
+            } catch (error) {
+                console.error("Lỗi:", error);
+                alert("Lỗi kết nối đến server. Vui lòng thử lại sau!");
+            }
+        });
+    });
+</script>
 
 <script src="/js/jquery.min.js"></script>
 <script src="/js/jquery-migrate-3.0.1.min.js"></script>

@@ -38,7 +38,6 @@ public class UserService {
     public User getUserByUsername(String username) {
         return userMapper.getUserByUsername(username);
     }
-
     public List<User> getAllUsers() {
         return userMapper.getAllUsers();
     }

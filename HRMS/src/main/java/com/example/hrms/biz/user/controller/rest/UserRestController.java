@@ -138,6 +138,15 @@ public class UserRestController {
         userService.deleteUser(username);
         return new Result("Success", "User deleted successfully.");
     }
+
+    @Operation(summary = "Get user by username")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content)
+    })
     @GetMapping("/getUserByUsername/{username}")
     public User getUserByUsername(@PathVariable String username) {
         User user = userService.getUserByUsername(username);
