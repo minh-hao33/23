@@ -111,11 +111,11 @@ INSERT INTO Users (username, password, email, role_name, department_id, is_super
 
 -- Chèn dữ liệu vào bảng Requests
 INSERT INTO Requests (username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time) VALUES
-('Trung Du Nguyen', 1, 'Nghỉ phép có lương', 'Nghỉ phép cá nhân', 'Rejected', 'Minh Hao Pham', '2025-02-28 09:00:00', '2025-02-28 17:00:00'),
-('Minh Hao Pham', 1, 'Nghỉ phép có lương', 'Nghỉ phép đột xuất', 'Approved', 'Khac Khanh Bui', '2025-02-27 09:00:00', '2025-02-27 17:00:00'),
-('Trung Du Nguyen', 1, 'Nghỉ phép không lương', 'Làm việc từ xa do bệnh', 'Rejected', 'Minh Hao Pham', '2025-02-26 09:00:00', '2025-02-26 17:00:00'),
-('Khac Khanh Bui', 2, 'Nghỉ phép có lương', 'Xin nghỉ phép do việc gia đình', 'Rejected', 'Khac Khanh Bui', '2025-02-25 09:00:00', '2025-02-25 17:00:00'),
-('Nhat Minh Pham', 3, 'Nghỉ phép không lương', 'Làm việc tại nhà', 'Approved', 'Minh Hao Pham', '2025-02-24 09:00:00', '2025-02-24 17:00:00');
+('Trung Du Nguyen', 1, 'PAID_LEAVE', 'Nghỉ phép cá nhân', 'REJECTED', 'Minh Hao Pham', '2025-02-28 09:00:00', '2025-02-28 17:00:00'),
+('Minh Hao Pham',1, 'UNPAID_LEAVE', 'Nghỉ phép đột xuất', 'APPROVED', 'Khac Khanh Bui', '2025-02-27 09:00:00', '2025-02-27 17:00:00'),
+('Huu Tien Pham',2, 'UNPAID_LEAVE', 'Làm việc từ xa do bệnh', 'REJECTED', 'Minh Hao Pham', '2025-02-26 09:00:00', '2025-02-26 17:00:00'),
+('Khac Khanh Bui', 2, 'PAID_LEAVE', 'Xin nghỉ phép do việc gia đình', 'REJECTED', 'Khac Khanh Bui', '2025-02-25 09:00:00', '2025-02-25 17:00:00'),
+('Nhat Minh Pham', 3, 'PAID_LEAVE', 'Làm việc tại nhà', 'APPROVED', 'Minh Hao Pham', '2025-02-24 09:00:00', '2025-02-24 17:00:00');
 
 -- Chèn dữ liệu vào bảng Meeting_Rooms
 INSERT INTO Meeting_Rooms (room_name, location, capacity) VALUES
@@ -130,4 +130,5 @@ INSERT INTO Bookings (username, room_id, title, attendees, start_time, end_time,
 ('Khac Khanh Bui', 3, 'IT Strategy Session', 'bkkhanh, ntdu', '2025-03-03 09:00:00', '2025-03-03 11:00:00', 'Cancelled'),
 ('Nhat Minh Pham', 1, 'HR Policy Review', 'nhtien, pmhao', '2025-03-04 13:00:00', '2025-03-04 15:00:00', 'Requested'),
 ('Huu Tien Pham', 2, 'Project Kickoff', 'htpham, ntdu', '2025-03-05 08:00:00', '2025-03-05 10:00:00', 'Confirmed');
-select * from users;
+select * from requests;
+

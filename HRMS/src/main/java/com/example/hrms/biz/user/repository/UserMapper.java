@@ -23,7 +23,7 @@ public interface UserMapper {
 
     // Thêm người dùng mới
     @Update("UPDATE Users SET email = #{email}, password = #{password}, department_id = #{departmentId}, role_name = #{role_name}, is_supervisor = #{isSupervisor}, status = #{status} WHERE username = #{username}")
-    void updateUser(User user);
+    void insertUser(User user);
 
     // Cập nhật thông tin người dùng
     @Update("UPDATE Users SET email = #{email}, password = #{password}, department_id = #{departmentId}, role_name = #{role_name}, is_supervisor = #{isSupervisor}, status = #{status} WHERE username = #{username}")
