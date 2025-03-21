@@ -17,4 +17,6 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private BookingStatusEnum status;
+    private String title; // Thêm trường title
+    private String attendees; // Thêm trường attendees
 }

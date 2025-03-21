@@ -47,4 +47,10 @@ public class BookingService {
         List<Booking> bookings = bookingMapper.select(criteria);
         return bookings.stream().map(BookingDTO.Resp::toResponse).toList();
     }
+
+    // Thêm phương thức này để lấy tất cả các đặt phòng
+    public List<BookingDTO.Resp> getAllBookings() {
+        List<Booking> bookings = bookingMapper.selectAll();
+        return bookings.stream().map(BookingDTO.Resp::toResponse).toList();
+    }
 }

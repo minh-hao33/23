@@ -10,4 +10,6 @@ public class BookingCriteria extends Page {
     private String username;
     private Long roomId;
     private String status;
-}
+    private String title;
+    private String attendees;
+} 
