@@ -20,6 +20,8 @@ public class BookingDTO {
         private String startTime;
         private String endTime;
         private String status;
+        private String title; // Thêm trường title
+        private String attendees; // Thêm trường attendees
 
         public Booking toBooking() {
             Booking booking = new Booking();
@@ -28,6 +30,8 @@ public class BookingDTO {
             booking.setStartTime(LocalDateTime.parse(this.startTime, formatter));
             booking.setEndTime(LocalDateTime.parse(this.endTime, formatter));
             booking.setStatus(BookingStatusEnum.valueOf(this.status));
+            booking.setTitle(this.title);
+            booking.setAttendees(this.attendees);
             return booking;
         }
     }
@@ -41,6 +45,8 @@ public class BookingDTO {
         private String startTime;
         private String endTime;
         private String status;
+        private String title; // Thêm trường title
+        private String attendees; // Thêm trường attendees
 
         public static Resp toResponse(Booking booking) {
             Resp resp = new Resp();
@@ -49,6 +55,8 @@ public class BookingDTO {
             resp.setStartTime(booking.getStartTime().format(formatter));
             resp.setEndTime(booking.getEndTime().format(formatter));
             resp.setStatus(booking.getStatus().name());
+            resp.setTitle(booking.getTitle()); // Sao chép title
+            resp.setAttendees(booking.getAttendees()); // Sao chép attendees
             return resp;
         }
     }
