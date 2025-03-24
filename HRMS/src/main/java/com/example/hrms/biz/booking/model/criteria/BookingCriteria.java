@@ -12,4 +12,7 @@ public class BookingCriteria extends Page {
     private String status;
     private String title;
     private String attendees;
-} 
+    private String content;
+    private String bookingType;
+    private String weekdays;
+}
