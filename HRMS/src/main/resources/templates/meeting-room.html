@@ -353,6 +353,102 @@
             background-color: rgba(0, 123, 255, 0.1);
         }
 
+        section {
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            background: #e3f2fd;
+            z-index: 1001;
+        }
+
+        button {
+            font-weight: 400;
+            color: #fff;
+            padding: 14px 22px;
+            border: none;
+            background: #4070f4;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        button:hover {
+            background-color: #265df2;
+        }
+
+        .modal-box {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .overlay {
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        section.active .overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 380px;
+            width: 100%;
+            padding: 30px 20px;
+            border-radius: 24px;
+            background-color: #fff;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%) scale(1.2);
+            border: none; /* Remove border */
+        }
+
+        section.active .modal-box {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-box i {
+            font-size: 70px;
+            color: #4070f4;
+        }
+
+        .modal-box h2 {
+            margin-top: 20px;
+            font-size: 25px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .modal-box h3 {
+            font-size: 16px;
+            font-weight: 400;
+            color: #333;
+            text-align: center;
+        }
+
+        .modal-box .buttons {
+            margin-top: 25px;
+        }
+
+        .modal-box button {
+            font-size: 14px;
+            padding: 6px 12px;
+            margin: 0 10px;
+        }
+
         footer {
             padding: 15px 0;
             text-align: center;
@@ -362,23 +458,6 @@
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
-    <div class="container">
-        <a class="navbar-brand" href="index.html">Meeting</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="oi oi-menu"></span> Menu
-        </button>
-        <div class="collapse navbar-collapse" id="ftco-nav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active"><a href="index.html" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="#" class="nav-link">Office</a></li>
-                <li class="nav-item"><a href="bookings.html" class="nav-link">Meeting</a></li>
-                <li class="nav-item cta mr-md-2"><a href="#" class="nav-link">Account</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
 <!-- Top Navigation -->
 <div class="topnav">
     <div class="logo">
@@ -495,7 +574,17 @@
 <div class="nav-arrow nav-right">
     <i class="fas fa-chevron-right"></i>
 </div>
-
+<section>
+    <span class="overlay"></span>
+    <div class="modal-box">
+        <i class="fa-regular fa-circle-check"></i>
+        <h2 id="modal-title"></h2>
+        <h3 id="modal-message"></h3>
+        <div class="buttons">
+            <button class="close-btn">Ok, Close</button>
+        </div>
+    </div>
+</section>
 <footer class="container-fluid">
     <p>&copy; 2025 Meeting Room Reservation System</p>
 </footer>
@@ -714,6 +803,25 @@
                 updateRoomScrollPosition();
             });
         }
+
+        //Warning for not being able to select a room in the past
+        const section = document.querySelector("section"),
+            overlay = document.querySelector(".overlay"),
+            closeBtn = document.querySelector(".close-btn"),
+            modalTitle = document.getElementById("modal-title"),
+            modalMessage = document.getElementById("modal-message"),
+            icon = document.querySelector(".modal-box i");
+
+        function showNotification(message, confirm = false) {
+            modalTitle.textContent = confirm ? "Confirmation" : "Notification";
+            modalMessage.textContent = message;
+            icon.className = "fa-solid fa-triangle-exclamation"; // Biểu tượng cảnh báo
+            icon.style.color = "#f5a623"; // Màu vàng cảnh báo
+            section.classList.add("active");
+        }
+
+        overlay.addEventListener("click", () => section.classList.remove("active"));
+        closeBtn.addEventListener("click", () => section.classList.remove("active"));
 
         // Generate time slots (8:00 - 18:00)
         const startHour = 8;
@@ -946,7 +1054,7 @@
                     if (isPastTime(hour, minute)) {
                         // Reset to original position
                         $(this).css('top', $(this).data('originalTop'));
-                        alert('Không thể di chuyển cuộc họp vào thời gian đã qua!');
+                        showNotification('Không thể di chuyển cuộc họp vào thời gian đã qua!');
                         return;
                     }
 
@@ -1201,7 +1309,7 @@
 
                 // Check if this time is in the past
                 if ($(this).hasClass('past-time')) {
-                    alert('Không thể đặt phòng họp cho thời gian đã qua!');
+                    showNotification('Không thể đặt phòng họp cho thời gian đã qua!');
                     return;
                 }
 
@@ -1230,7 +1338,7 @@
                 });
 
                 if (isTimeSlotBooked) {
-                    alert('Thời gian này đã được đặt. Vui lòng chọn thời gian khác.');
+                    showNotification('Thời gian này đã được đặt. Vui lòng chọn thời gian khác.');
                     return;
                 }
 
