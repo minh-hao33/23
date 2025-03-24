@@ -1,10 +1,9 @@
 package com.example.hrms.biz.booking.model;
 
-import com.example.hrms.enumation.BookingStatusEnum;
+import com.example.hrms.enumation.*;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Data
@@ -17,6 +16,9 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private BookingStatusEnum status;
-    private String title; // Thêm trường title
-    private String attendees; // Thêm trường attendees
+    private String title;
+    private String attendees;
+    private String content;
+    private BookingType bookingType;
+    private String weekdays;
 }
