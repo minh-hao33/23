@@ -18,4 +18,9 @@ public class UserController {
     public String loginPage() {
         return "login"; // Trả về trang login.html
     }
+
+    @RequestMapping("/create")
+    public String createAccountPage() {
+        return "createaccount"; // Trả về trang create-account.html
+    }
 }

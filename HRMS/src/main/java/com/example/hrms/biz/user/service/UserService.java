@@ -5,7 +5,6 @@ import com.example.hrms.biz.user.model.criteria.UserCriteria;
 import com.example.hrms.biz.user.model.dto.UserDTO;
 import com.example.hrms.enumation.RoleEnum;
 import com.example.hrms.biz.user.repository.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,8 +18,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(UserMapper userMapper) {
@@ -38,6 +36,7 @@ public class UserService {
     public User getUserByUsername(String username) {
         return userMapper.getUserByUsername(username);
     }
+
     public List<User> getAllUsers() {
         return userMapper.getAllUsers();
     }
@@ -89,9 +88,11 @@ public class UserService {
                 })
                 .collect(Collectors.toList());
     }
+
     public boolean isUsernameDuplicated(String username) {
         return userMapper.checkUsernameExists(username) > 0;
     }
+
     public RoleEnum getCurrentUserRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

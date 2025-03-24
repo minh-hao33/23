@@ -73,7 +73,7 @@ public class UserRestController {
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content)
     })
-    @PostMapping("/check-login")
+    @PostMapping("/login")
     public Result checkLogin(@RequestBody UserDTO.Req loginRequest) {
         User user = userService.getUserByUsername(loginRequest.getUsername());
 
@@ -89,7 +89,7 @@ public class UserRestController {
         return new Result("Success", "Login successful.");
     }
 
-    @PutMapping("/update-account/{username}")
+    @PutMapping("/update/{username}")
     @PreAuthorize("hasAnyAuthority('Admin', 'Supervisor')")
     public Result updateAccount(@PathVariable String username, @RequestBody UserDTO.UpdateReq userReq) {
         User existingUser = userService.getUserByUsername(username);
@@ -152,17 +152,7 @@ public class UserRestController {
         User user = userService.getUserByUsername(username);
         return user != null ? user : null;
     }
-    @Operation(summary = "Get departments and roles")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get success",
-                    content = { @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = UserDTO.DepartmentAndRole.class))) }),
-            @ApiResponse(responseCode = "400", description = "Invalid request",
-                    content = @Content) })
-    @GetMapping("/departments-and-roles")
-    public List<UserDTO.DepartmentAndRole> getDepartmentsAndRoles() {
-        return userService.getDepartmentsAndRoles();
-    }
+
     @Operation(summary = "Create account")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Account created",
@@ -172,7 +162,8 @@ public class UserRestController {
                     content = @Content),
             @ApiResponse(responseCode = "409", description = "Conflict",
                     content = @Content) })
-    @PostMapping("/create-account")
+    @PostMapping("/create")
+    @PreAuthorize("hasAnyAuthority('Admin', 'Supervisor')")
     public Result createAccount(@RequestBody UserDTO.Req userReq) {
         // Kiểm tra tính hợp lệ của username
         if (userService.getUserByUsername(userReq.getUsername()) != null) {
@@ -208,7 +199,7 @@ public class UserRestController {
         boolean hasSpecial = password.matches(".*[^a-zA-Z0-9].*");
         return hasUppercase && hasLowercase && hasSpecial;
     }
-    @GetMapping("/check-username")
+    @GetMapping("/check")
     public Result checkUsernameExists(@RequestParam String username) {
         boolean isDuplicated = userService.isUsernameDuplicated(username);
         return new Result("Success", isDuplicated ? "Username is already taken" : "Username is available");
