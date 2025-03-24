@@ -53,7 +53,7 @@ public class RoleRestController {
                     content = {@Content(mediaType = "application/json",
                             array = @ArraySchema(schema = @Schema(implementation = Role.class)))})
     })
-    @GetMapping("/list-all")
+    @GetMapping("/all")
     public Result listAll() {
         List<Role> roles = roleService.getAllRoles();
         return new Result("Success", roles.toString());

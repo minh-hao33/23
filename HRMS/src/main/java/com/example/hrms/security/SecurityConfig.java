@@ -25,12 +25,22 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/bookings/**",
+                                "/api/v1/bookings/**",
                                 "/meeting-room/**",
+                                "/api/v1/meeting-room/**",
+                                "/departments/**",
+                                "/api/v1/departments/**",
+                                "/roles/**",
+                                "/api/v1/roles/**",
+                                "/requests/**",
+                                "/api/v1/requests/**",
+                                "/users/**",
+                                "/api/v1/users/login",
                                 "/api/v1/users/all",
-                                "/api/v1/users/check-username",
-                                "/api/v1/users/create-account",
-                                "/api/v1/users/departments-and-roles").permitAll()
-                        .requestMatchers("/api/v1/users/update-account/**").hasAnyAuthority("Admin", "Supervisor")
+                                "/api/v1/users/check",
+                                "/api/v1/users/getUserByUsername/").permitAll()
+                        .requestMatchers("/api/v1/users/create/**").hasAnyAuthority("Admin", "Supervisor")
+                        .requestMatchers("/api/v1/users/update/**").hasAnyAuthority("Admin", "Supervisor")
                         .requestMatchers("/api/v1/users/delete/**")
                         .hasAuthority("ADMIN") // Chỉ Admin mới được xóa người dùng
 
