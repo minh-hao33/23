@@ -59,5 +59,10 @@ public class UserDTO {
         private String email;
 
     }
+    @Data
+    public static class ChangePasswordReq {
+        private String oldPassword;
+        private String newPassword;
+    }
 
 }
