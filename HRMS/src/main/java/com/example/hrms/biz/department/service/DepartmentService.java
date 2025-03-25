@@ -30,16 +30,6 @@ public class DepartmentService {
         if (departmentMapper.countByName(req.getDepartmentName()) > 0) {
             throw new RuntimeException("Department name already exists");
         }
-        // Kiểm tra trùng tên nhân viên trong phòng ban
-        if (departmentMapper.countUserInDepartment(req.getUserName(), req.getDepartmentId()) > 0) {
-            throw new RuntimeException("Username already exists in this department");
-        }
-        Department department = req.toDepartment();
-        departmentMapper.insertDepartment(department);
-        // Nếu có username và roleName thì thêm User vào department
-        if (req.getUserName() != null && req.getRoleName() != null) {
-            departmentMapper.insertUserForDepartment(req.getUserName(), req.getRoleName(), department.getDepartmentId());
-        }
     }
 
     public void updateDepartment(Long id, DepartmentDTO.Req req) {
@@ -53,21 +43,12 @@ public class DepartmentService {
         Department department = req.toDepartment();
         department.setDepartmentId(id);
         departmentMapper.updateDepartment(department);
-        // Update user information if provided
-        if (req.getUserName() != null && req.getRoleName() != null) {
-            if (departmentMapper.countUserInDepartment(req.getUserName(), id) > 0) {
-                departmentMapper.updateUserForDepartment(req.getUserName(), req.getRoleName(), id);
-            } else {
-                departmentMapper.insertUserForDepartment(req.getUserName(), req.getRoleName(), id);
-            }
-        }
     }
 
     public void deleteDepartment(Long departmentId) {
         if (findById(departmentId).isEmpty()) {
             throw new RuntimeException("Department not found");
         }
-        departmentMapper.deleteUsersByDepartmentId(departmentId);
         departmentMapper.deleteDepartment(departmentId);
     }
 
@@ -82,5 +63,8 @@ public class DepartmentService {
 
     public List<Department> getAllDepartments() {
         return departmentMapper.filterByCriteria(new DepartmentCriteria());
+    }
+    public List<String> findAllDepartmentNames() {
+        return departmentMapper.findAllDepartmentNames();
     }
 }

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -31,6 +32,7 @@ public class DepartmentRestController {
     }
 
     @Operation(summary = "List departments")
+    @PreAuthorize("hasRole('ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get success",
                     content = { @Content(mediaType = "application/json",
@@ -46,16 +48,39 @@ public class DepartmentRestController {
         return response;
     }
 
+    @Operation(summary = "Get all department names")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    @GetMapping("/employee")
+    public List<String> getAllDepartmentNames() {
+        return departmentService.findAllDepartmentNames();
+    }
+
     @Operation(summary = "Get all departments")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Department.class)) }),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content)
+    })
     @GetMapping("/all")
     public List<Department> getAllDepartments() {
         return departmentService.getAllDepartments();
     }
 
     @Operation(summary = "Get department by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Success"),
-            @ApiResponse(responseCode = "404", description = "Department not found")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Department.class)) }),
+            @ApiResponse(responseCode = "404", description = "Department not found",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content)
     })
     @GetMapping("/{id}")
     public List<Department> getDepartmentById(@PathVariable Long id) {
@@ -67,6 +92,7 @@ public class DepartmentRestController {
     }
 
     @Operation(summary = "Create department")
+    @PreAuthorize("hasRole('ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Department created",
                     content = { @Content(mediaType = "application/json",
@@ -81,6 +107,7 @@ public class DepartmentRestController {
 
 
     @Operation(summary = "Update department")
+    @PreAuthorize("hasRole('ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Department updated",
                     content = { @Content(mediaType = "application/json",
@@ -96,6 +123,7 @@ public class DepartmentRestController {
 
 
     @Operation(summary = "Delete department")
+    @PreAuthorize("hasRole('ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Department deleted",
                     content = { @Content(mediaType = "application/json",

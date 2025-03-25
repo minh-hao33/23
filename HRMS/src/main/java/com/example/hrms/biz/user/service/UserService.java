@@ -3,11 +3,13 @@ package com.example.hrms.biz.user.service;
 import com.example.hrms.biz.user.model.User;
 import com.example.hrms.biz.user.model.criteria.UserCriteria;
 import com.example.hrms.biz.user.model.dto.UserDTO;
+import com.example.hrms.common.http.model.Result;
 import com.example.hrms.enumation.RoleEnum;
 import com.example.hrms.biz.user.repository.UserMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -116,5 +118,36 @@ public class UserService {
         } catch (IllegalArgumentException e) {
             return null; // Nếu không khớp với Enum
         }
+    }
+    public Result changePassword(String oldPassword, String newPassword) {
+        // Lấy username từ session (Spring Security)
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(principal instanceof UserDetails)) {
+            return new Result("Error", "User is not authenticated.");
+        }
+        String username = ((UserDetails) principal).getUsername();
+        User user = userMapper.getUserByUsername(username);
+        if (user == null) {
+            return new Result("Error", "User not found.");
+        }
+        // Kiểm tra mật khẩu cũ
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return new Result("Error", "Incorrect old password.");
+        }
+        // Kiểm tra mật khẩu mới có đủ mạnh không
+        if (!isValidPassword(newPassword)) {
+            return new Result("Error", "New password is not strong enough.");
+        }
+        // Mã hóa & cập nhật mật khẩu mới
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.updateUser(user);
+        return new Result("Success", "Password changed successfully.");
+    }
+
+    private boolean isValidPassword(String password) {
+        return password.length() >= 10 &&
+                password.matches(".*[A-Z].*") &&
+                password.matches(".*[a-z].*") &&
+                password.matches(".*[^a-zA-Z0-9].*");
     }
 }

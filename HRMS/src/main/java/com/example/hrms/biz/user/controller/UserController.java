@@ -23,4 +23,8 @@ public class UserController {
     public String createAccountPage() {
         return "createaccount"; // Trả về trang create-account.html
     }
+    @RequestMapping("/home")
+    public String homePage(Model model) {
+        return "index";
+    }
 }
