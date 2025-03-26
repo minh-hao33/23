@@ -92,6 +92,8 @@
             gap: 10px;
             width: 100%;
             padding-left: 60px; /* Align with the room cards */
+            overflow-x: auto; /* Add horizontal scrolling if needed */
+            align-items: center; /* Vertically center all items */
         }
 
         .filter-input {
@@ -99,14 +101,18 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
             margin-right: 10px;
+            height: 39px;
         }
 
         .btn {
-            padding: 8px 20px;
-            border-radius: 4px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            margin-right: 10px;
             cursor: pointer;
             border: none;
             font-weight: 500;
+            height: 39px;
         }
 
         .btn-filter {
@@ -117,6 +123,24 @@
         .btn-reset {
             background-color: white;
             border: 1px solid var(--border-color);
+        }
+        .combo-box {
+            display: inline-block;
+            margin-right: 10px;
+            position: relative;
+        }
+
+        .combo-box select {
+            border-radius: 5px;
+            padding: 8px;
+            font-family: 'Arial', sans-serif;
+            background-color: white;
+            color: #333;
+        }
+
+        .combo-box select:hover {
+            border-color: #005A9E; /* Darker shade on hover */
+            cursor: pointer;
         }
 
         .room-list {
@@ -474,28 +498,30 @@
 <!-- Filter Bar -->
 <div class="container-fluid px-0">
     <div class="filter-bar">
-        <input type="date" class="filter-input date-input" value="2024-10-15">
+        <input type="date" id="date-input" class="filter-input date-input">
         <!-- Start Time -->
         <input type="datetime-local" id="startTime" class="filter-input time-input" name="startTime" placeholder="Start time">
         <!-- End Time -->
         <input type="datetime-local" id="endTime" class="filter-input time-input" name="endTime" placeholder="End time">
-        <select class="filter-input duration-input">
-            <option>Duration</option>
-            <option>15'</option>
-            <option>30'</option>
-            <option>1h</option>
-            <option>2h</option>
-        </select>
-        <select class="filter-input seats-input">
-            <option>Capacity</option>
-            <option>4 seats</option>
-            <option>6 seats</option>
-            <option>8 seats</option>
-            <option>12 seats</option>
-        </select>
-        <select class="filter-input location-input">
-            <option>789 tower</option>
-        </select>
+        <div class="combo-box">
+            <select id="duration" class="filter-input duration-input">
+                <option>Duration</option>
+                <option>15'</option>
+                <option>30'</option>
+                <option>1h</option>
+                <option>2h</option>
+            </select>
+        </div>
+        <div class="combo-box">
+            <select class="filter-input seats-input">
+                <option>Capacity</option>
+            </select>
+        </div>
+        <div class="combo-box">
+            <select class="filter-input location-input">
+                <option>Location</option>
+            </select>
+        </div>
         <input type="text" class="filter-input search-input" placeholder="Search by room name">
         <button class="btn btn-filter">Filter</button>
         <button class="btn btn-reset">Reset</button>
@@ -506,38 +532,6 @@
 <div class="container-fluid px-0">
     <div class="room-list" id="roomList">
         <!-- div class="room-card selected-room" data-room="ha-noi">
-            <div class="room-header">
-                <h4 class="room-name">Hà Nội</h4>
-                <div class="room-info">
-                    <span>789 tower</span>
-                </div>
-                <div class="room-info">
-                    <span>1 VNĐh - 12 seats</span>
-                </div>
-            </div>
-        </div>
-        <div class="room-card" data-room="ho-chi-minh">
-            <div class="room-header">
-                <h4 class="room-name">Hồ Chí Minh</h4>
-                <div class="room-info">
-                    <span>789 tower</span>
-                </div>
-                <div class="room-info">
-                    <span>1 VNĐh - 12 seats</span>
-                </div>
-            </div>
-        </div>
-        <div class="room-card" data-room="da-nang">
-            <div class="room-header">
-                <h4 class="room-name">Đà Nẵng</h4>
-                <div class="room-info">
-                    <span>789 tower</span>
-                </div>
-                <div class="room-info">
-                    <span>1 VNĐh - 4 seats</span>
-                </div>
-            </div>
-        </div>
         <div class="room-card" data-room="booth-tokyo">
             <div class="room-header">
                 <h4 class="room-name">Booth Tokyo</h4>
@@ -616,6 +610,7 @@
         // Current date for default filtering
         const today = new Date();
         const formattedDate = today.toISOString().split('T')[0];
+
         $('.date-input').val(formattedDate);
 
         // Store meeting data
@@ -669,7 +664,52 @@
                 $('.loading-indicator').hide();
             }, 500);
         }
+// Thêm hàm populateFilters để lấy dữ liệu cho các combobox
+        function populateFilters(roomData) {
+            // Lấy các giá trị duy nhất của capacity và sắp xếp tăng dần
+            const capacities = [...new Set(roomData
+            .map(room => room.capacity)
+            .filter(capacity => capacity !== null && capacity !== undefined))]
+            .sort((a, b) => a - b);
 
+            // Lấy các cặp roomName-location duy nhất
+            const locationMap = {};
+            roomData.forEach(room => {
+                if (room.roomName && room.location) {
+                    const key = `${room.roomName} - ${room.location}`;
+                    if (!locationMap[key]) {
+                        locationMap[key] = {
+                            value: key,
+                            roomName: room.roomName,
+                            location: room.location
+                        };
+                    }
+                }
+            });
+            const locations = Object.values(locationMap);
+
+            // Cập nhật dropdown capacity
+            const $capacitySelect = $('.seats-input');
+            $capacitySelect.find('option:not(:first)').remove();
+
+            capacities.forEach(capacity => {
+                $capacitySelect.append($('<option>', {
+                    value: capacity,
+                    text: `${capacity} seats`
+                }));
+            });
+
+            // Cập nhật dropdown location
+            const $locationSelect = $('.location-input');
+            $locationSelect.find('option:not(:first)').remove();
+
+            locations.forEach(loc => {
+                $locationSelect.append($('<option>', {
+                    value: loc.value,
+                    text: loc.value
+                }));
+            });
+        }
         // Process API response and update UI
         function processApiResponse(response) {
             if (response.status === 'success') {
@@ -687,7 +727,7 @@
                         allRooms.push({
                             roomId: item.roomId,
                             roomName: item.roomName,
-                            location: item.location || '789 tower', // Default location if not provided
+                            location: item.location || 'Sky Room - Floor 1', // Default location if not provided
                             capacity: item.capacity || 4, // Default capacity if not provided
                             room: `room-${item.roomId}`
                         });
@@ -719,7 +759,7 @@
                         room: roomIdFormatted,
                         roomId: item.roomId,
                         roomName: item.roomName,
-                        location: item.location || (room ? room.location : '789 tower'),
+                        location: item.location || (room ? room.location : 'Sky Room - Floor 1'),
                         capacity: item.capacity || (room ? room.capacity : 4),
                         title: `${item.roomName} - ${item.username}`,
                         organizer: item.username,
@@ -734,7 +774,8 @@
 
                 // Update room list with all rooms from API
                 updateRoomList(allRooms);
-
+                // Populate filter dropdowns with data from API
+                populateFilters(allRooms);
                 // Generate grid
                 generateTimeColumn();
                 generateRoomGrid();
@@ -744,6 +785,67 @@
                 // Show error message to user if needed
             }
         }
+// Xử lý sự kiện cho nút Filter và Reset
+        $(document).ready(function() {
+            // Button click handlers
+            $('.btn-filter').on('click', function() {
+                // Collect filter values
+                const filters = {
+                    date: $('.date-input').val(),
+                    startTime: $('#startTime').val(),
+                    endTime: $('#endTime').val(),
+                    duration: $('#duration').val() !== 'Duration' ? $('#duration').val() : null,
+                    capacity: $('.seats-input').val() !== 'Capacity' ? parseInt($('.seats-input').val()) : null,
+                    location: $('.location-input').val() !== 'Location' ? $('.location-input').val() : null,
+                    roomName: $('.search-input').val() || null
+                };
+
+                // Process duration from dropdown to minutes
+                if (filters.duration) {
+                    if (filters.duration.includes('h')) {
+                        // Convert hours to minutes (e.g., "1h" to 60)
+                        filters.duration = parseInt(filters.duration) * 60;
+                    } else if (filters.duration.includes("'")) {
+                        // Convert minutes string (e.g., "15'") to number
+                        filters.duration = parseInt(filters.duration.replace("'", ""));
+                    }
+                }
+
+                // Extract location part if needed
+                if (filters.location && filters.location.includes(' - ')) {
+                    const parts = filters.location.split(' - ');
+                    filters.roomName = parts[0];
+                    filters.location = parts[1];
+                }
+
+                // Call API with filters
+                fetchMeetingRooms(filters);
+            });
+
+            $('.btn-reset').on('click', function() {
+                // Reset all filters to default values
+                $('.date-input').val(formattedDate);
+                $('#startTime').val('');
+                $('#endTime').val('');
+                $('#duration').val('Duration');
+                $('.seats-input').val('Capacity');
+                $('.location-input').val('Location');
+                $('.search-input').val('');
+
+                // Fetch with default filters (today's date)
+                fetchMeetingRooms({ date: formattedDate });
+            });
+
+            // Format datetime inputs for better display
+            $('#startTime, #endTime').on('change', function() {
+                // When date/time is selected, show it in a readable format
+                if (this.value) {
+                    $(this).css('color', '#333');
+                } else {
+                    $(this).css('color', 'transparent');
+                }
+            });
+        });
 
         // Update room list based on API data
         function updateRoomList(allRooms) {
