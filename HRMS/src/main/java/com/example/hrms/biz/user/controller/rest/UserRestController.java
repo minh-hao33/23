@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -75,70 +74,20 @@ public class UserRestController {
                     content = @Content)
     })
     @PostMapping("/login")
-    public Result checkLogin(@RequestBody UserDTO.Req loginRequest, HttpSession session) {
+    public Result checkLogin(@RequestBody UserDTO.Req loginRequest) {
         User user = userService.getUserByUsername(loginRequest.getUsername());
 
-        if (user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            return new Result("Error", "Invalid username or password.");
+        if (user == null) {
+            return new Result("Error", "Username not found.");
         }
 
-        // Lưu vào session để xác định người dùng đã đăng nhập
-        session.setAttribute("loggedInUser", user.getUsername());
+        boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+        if (!passwordMatches) {
+            return new Result("Error", "Invalid password.");
+        }
 
         return new Result("Success", "Login successful.");
     }
-
-    @Operation(summary = "Change password")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Password changed successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Result.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request",
-                    content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
-                    content = @Content),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Old password is incorrect",
-                    content = @Content)
-    })
-    @PutMapping("/change-password")
-    public Result changePassword(@RequestBody UserDTO.ChangePasswordReq request, HttpSession session) {
-        // Kiểm tra người dùng đã đăng nhập chưa
-        String loggedInUsername = (String) session.getAttribute("loggedInUser");
-        if (loggedInUsername == null) {
-            return new Result("Error", "User is not logged in.");
-        }
-        User user = userService.getUserByUsername(loggedInUsername);
-        if (user == null) {
-            return new Result("Error", "User not found.");
-        }
-        // Kiểm tra mật khẩu cũ có đúng không
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            return new Result("Error", "Old password is incorrect.");
-        }
-        // Kiểm tra mật khẩu mới có hợp lệ không
-        if (!isValidPassword(request.getNewPassword())) {
-            return new Result("Error", "New password must be at least 10 characters long and include uppercase, lowercase, and special character.");
-        }
-        // Mã hóa và cập nhật mật khẩu mới
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userService.updateUser(user);
-        return new Result("Success", "Password changed successfully.");
-    }
-
-    @Operation(summary = "Logout user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Logged out successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Result.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - User is not logged in",
-                    content = @Content)
-    })
-    @PostMapping("/logout")
-    public Result logout(HttpSession session) {
-        session.invalidate();
-        return new Result("Success", "Logged out successfully.");
-    }
-
 
     @PutMapping("/update/{username}")
     @PreAuthorize("hasAnyAuthority('Admin', 'Supervisor')")
@@ -255,4 +204,28 @@ public class UserRestController {
         boolean isDuplicated = userService.isUsernameDuplicated(username);
         return new Result("Success", isDuplicated ? "Username is already taken" : "Username is available");
     }
+    @PutMapping("/change-password/{username}")
+    public Result changePassword(@PathVariable String username, @RequestBody UserDTO.ChangePasswordReq req) {
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            return new Result("Error", "User not found.");
+        }
+
+        if (!isValidlPassword(req.getNewPassword())) {
+            return new Result("Error", "Mật khẩu phải lớn hơn 10 ký tự, bao gồm cả ký tự hoa thường và có ít nhất một ký tự đặc biệt.");
+        }
+
+        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        userService.updateUser(user);
+
+        return new Result("Success", "Password changed successfully.");
+    }
+
+    private boolean isValidlPassword(String password) {
+        return password.length() >= 10 &&
+                password.matches(".*[A-Z].*") &&
+                password.matches(".*[a-z].*") &&
+                password.matches(".*[^a-zA-Z0-9].*");
+    }
+
 }

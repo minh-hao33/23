@@ -6,12 +6,14 @@ import lombok.Data;
 @Data
 public class User {
     private String username;
+    private String employee_name;
     private String password;
     private Long departmentId;
     private RoleEnum role_name;
     private boolean isSupervisor;
     private String status;
     private String email;
+    private String department_name;
 
     public void setSupervisor(boolean isSupervisor) {
         this.isSupervisor = isSupervisor;

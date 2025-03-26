@@ -9,8 +9,10 @@ public class UserDTO {
     @Data
     public static class Req {
         private String username;
+        private String employee_name;
         private String password;
         private Long departmentId;
+        private String department_name;
         private RoleEnum role_name;
         private boolean isSupervisor;
         private String status;
@@ -19,8 +21,10 @@ public class UserDTO {
         public User toUser() {
             User user = new User();
             user.setUsername(this.username);
+            user.setEmployee_name(this.username);
             user.setPassword(this.password);
             user.setDepartmentId(this.departmentId);
+            user.setDepartment_name(this.department_name);
             user.setRole_name(String.valueOf(this.role_name));
             user.setSupervisor(this.isSupervisor);
             user.setStatus(this.status);
@@ -32,7 +36,9 @@ public class UserDTO {
     @Data
     public static class Resp {
         private String username;
+        private String employee_name;
         private Long departmentId;
+        private String department_name;
         private RoleEnum role_name;
         private boolean isSupervisor;
         private String status;
@@ -51,8 +57,10 @@ public class UserDTO {
     @Data
     public static class UpdateReq {
         private String username;
+        private String employee_name;
         private String password;
         private Long departmentId;
+        private String department_name;
         private RoleEnum role_name;
         private boolean isSupervisor;
         private String status;

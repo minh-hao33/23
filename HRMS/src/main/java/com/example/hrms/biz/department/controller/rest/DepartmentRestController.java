@@ -67,9 +67,11 @@ public class DepartmentRestController {
                     content = @Content)
     })
     @GetMapping("/all")
-    public List<Department> getAllDepartments() {
-        return departmentService.getAllDepartments();
+    public Result getAllDepartments() {
+        List<Department> departments = departmentService.getAllDepartments();
+        return new Result("Success", departments.toString());
     }
+
 
     @Operation(summary = "Get department by ID")
     @PreAuthorize("hasRole('ADMIN')")

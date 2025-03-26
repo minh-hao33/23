@@ -11,15 +11,19 @@ import java.util.List;
 @Setter
 public class UserCriteria extends Page {
     private String username;
+    private String employee_name;
     private Long departmentId;
+    private String department_name;
     private RoleEnum role_name;
     private Boolean isSupervisor;
     private String status;
     private String email;
 
-    public UserCriteria(String username, Long departmentId, RoleEnum role_name, Boolean isSupervisor, String status, String email) {
+    public UserCriteria(String username,String employee_name ,Long departmentId, String department_name , RoleEnum role_name, Boolean isSupervisor, String status, String email) {
         this.username = username;
+        this.employee_name = employee_name;
         this.departmentId = departmentId;
+        this.department_name = department_name;
         this.role_name = role_name;
         this.isSupervisor = isSupervisor;
         this.status = status;
