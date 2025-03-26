@@ -14,6 +14,7 @@ public class UserController {
         model.addAttribute("user", new Booking());
         return "user";
     }
+
     @RequestMapping("/login")
     public String loginPage() {
         return "login"; // Trả về trang login.html
@@ -23,8 +24,14 @@ public class UserController {
     public String createAccountPage() {
         return "createaccount"; // Trả về trang create-account.html
     }
+
     @RequestMapping("/home")
     public String homePage(Model model) {
         return "index";
+    }
+
+    @RequestMapping("/update/{username}")
+    public String updateAccountPage() {
+        return "updateaccount";
     }
 }

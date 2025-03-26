@@ -10,24 +10,34 @@ import java.util.List;
 @Mapper
 public interface UserMapper {
 
-    // Lấy tất cả người dùng
-    @Select("SELECT username, email, password, department_id, role_name, is_supervisor, status FROM Users")
+    @Select("SELECT u.username, u.email, u.password, u.department_id, u.role_name, u.is_supervisor, u.status, u.employee_name, d.department_name " +
+            "FROM Users u " +
+            "LEFT JOIN Departments d ON u.department_id = d.department_id")
     List<User> getAllUsers();
-
     // Lấy người dùng theo tên người dùng
-    @Select("SELECT username, email, password, department_id, role_name, is_supervisor, status FROM Users WHERE username = #{username}")
+    @Select("SELECT u.username, u.email, u.password, u.department_id, d.department_name, " +
+            "u.role_name, u.is_supervisor, u.status, u.employee_name " +
+            "FROM Users u " +
+            "LEFT JOIN Departments d ON u.department_id = d.department_id " +
+            "WHERE u.username = #{username}")
     User getUserByUsername(String username);
 
-    @Select("SELECT password FROM users WHERE username = #{username}")
+
+    @Select("SELECT password FROM Users WHERE username = #{username}")
     String getPasswordByUsername(String username);
 
     // Thêm người dùng mới
-    @Update("UPDATE Users SET email = #{email}, password = #{password}, department_id = #{departmentId}, role_name = #{role_name}, is_supervisor = #{isSupervisor}, status = #{status} WHERE username = #{username}")
+    @Insert("INSERT INTO Users (username, email, password, department_id, role_name, is_supervisor, status, employee_name) VALUES (#{username}, #{email}, #{password}, #{departmentId}, #{role_name}, #{isSupervisor}, #{status}, #{employee_name})")
     void insertUser(User user);
 
     // Cập nhật thông tin người dùng
-    @Update("UPDATE Users SET email = #{email}, password = #{password}, department_id = #{departmentId}, role_name = #{role_name}, is_supervisor = #{isSupervisor}, status = #{status} WHERE username = #{username}")
+    @Update("UPDATE Users SET email = #{email}, password = #{password}, " +
+            "department_id = (SELECT department_id FROM Departments WHERE department_name = #{departmentName}), " +
+            "role_name = #{role_name}, is_supervisor = #{isSupervisor}, status = #{status}, " +
+            "employee_name = #{employee_name} " +
+            "WHERE username = #{username}")
     void updateUser(User user);
+
 
     // Xóa người dùng theo tên người dùng
     @Delete("DELETE FROM Users WHERE username = #{username}")
@@ -35,19 +45,17 @@ public interface UserMapper {
 
     // Tìm kiếm người dùng dựa trên departmentIds và roles
     @Select("<script>" +
-            "SELECT username, email, password, department_id, role, is_supervisor, status FROM Users WHERE 1=1" +
-            "<if test='departmentIds != null and departmentIds.size() > 0'>" +
-            " AND department_id IN " +
-            "<foreach item='departmentId' collection='departmentIds' open='(' separator=',' close=')'>" +
-            "#{departmentId}" +
-            "</foreach>" +
-            "</if>" +
-            "<if test='roles != null and roles.size() > 0'>" +
-            " AND role IN " +
-            "<foreach item='role' collection='roles' open='(' separator=',' close=')'>" +
-            "#{role}" +
-            "</foreach>" +
-            "</if>" +
+            "SELECT username, email, password, department_id, role_name, is_supervisor, status, employee_name " +
+            "FROM Users " +
+            "WHERE " +
+            "    (#{departmentIds} IS NULL OR department_id IN " +
+            "        <foreach item='departmentId' collection='departmentIds' open='(' separator=',' close=')'>" +
+            "            #{departmentId}" +
+            "        </foreach>) " +
+            "    AND (#{roles} IS NULL OR role_name IN " +
+            "        <foreach item='role' collection='roles' open='(' separator=',' close=')'>" +
+            "            #{role}" +
+            "        </foreach>)" +
             "</script>")
     List<User> searchUsers(@Param("departmentIds") List<Long> departmentIds, @Param("roles") List<RoleEnum> roles);
 
@@ -57,6 +65,7 @@ public interface UserMapper {
     // Lấy đơn vị và quyền của tất cả người dùng
     @Select("SELECT department_id, role_name FROM Users")
     List<User> getDepartmentsAndRoles();
+
     @Select("SELECT COUNT(*) FROM Users WHERE username = #{username}")
     int checkUsernameExists(String username);
 }
