@@ -103,7 +103,7 @@
         employee_name: document.getElementById('employee_name').value,
         password: document.getElementById('password').value,
         email: document.getElementById('email').value,
-        department_name: document.getElementById('department').value, // Sử dụng department_name
+        department_name: document.getElementById('department').value,
         role_name: document.getElementById('role').value,
         status: document.getElementById('active').checked
       };
@@ -119,14 +119,14 @@
         console.log('Response:', result); // Ghi lại phản hồi để kiểm tra
 
         if (result.status === 'Success') {
-          alert(result.message);
-          window.location.href = "/users";// Redirect to user.html after successful creation
+          showNotification(result.message);
+          window.location.href = "/users";
         } else {
-          alert(result.message || 'Có lỗi xảy ra. Vui lòng thử lại sau!');
+          showNotification(result.message || 'Có lỗi xảy ra. Vui lòng thử lại sau!');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Có lỗi xảy ra. Vui lòng thử lại sau!');
+        showNotification('Có lỗi xảy ra. Vui lòng thử lại sau!');
       }
     }
 
@@ -144,6 +144,24 @@
         window.location.href = "/users"; // Redirect to user.html when cancel button is clicked
       });
     };
+
+    const section = document.querySelector("section"),
+            overlay = document.querySelector(".overlay"),
+            closeBtn = document.querySelector(".close-btn"),
+            modalTitle = document.getElementById("modal-title"),
+            modalMessage = document.getElementById("modal-message"),
+            secondaryAction = document.getElementById("secondary-action");
+
+    function showNotification(message, confirm = false) {
+      modalTitle.textContent = confirm ? "Confirmation" : "Notification";
+      modalMessage.textContent = message;
+      secondaryAction.style.display = confirm ? "inline-block" : "none";
+      section.classList.add("active");
+    }
+
+    overlay.addEventListener("click", () => section.classList.remove("active"));
+    closeBtn.addEventListener("click", () => section.classList.remove("active"));
+  </script>
   </script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">

@@ -87,5 +87,10 @@ public class GlobalExceptionHandler {
     log.warn("NOT_FOUND_EXCEPTION : {} | {}", req.getRequestURI(), e.getMessage());
     return new ResultData<>(Result.NO_DATA, e.getMessage(), null);
   }
+  @ExceptionHandler(InvalidPasswordException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ResultData<?> handleInvalidPasswordException(InvalidPasswordException ex) {
+    return new ResultData<>(Result.PARAM_ERROR, ex.getMessage(), null);
+  }
 
-}
+  }

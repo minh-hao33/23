@@ -5,6 +5,7 @@ import com.example.hrms.biz.department.model.criteria.DepartmentCriteria;
 import com.example.hrms.biz.department.model.dto.DepartmentDTO;
 import com.example.hrms.biz.department.service.DepartmentService;
 import com.example.hrms.common.http.model.Result;
+import com.example.hrms.common.http.model.ResultData;
 import com.example.hrms.common.http.model.ResultPageData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -66,10 +67,11 @@ public class DepartmentRestController {
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
+
     @GetMapping("/all")
-    public Result getAllDepartments() {
+    public ResultData<List<Department>> getAllDepartments() {
         List<Department> departments = departmentService.getAllDepartments();
-        return new Result("Success", departments.toString());
+        return new ResultData<>(Result.SUCCESS, "Departments retrieved successfully", departments);
     }
 
 
