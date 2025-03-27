@@ -6,6 +6,12 @@
   <title>Cập nhật tài khoản</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
+    const Status = {
+      SUCCESS: "success",
+      FAIL: "fail",
+      EXCEPTION_FAIL: "fail"
+    };
+
     async function fetchUserData(username) {
       try {
         const response = await fetch(`/api/v1/users/getUserByUsername/${username}`);
@@ -38,9 +44,6 @@
         console.error('Lỗi khi lấy dữ liệu người dùng:', error);
       }
     }
-
-
-
 
     async function fetchDepartments() {
       try {
@@ -125,6 +128,7 @@
         alert(result.message);
       } catch (error) {
         console.error('Lỗi khi cập nhật tài khoản:', error);
+        alert('Có lỗi xảy ra. Vui lòng thử lại sau!');
       }
     }
 
@@ -140,20 +144,16 @@
         });
 
         const result = await response.json();
-        if (result.status === 'Success') {
-          alert(result.message);
-          window.location.href = "/users"; // Redirect to users.html after successful update
+        if (result.status === 'SUCCESS') {
+          showNotification(result.message);
+          window.location.href = "/users";
         } else {
-          alert(result.message || 'Có lỗi xảy ra. Vui lòng thử lại sau!');
+          showNotification(result.message || 'Có lỗi xảy ra. Vui lòng thử lại sau!');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Có lỗi xảy ra. Vui lòng thử lại sau!');
+        showNotification('Có lỗi xảy ra. Vui lòng thử lại sau!');
       }
-
-      const result = await response.json();
-      alert(result.message);
-      closePasswordModal();
     }
 
     function resetPassword() {
@@ -163,7 +163,6 @@
     function closePasswordModal() {
       document.getElementById('resetPasswordModal').classList.add('hidden');
     }
-
 
     window.onload = async function() {
       const urlParts = window.location.pathname.split('/');
@@ -176,9 +175,7 @@
         fetchUserData(username);
       }
       document.querySelector('button.bg-blue-500').addEventListener('click', updateAccount);
-      document.querySelector('button.bg-red-500').addEventListener('click', function() {
-        window.location.href = "/users"; // Redirect to users.html when cancel button is clicked
-      });
+      document.querySelector('button.bg-red-500').addEventListener('click', resetPassword);
     };
   </script>
 </head>

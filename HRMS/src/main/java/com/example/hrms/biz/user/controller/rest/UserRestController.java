@@ -7,6 +7,7 @@ import com.example.hrms.biz.user.service.UserService;
 import com.example.hrms.common.http.model.Result;
 import com.example.hrms.common.http.model.ResultPageData;
 import com.example.hrms.enumation.RoleEnum;
+import com.example.hrms.exception.InvalidPasswordException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,12 +80,12 @@ public class UserRestController {
         User user = userService.getUserByUsername(loginRequest.getUsername());
 
         if (user == null) {
-            return new Result("Error", "Username not found.");
+            throw new UsernameNotFoundException("Username not found.");
         }
 
         boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
         if (!passwordMatches) {
-            return new Result("Error", "Invalid password.");
+            throw new InvalidPasswordException("Invalid password.");
         }
 
         return new Result("Success", "Login successful.");
