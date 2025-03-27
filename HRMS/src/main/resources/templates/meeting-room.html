@@ -155,7 +155,7 @@
 
         .room-card {
             border-radius: 4px;
-            width: 24%; /* Fixed width to match grid column */
+            width: 23%; /* Fixed width to match grid column */
             border: 1px solid var(--border-color);
             border-radius: 8px;
             margin-right: 15px;
@@ -174,34 +174,6 @@
         .room-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .room-tooltip {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 250px;
-            background-color: white;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000;
-            display: none;
-            font-size: 0.9em;
-        }
-
-        .room-card:hover .room-tooltip {
-            display: block;
-        }
-
-        .tooltip-title {
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-        }
-
-        .tooltip-info {
-            margin-bottom: 3px;
         }
 
         .room-name {
@@ -234,7 +206,7 @@
         }
 
         .time-slot {
-            height: 60px; /* 15px * 4 = 60px per hour */
+            height: 180px; /* 45px * 4 = 180px per hour */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -260,13 +232,9 @@
         }
 
         .time-cell {
-            height: 15px;
-            border-bottom: 1px dashed #e0e0e0;
+            height: 45px;
+            border-bottom: 1px solid #e0e0e0;
             position: relative;
-        }
-
-        .time-cell.hour-marker {
-            border-bottom: 1px solid #c0c0c0;
         }
 
         .meeting-event {
@@ -282,46 +250,102 @@
             overflow: hidden;
             z-index: 5;
         }
+        .meeting-event:hover {
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        .meeting-event.dragging {
+            opacity: 0.8;
+            z-index: 100;
+        }
 
         .meeting-title {
             font-weight: bold;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 2px;
         }
 
         .meeting-organizer {
-            font-size: 0.85em;
-            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 11px;
+            opacity: 0.9;
         }
 
         .meeting-description {
-            margin-top: 4px;
-            font-size: 0.8em;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            font-size: 11px;
+            margin-top: 3px;
+            max-height: 30px;
             overflow: hidden;
         }
 
+        /* Resizer handle */
+        .resizer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.3);
+            cursor: ns-resize;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .meeting-event:hover .resizer {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+
+        /* Enhanced tooltip styles */
         .meeting-tooltip {
             display: none;
             position: absolute;
+            z-index: 1000;
             background-color: white;
-            border: 1px solid var(--border-color);
+            border: 1px solid #ddd;
             border-radius: 4px;
-            padding: 10px;
-            width: 220px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            z-index: 1010;
-            color: var(--text-color);
-            font-size: 0.9em;
+            box-shadow: 0 3px 14px rgba(0,0,0,0.2);
+            padding: 12px;
+            min-width: 260px;
+            max-width: 350px;
+            font-size: 13px;
+            color: #333;
+            left: 100%;
+            top: 0;
+            margin-left: 5px;
+        }
+
+        .tooltip-title {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            color: #333;
+        }
+
+        .tooltip-info {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .tooltip-info strong {
+            display: inline-block;
+            min-width: 100px;
+            color: #555;
         }
 
         .meeting-event:hover .meeting-tooltip {
             display: block;
             left: 100%;
             top: 0;
+        }
+        .meeting-event:hover .resizer {
+            background-color: rgba(255, 255, 255, 0.5);
         }
 
         .nav-arrow {
@@ -664,15 +688,15 @@
                 $('.loading-indicator').hide();
             }, 500);
         }
-// Thêm hàm populateFilters để lấy dữ liệu cho các combobox
+        // Add func populateFilters get combobox
         function populateFilters(roomData) {
-            // Lấy các giá trị duy nhất của capacity và sắp xếp tăng dần
+            // Get capacity and asc
             const capacities = [...new Set(roomData
             .map(room => room.capacity)
             .filter(capacity => capacity !== null && capacity !== undefined))]
             .sort((a, b) => a - b);
 
-            // Lấy các cặp roomName-location duy nhất
+            // Get roomName-location distinct
             const locationMap = {};
             roomData.forEach(room => {
                 if (room.roomName && room.location) {
@@ -688,7 +712,7 @@
             });
             const locations = Object.values(locationMap);
 
-            // Cập nhật dropdown capacity
+            // Update dropdown capacity
             const $capacitySelect = $('.seats-input');
             $capacitySelect.find('option:not(:first)').remove();
 
@@ -699,7 +723,7 @@
                 }));
             });
 
-            // Cập nhật dropdown location
+            // Update dropdown location
             const $locationSelect = $('.location-input');
             $locationSelect.find('option:not(:first)').remove();
 
@@ -756,19 +780,37 @@
                     const room = allRooms.find(r => r.roomId === item.roomId);
 
                     meetingData.push({
+                        // Room info
                         room: roomIdFormatted,
                         roomId: item.roomId,
                         roomName: item.roomName,
                         location: item.location || (room ? room.location : 'Sky Room - Floor 1'),
                         capacity: item.capacity || (room ? room.capacity : 4),
-                        title: `${item.roomName} - ${item.username}`,
+
+                        // Booking info
+                        title: item.title || `${item.roomName} - ${item.username}`,
                         organizer: item.username,
-                        description: `Status: ${item.status}`,
+                        attendees: item.attendees || '',
+                        content: item.content || '',
+                        description: item.content || `Status: ${item.status}`,
+
+                        // Time info
                         startTime: formattedStartTime,
                         duration: durationMinutes,
-                        status: item.status,
                         startDateTime: startDateTime,
-                        endDateTime: endDateTime
+                        endDateTime: endDateTime,
+
+                        // Status and type info
+                        status: item.status,
+                        bookingType: item.bookingType || 'ONLY',
+                        weekdays: item.weekdays || '',
+
+                        // Additional metadata
+                        pageInfo: {
+                            pageSize: response.pageSize,
+                            pageNo: response.pageNo,
+                            total: response.total
+                        }
                     });
                 });
 
@@ -783,9 +825,11 @@
             } else {
                 console.error('API returned error:', response.retMsg);
                 // Show error message to user if needed
+                showErrorMessage(response.retMsg || 'Failed to fetch meeting rooms');
             }
         }
-// Xử lý sự kiện cho nút Filter và Reset
+
+        // Process button Filter and Reset
         $(document).ready(function() {
             // Button click handlers
             $('.btn-filter').on('click', function() {
@@ -865,6 +909,7 @@
                             roomName: meeting.roomName,
                             location: meeting.location,
                             capacity: meeting.capacity,
+                            status: meeting.status || 'Available',
                             room: meeting.room
                         });
                     }
@@ -874,17 +919,16 @@
             // Add rooms to the list
             allRooms.forEach((room, index) => {
                 const isSelected = index === 0 ? 'selected-room' : '';
-                const extraInfo = room.username ? `<div class="tooltip-info"><strong>Chủ phòng:</strong> ${room.username}</div>` : '';
-
+                const roomStatus = room.status || 'Available';
                 const roomCard = $(`
                       <div class="room-card ${isSelected}" data-room="${room.room}">
                         <div class="room-header">
-                          <h4 class="room-name">${room.roomName}</h4>
-                          <div class="room-info">
-                            <span>${room.location}</span>
-                          </div>
+                          <h4 class="room-name">${room.roomName} - ${room.location}</h4>
                           <div class="room-info">
                             <span>${room.capacity} seats</span>
+                          </div>
+                          <div class="room-info">
+                            <span>${roomStatus}</span>
                           </div>
                         </div>
                       </div>
@@ -895,7 +939,7 @@
 
             // If no rooms, show a message
             if (allRooms.length === 0) {
-                roomList.append('<div class="no-rooms">No rooms available for the selected criteria.</div>');
+                showNotification('No rooms available for the selected criteria');
             }
 
             // Bind click event to room cards
@@ -917,8 +961,8 @@
         function showNotification(message, confirm = false) {
             modalTitle.textContent = confirm ? "Confirmation" : "Notification";
             modalMessage.textContent = message;
-            icon.className = "fa-solid fa-triangle-exclamation"; // Biểu tượng cảnh báo
-            icon.style.color = "#f5a623"; // Màu vàng cảnh báo
+            icon.className = "fa-solid fa-triangle-exclamation";
+            icon.style.color = "#f5a623";
             section.classList.add("active");
         }
 
@@ -965,7 +1009,7 @@
 
             // If no rooms, show a message
             if (uniqueRoomIds.length === 0) {
-                gridContainer.append('<div class="no-rooms">No rooms available for the selected criteria.</div>');
+                showNotification('No rooms available for the selected criteria');
                 return;
             }
 
@@ -992,9 +1036,6 @@
             // Add meetings to the grid
             addMeetingsToGrid();
 
-            // Add room column tooltips
-            addRoomColumnTooltips();
-
             // Make events draggable
             makeEventsDraggable();
 
@@ -1005,6 +1046,10 @@
         // Add meetings to the grid based on the data
         function addMeetingsToGrid() {
             meetingData.forEach(meeting => {
+                // Skip if meeting doesn't have required data
+                if (!meeting.startTime || !meeting.room) {
+                    return;
+                }
                 const [hours, minutes] = meeting.startTime.split(':').map(Number);
 
                 // Skip if outside our time range
@@ -1014,8 +1059,30 @@
 
                 // Calculate position
                 const startTimeMinutes = (hours - startHour) * 60 + minutes;
-                const topPosition = startTimeMinutes * (15 / 15); // pixels per minute
-                const height = meeting.duration * (15 / 15); // meeting.duration in minutes
+                const topPosition = (startTimeMinutes / 15) * 45; // 45 pixels per minute
+                //const height = meeting.duration * (45 / 45); // meeting.duration in minutes
+
+                // Handle duration based on booking type
+                let displayHeight = 0;
+                let displayDuration = meeting.duration;
+                // Check if this is a daily or weekly recurring meeting
+                const bookingType = meeting.bookingType || 'ONLY';
+
+                if (bookingType === 'DAILY' || bookingType === 'WEEKLY') {
+                    // For recurring meetings, limit display to the current day
+                    // Calculate max possible height until end of day
+                    const remainingMinutesInDay = ((endHour - hours) * 60) - minutes;
+                    displayDuration = Math.min(meeting.duration, remainingMinutesInDay);
+
+                    // Add a visual indicator that this is a recurring meeting
+                    meeting.isRecurring = true;
+                }
+
+                // Calculate height - each 15 minutes is 45px height
+                displayHeight = (displayDuration / 15) * 45;
+
+                // Ensure minimum height for visibility
+                displayHeight = Math.max(displayHeight, 45);
 
                 // Set color based on status
                 let statusColor = 'rgba(0, 123, 255, 0.8)'; // Default blue
@@ -1035,23 +1102,36 @@
                 // Create the meeting event element with a tooltip
                 const meetingEvent = $(`
                                     <div class="meeting-event draggable"
-                                         style="top: ${topPosition}px; height: ${height}px; background-color: ${statusColor};"
+                                         style="top: ${topPosition}px; height: ${displayHeight}px; background-color: ${statusColor};"
                                          data-room="${meeting.room}"
                                          data-start="${meeting.startTime}"
                                          data-duration="${meeting.duration}"
+                                         data-display-duration="${displayDuration}"
                                          data-id="${meeting.roomId}"
                                          data-status="${meeting.status}">
                                         <div class="meeting-title">${meeting.title}</div>
                                         <div class="meeting-organizer">${meeting.organizer}</div>
                                         ${meeting.description ? `<div class="meeting-description">${meeting.description}</div>` : ''}
                                         <div class="meeting-tooltip">
-                                            <div class="tooltip-title">${meeting.title}</div>
-                                            <div class="tooltip-info"><strong>Ngày:</strong> ${dateStr}</div>
-                                            <div class="tooltip-info"><strong>Thời gian:</strong> ${startTime} - ${endTime}</div>
-                                            <div class="tooltip-info"><strong>Người tổ chức:</strong> ${meeting.organizer}</div>
-                                            <div class="tooltip-info"><strong>Phòng:</strong> ${meeting.roomName}</div>
-                                            <div class="tooltip-info"><strong>Vị trí:</strong> ${meeting.location}</div>
-                                            <div class="tooltip-info"><strong>Trạng thái:</strong> ${meeting.status}</div>
+                                            <div class="tooltip-title">${meeting.title || 'Unnamed Meeting'}</div>
+                                            <div class="tooltip-info"><strong>Date:</strong> ${dateStr}</div>
+                                            <div class="tooltip-info"><strong>Time:</strong> ${startTime} - ${endTime}</div>
+                                            <div class="tooltip-info"><strong>Duration:</strong> ${meeting.duration} '</div>
+                                            <div class="tooltip-info"><strong>Organizer:</strong> ${meeting.organizer || 'Unnamed'}</div>
+                                            <div class="tooltip-info"><strong>Room:</strong> ${meeting.roomName}</div>
+                                            <div class="tooltip-info"><strong>Location:</strong> ${meeting.location}</div>
+                                            ${meeting.bookingType ? `<div class="tooltip-info">
+                                                                        <strong>Type:</strong>
+                                                                        ${meeting.bookingType}</div>` : ''}
+                                            ${meeting.weekdays ? `<div class="tooltip-info">
+                                                                        <strong>Weekly:</strong>
+                                                                        ${meeting.weekdays}</div>` : ''}
+                                            ${meeting.attendees ? `<div class="tooltip-info">
+                                                                        <strong>Attendees:</strong>
+                                                                        ${meeting.attendees}</div>` : ''}
+                                            ${meeting.content ? `<div class="tooltip-info">
+                                                                        <strong>Content:</strong>
+                                                                        ${meeting.content}</div>` : ''}
                                         </div>
                                         <div class="resizer"></div>
                                     </div>
@@ -1087,43 +1167,11 @@
             );
         }
 
-        // Add room column tooltips
-        function addRoomColumnTooltips() {
-            // Create tooltips for room columns in the grid
-            $('.room-column').each(function() {
-                const roomId = $(this).data('room');
-
-                // Find the room details in meeting data
-                const roomInfo = meetingData.find(meeting => meeting.room === roomId);
-
-                if (roomInfo) {
-                    const extraInfo = roomInfo.username ? `<div class="tooltip-info"><strong>Ghi chú:</strong> ${roomInfo.username}</div>` : '';
-
-                    // Create tooltip content
-                    const tooltipContent = $(`
-                        <div class="room-tooltip">
-                          <div class="tooltip-title">Phòng ${roomInfo.roomName}</div>
-                          <div class="tooltip-info"><strong>Vị trí:</strong> ${roomInfo.location}</div>
-                          <div class="tooltip-info"><strong>Sức chứa:</strong> ${roomInfo.capacity} người</div>
-                          ${extraInfo}
-                        </div>
-                      `);
-
-                    // Create column header element
-                    const columnHeader = $(`<div class="room-column-header" data-room="${roomId}"></div>`);
-                    columnHeader.append(tooltipContent);
-
-                    // Add to the column
-                    $(this).prepend(columnHeader);
-                }
-            });
-        }
-
         // Make events draggable and resizable
         function makeEventsDraggable() {
             $('.meeting-event.draggable').draggable({
                 axis: 'y',
-                grid: [15, 15],
+                grid: [45, 45],
                 containment: '.event-grid',
                 start: function(event, ui) {
                     $(this).addClass('dragging');
@@ -1133,7 +1181,7 @@
                 drag: function(event, ui) {
                     // Check if dragging would put the event in past time
                     const topPosition = ui.position.top;
-                    const startMinutes = topPosition * (15 / 15);
+                    const startMinutes = topPosition * (45 / 45);
                     const hour = Math.floor(startMinutes / 60) + startHour;
                     const minute = startMinutes % 60;
 
@@ -1148,7 +1196,7 @@
 
                     // Update the meeting time based on position
                     const topPosition = ui.position.top;
-                    const startMinutes = topPosition * (15 / 15);
+                    const startMinutes = topPosition * (45 / 45);
                     const hour = Math.floor(startMinutes / 60) + startHour;
                     const minute = startMinutes % 60;
 
@@ -1221,14 +1269,14 @@
 
                 $(document).mousemove(function(e) {
                     const delta = e.clientY - startY;
-                    const newHeight = Math.max(15, Math.round((startHeight + delta) / 15) * 15); // Snap to 15px grid
+                    const newHeight = Math.max(45, Math.round((startHeight + delta) / 45) * 45); // Snap to 45px grid
 
                     // Get meeting start time
                     const [hours, minutes] = meetingEvent.data('start').split(':').map(Number);
                     const startTimeMinutes = (hours - startHour) * 60 + minutes;
 
                     // Calculate new end time
-                    const endTimeMinutes = startTimeMinutes + (newHeight / 15 * 15);
+                    const endTimeMinutes = startTimeMinutes + (newHeight / 45 * 45);
                     const endHour = Math.floor(endTimeMinutes / 60) + startHour;
                     const endMinute = endTimeMinutes % 60;
 
@@ -1240,7 +1288,7 @@
                     meetingEvent.height(newHeight);
 
                     // Update duration
-                    const newDuration = newHeight * (15 / 15); // Convert back to minutes
+                    const newDuration = newHeight * (45 / 45); // Convert back to minutes
                     meetingEvent.attr('data-duration', newDuration);
                 });
 
@@ -1299,111 +1347,11 @@
                 const dateStr = meeting.startDateTime ? meeting.startDateTime.toLocaleDateString() : '';
 
                 // Update tooltip content
-                tooltip.find('.tooltip-info:eq(0)').html(`<strong>Ngày:</strong> ${dateStr}`);
-                tooltip.find('.tooltip-info:eq(1)').html(`<strong>Thời gian:</strong> ${startTime} - ${endTime}`);
+                tooltip.find('.tooltip-info:eq(0)').html(`<strong>Date:</strong> ${dateStr}`);
+                tooltip.find('.tooltip-info:eq(1)').html(`<strong>Time:</strong> ${startTime} - ${endTime}`);
             }
         }
 
-        // Allow adding new events by clicking on empty time cells
-        /*function setupAddNewEvent() {
-          $(document).on('dblclick', '.time-cell', function() {
-            const clickedTime = $(this).data('time');
-            const roomId = $(this).closest('.room-column').data('room');
-
-            // Check if this time is in the past
-            if ($(this).hasClass('past-time')) {
-              alert('Không thể đặt phòng họp cho thời gian đã qua!');
-              return;
-            }
-
-            // Find room details
-            const room = meetingData.find(meeting => meeting.room === roomId);
-
-            if (!room) {
-              console.error(`Room ${roomId} not found in data`);
-              return;
-            }
-
-            // Validation: Check if the time slot is already booked
-            const isTimeSlotBooked = meetingData.some(meeting => {
-              if (meeting.room !== roomId) return false;
-
-              const [meetingHours, meetingMinutes] = meeting.startTime.split(':').map(Number);
-              const meetingStartMinutes = meetingHours * 60 + meetingMinutes;
-              const meetingEndMinutes = meetingStartMinutes + meeting.duration;
-
-              const [clickedHours, clickedMinutes] = clickedTime.split(':').map(Number);
-              const clickedTimeMinutes = clickedHours * 60 + clickedMinutes;
-
-              // Check if clicked time falls within this meeting's time span
-              return (clickedTimeMinutes >= meetingStartMinutes &&
-                      clickedTimeMinutes < meetingEndMinutes);
-            });
-
-            if (isTimeSlotBooked) {
-              alert('Thời gian này đã được đặt. Vui lòng chọn thời gian khác.');
-              return;
-            }
-
-            // In a real application, this would open a modal to create a new meeting
-            console.log(`New meeting at ${clickedTime} in room ${roomId} (${room.roomName})`);
-
-            // For demonstration, create a mock new meeting
-            const [hours, minutes] = clickedTime.split(':').map(Number);
-
-            // Create start and end times for the meeting
-            const startDateTime = new Date();
-            startDateTime.setHours(hours, minutes, 0);
-
-            const endDateTime = new Date(startDateTime);
-            endDateTime.setMinutes(endDateTime.getMinutes() + 30); // 30 min duration
-
-            const newMeeting = {
-              room: roomId,
-              roomId: room.roomId,
-              roomName: room.roomName,
-              location: room.location,
-              capacity: room.capacity,
-              title: `New Meeting - ${room.roomName}`,
-              organizer: 'Current User',
-              description: 'Status: Requested',
-              startTime: clickedTime,
-              duration: 30,
-              status: 'Requested',
-              startDateTime: startDateTime,
-              endDateTime: endDateTime
-            };
-
-            // Add to meetingData
-            meetingData.push(newMeeting);
-
-            // Refresh the grid
-            addMeetingsToGrid();
-            makeEventsDraggable();
-            addMeetingTooltips();
-
-            // Example API call (commented out)
-            // $.ajax({
-            //     url: API_URL,
-            //     method: 'POST',
-            //     data: JSON.stringify({
-            //         roomId: room.roomId,
-            //         startTime: clickedTime,
-            //         duration: 30,
-            //         // other required fields
-            //     }),
-            //     contentType: 'application/json',
-            //     success: function(response) {
-            //         console.log('New meeting created successfully');
-            //         // Reload data from server
-            //         fetchMeetingRooms();
-            //     },
-            //     error: function(error) {
-            //         console.error('Error creating new meeting:', error);
-            //     }
-            // });
-          });
-        }*/
         function setupAddNewEvent() {
             $(document).on('dblclick', '.time-cell', function() {
                 const clickedTime = $(this).data('time');
@@ -1445,7 +1393,10 @@
                 }
 
                 // Navigate to bookings.html with necessary data in the URL
-                const bookingUrl = `bookings.html?time=${encodeURIComponent(clickedTime)}&room=${encodeURIComponent(roomId)}&roomName=${encodeURIComponent(room.roomName)}&capacity=${encodeURIComponent(room.capacity)}`;
+                const bookingUrl = `bookings.html?time=${encodeURIComponent(clickedTime)}
+                                                    &room=${encodeURIComponent(roomId)}
+                                                    &roomName=${encodeURIComponent(room.roomName)}
+                                                    &capacity=${encodeURIComponent(room.capacity)}`;
                 window.location.href = bookingUrl;
             });
         }
@@ -1541,6 +1492,28 @@
 
         // Initialize the grid and events
         setupAddNewEvent();
+    });
+    // Updated CSS for meeting events and tooltips
+    const meetingEventStyles = `
+                                <style>
+                                /* Meeting event styles */
+                                .meeting-event {
+                                    position: absolute;
+                                    overflow: visible;
+                                    border-radius: 4px;
+                                    padding: 5px 8px;
+                                    color: white;
+                                    cursor: pointer;
+                                    font-size: 12px;
+                                    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                                    transition: box-shadow 0.2s ease;
+                                }
+                                </style>
+                                `;
+
+    // Add styles to document
+    $(document).ready(function() {
+        $('head').append(meetingEventStyles);
     });
 </script>
 </body>
