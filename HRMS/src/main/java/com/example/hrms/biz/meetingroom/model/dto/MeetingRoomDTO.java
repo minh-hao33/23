@@ -2,6 +2,7 @@ package com.example.hrms.biz.meetingroom.model.dto;
 
 import com.example.hrms.biz.meetingroom.model.MeetingRoom;
 import com.example.hrms.enumation.BookingStatusEnum;
+import com.example.hrms.enumation.BookingType;
 import com.example.hrms.utils.MeetingRoomUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,11 @@ public class MeetingRoomDTO {
         private LocalDateTime startTime;
         private LocalDateTime endTime;
         private BookingStatusEnum status;
+        private String title;
+        private String attendees;
+        private String content;
+        private BookingType bookingType;
+        private String weekdays;
 
         // Convert to MeetingRoom using Utils
         public MeetingRoom toMeetingRoom() {
@@ -39,6 +45,11 @@ public class MeetingRoomDTO {
         private LocalDateTime startTime;
         private LocalDateTime endTime;
         private BookingStatusEnum status;
+        private String title;
+        private String attendees;
+        private String content;
+        private BookingType bookingType;
+        private String weekdays;
 
         // Convert from MeetingRoom using Utils
         public static Resp toResponse(MeetingRoom meetingRoom) {

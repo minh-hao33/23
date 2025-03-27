@@ -28,16 +28,21 @@ public class MeetingRoomService {
         log.info("Fetching meeting room list with criteria: {}", mCriteria);
         try {
             List<MeetingRoom> meetings = mapper.select(
-                    page.getPageSize(),
-                    page.getOffset(),
-                    mCriteria.getRoomId(),
-                    mCriteria.getRoomName(),
-                    mCriteria.getLocation(),
-                    mCriteria.getCapacity(),
-                    mCriteria.getUsername(),
-                    mCriteria.getStartTime(),
-                    mCriteria.getEndTime(),
-                    mCriteria.getStatus()
+                page.getPageSize(),
+                page.getOffset(),
+                mCriteria.getRoomId(),
+                mCriteria.getRoomName(),
+                mCriteria.getLocation(),
+                mCriteria.getCapacity(),
+                mCriteria.getUsername(),
+                mCriteria.getStartTime(),
+                mCriteria.getEndTime(),
+                mCriteria.getStatus(),
+                mCriteria.getTitle(),
+                mCriteria.getAttendees(),
+                mCriteria.getContent(),
+                mCriteria.getBookingType(),
+                mCriteria.getWeekdays()
             );
             log.info("Number of meeting rooms fetched: {}", meetings.size());
             return meetings.stream().map(MeetingRoomDTO.Resp::toResponse).toList();

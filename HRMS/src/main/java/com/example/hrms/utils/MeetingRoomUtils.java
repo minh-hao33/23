@@ -3,6 +3,7 @@ package com.example.hrms.utils;
 import com.example.hrms.biz.meetingroom.model.MeetingRoom;
 import com.example.hrms.biz.meetingroom.model.dto.MeetingRoomDTO;
 import com.example.hrms.enumation.BookingStatusEnum;
+import com.example.hrms.enumation.BookingType;
 import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDateTime;
@@ -33,6 +34,11 @@ public class MeetingRoomUtils {
         resp.setStartTime(meetingRoom.getStartTime());
         resp.setEndTime(meetingRoom.getEndTime());
         resp.setStatus(meetingRoom.getStatus());
+        resp.setTitle(meetingRoom.getTitle());
+        resp.setAttendees(meetingRoom.getAttendees());
+        resp.setContent(meetingRoom.getContent());
+        resp.setBookingType(meetingRoom.getBookingType());
+        resp.setWeekdays(meetingRoom.getWeekdays());
         return resp;
     }
 
@@ -46,6 +52,11 @@ public class MeetingRoomUtils {
         private LocalDateTime startTime;
         private LocalDateTime endTime;
         private BookingStatusEnum status;
+        private String title;
+        private String attendees;
+        private String content;
+        private BookingType bookingType;
+        private String weekdays;
 
         public Builder roomId(Long roomId) {
             this.roomId = roomId;
@@ -87,6 +98,31 @@ public class MeetingRoomUtils {
             return this;
         }
 
+        public Builder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder attendees(String attendees) {
+            this.attendees = attendees;
+            return this;
+        }
+
+        public Builder content(String content) {
+            this.content = content;
+            return this;
+        }
+
+        public Builder bookingType(BookingType bookingType) {
+            this.bookingType = bookingType;
+            return this;
+        }
+
+        public Builder weekdays(String weekdays) {
+            this.weekdays = weekdays;
+            return this;
+        }
+
         public MeetingRoom buildMeetingRoom() {
             MeetingRoom meetingRoom = new MeetingRoom();
             meetingRoom.setRoomId(this.roomId);
@@ -97,6 +133,11 @@ public class MeetingRoomUtils {
             meetingRoom.setStartTime(this.startTime);
             meetingRoom.setEndTime(this.endTime);
             meetingRoom.setStatus(this.status);
+            meetingRoom.setTitle(this.title);
+            meetingRoom.setAttendees(this.attendees);
+            meetingRoom.setContent(this.content);
+            meetingRoom.setBookingType(this.bookingType);
+            meetingRoom.setWeekdays(this.weekdays);
             return meetingRoom;
         }
 
@@ -110,6 +151,11 @@ public class MeetingRoomUtils {
             resp.setStartTime(this.startTime);
             resp.setEndTime(this.endTime);
             resp.setStatus(this.status);
+            resp.setTitle(this.title);
+            resp.setAttendees(this.attendees);
+            resp.setContent(this.content);
+            resp.setBookingType(this.bookingType);
+            resp.setWeekdays(this.weekdays);
             return resp;
         }
     }

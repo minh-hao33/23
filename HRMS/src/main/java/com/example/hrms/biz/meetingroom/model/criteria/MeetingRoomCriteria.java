@@ -3,6 +3,7 @@ package com.example.hrms.biz.meetingroom.model.criteria;
 
 import com.example.hrms.common.http.criteria.Page;
 import com.example.hrms.enumation.BookingStatusEnum;
+import com.example.hrms.enumation.BookingType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,18 +22,9 @@ public class MeetingRoomCriteria extends Page {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private BookingStatusEnum status;
-
-    @Override
-    public String toString() {
-        return "MeetingRoomCriteria{" +
-                "roomId=" + roomId +
-                ", roomName='" + roomName + '\'' +
-                ", location='" + location + '\'' +
-                ", capacity=" + capacity + '\'' +
-                ", userName=" + username + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
-                ", status=" + status +
-                '}';
-    }
+    private String title;
+    private String attendees;
+    private String content;
+    private BookingType bookingType;
+    private String weekdays;
 }
