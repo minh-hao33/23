@@ -104,3 +104,4 @@ public class BookingRestController {
         return new Result("Success", "Booking deleted successfully.");
     }
 }
+

@@ -10,56 +10,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.tiny.cloud/1/q8eyc0pclp8vkwynx04vs7o65308fed83bgx6k7udmbjg26m/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <style>
-        .modal-dialog1 {
-            max-width: 800px;
-        }
-        .room-info1 {
-            border-left: 1px solid #ddd;
-            padding-left: 20px;
-        }
-        .form-group1 {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .form-group1 label {
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-        .form-inline1 label {
-            margin-right: 0.5rem;
-        }
-        .form-group1 label {
-            width: 150px;
-            margin-right: 10px;
-        }
-        .form-group1 input, .form-group1 textarea {
-            flex: 1;
-            max-width: 300px;
-        }
-        .weekly-label1 {
-            display: flex;
-            align-items: center;
-        }
-        .only-label1 {
-            display: flex;
-            align-items: center;
-        }
-        .daily-label1 {
-            display: flex;
-            align-items: center;
-        }
-        .range-label1 {
-            display: flex;
-            align-items: center;
-        }
-        .form-inline1 .form-control {
-            width: auto;
-            flex: 1;
-        }
-        input[type="checkbox"] {
-            margin-right: 5px;
-        }
         .table th, .table td {
             vertical-align: middle;
         }
@@ -101,7 +51,7 @@
             background-color: #ffe4e1;
         }
         .modal-dialog {
-            max-width: 1050px;
+            max-width: 1350px;
         }
         .room-info {
             border-left: 1px solid #ddd;
@@ -277,7 +227,7 @@
         </tbody>
     </table>
 
-    <button class="btn btn-success mt-3" onclick="window.location.href='/bookings/create'">Create Booking</button>
+    <button class="btn btn-success mt-3" onclick="openCreateForm()">Create Booking</button>
 </div>
 
 <!-- Booking Edit Modal -->
@@ -294,63 +244,63 @@
                 <div class="row">
                     <div class="col-md-8">
                         <form id="bookingForm">
-                        <div class="form-group">
-                            <label for="title">Title:</label>
-                            <input type="text" class="form-control" id="title">
-                        </div>
-                        <div class="form-group">
-                            <label for="attendees">Attendees:</label>
-                            <input type="text" class="form-control" id="attendees">
-                        </div>
-                        <div class="form-group">
-                            <label for="username">Username:</label>
-                            <input type="text" class="form-control" id="username">
-                        </div>
-                        <div class="form-group">
-                            <label for="content">Content Brief:</label>
-                            <textarea id="content" rows="3" class="form-control"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Link MS Team:</label>
-                            <input type="radio" name="linkMS" id="linkYes" class="mr-1"> Yes
-                            <input type="radio" name="linkMS" id="linkNo" class="ml-3 mr-1" checked> No
-                        </div>
-                        <div class="form-group">
-                            <label>Recurrence pattern:</label>
-                            <input type="radio" name="recurrence" id="only" onclick="toggleRecurrence('only')"> Only
-                            <input type="radio" name="recurrence" id="daily" onclick="toggleRecurrence('daily')"> Daily
-                            <input type="radio" name="recurrence" id="weekly" onclick="toggleRecurrence('weekly')"> Weekly
-                        </div>
-                        <div id="recurrenceOnly" class="form-group">
-                            <div class="only-label">
-                                <label for="dateOnly">Date: </label>
-                                <input type="datetime-local" class="form-control ml-2" id="dateOnly">
+                            <div class="form-group">
+                                <label for="title">Title:</label>
+                                <input type="text" class="form-control" id="title">
                             </div>
-                        </div>
-                        <div id="recurrenceDaily" class="form-group" style="display:none;">
-                            <div class="daily-label">
-                                <label for="dateStartDaily">Range: </label>
-                                <input type="datetime-local" class="form-control ml-2" id="dateStartDaily">
-                                <input type="datetime-local" class="form-control ml-2" id="dateEndDaily">
+                            <div class="form-group">
+                                <label for="attendees">Attendees:</label>
+                                <input type="text" class="form-control" id="attendees">
                             </div>
-                        </div>
-                        <div id="recurrenceWeekly" class="form-group" style="display:none;">
-                            <div class="weekly-label">
-                                <label>Weekly:</label>
-                                <div class="form-inline ml-2">
-                                    <input type="checkbox" id="mo" class="ml-2"> Mo
-                                    <input type="checkbox" id="tu" class="ml-2"> Tu
-                                    <input type="checkbox" id="we" class="ml-2"> We
-                                    <input type="checkbox" id="th" class="ml-2"> Th
-                                    <input type="checkbox" id="fr" class="ml-2"> Fr
+                            <div class="form-group">
+                                <label for="username">Username:</label>
+                                <input type="text" class="form-control" id="username">
+                            </div>
+                            <div class="form-group">
+                                <label for="content">Content Brief:</label>
+                                <textarea id="content" rows="3" class="form-control"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Link MS Team:</label>
+                                <input type="radio" name="linkMS" id="linkYes" class="mr-1"> Yes
+                                <input type="radio" name="linkMS" id="linkNo" class="ml-3 mr-1" checked> No
+                            </div>
+                            <div class="form-group">
+                                <label>Recurrence pattern:</label>
+                                <input type="radio" name="recurrence" id="only" onclick="toggleRecurrence('only')"> Only
+                                <input type="radio" name="recurrence" id="daily" onclick="toggleRecurrence('daily')"> Daily
+                                <input type="radio" name="recurrence" id="weekly" onclick="toggleRecurrence('weekly')"> Weekly
+                            </div>
+                            <div id="recurrenceOnly" class="form-group">
+                                <div class="only-label">
+                                    <label for="dateOnly">Date: </label>
+                                    <input type="datetime-local" class="form-control ml-2" id="dateOnly">
                                 </div>
                             </div>
-                            <div class="range-label">
-                                <label>Range:</label>
-                                <input type="datetime-local" class="form-control ml-2" id="dateStartWeekly">
-                                <input type="datetime-local" class="form-control ml-2" id="dateEndWeekly">
+                            <div id="recurrenceDaily" class="form-group" style="display:none;">
+                                <div class="daily-label">
+                                    <label for="dateStartDaily">Range: </label>
+                                    <input type="datetime-local" class="form-control ml-2" id="dateStartDaily">
+                                    <input type="datetime-local" class="form-control ml-2" id="dateEndDaily">
+                                </div>
                             </div>
-                        </div>
+                            <div id="recurrenceWeekly" class="form-group" style="display:none;">
+                                <div class="weekly-label">
+                                    <label>Weekly:</label>
+                                    <div class="form-inline ml-2">
+                                        <input type="checkbox" id="mo" class="ml-2"> Mo
+                                        <input type="checkbox" id="tu" class="ml-2"> Tu
+                                        <input type="checkbox" id="we" class="ml-2"> We
+                                        <input type="checkbox" id="th" class="ml-2"> Th
+                                        <input type="checkbox" id="fr" class="ml-2"> Fr
+                                    </div>
+                                </div>
+                                <div class="range-label">
+                                    <label>Range:</label>
+                                    <input type="datetime-local" class="form-control ml-2" id="dateStartWeekly">
+                                    <input type="datetime-local" class="form-control ml-2" id="dateEndWeekly">
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <div class="col-md-4 room-info">
@@ -373,15 +323,12 @@
         </div>
     </div>
 </div>
-
-<!--Create Booking Modals -->
 <div class="container mt-5">
-    <button class="btn btn-primary" data-toggle="modal" data-target="#bookingModal1">Booking</button>
-    <div class="modal fade" id="bookingModal1" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel1" aria-hidden="true">
-        <div class="modal-dialog1" role="document">
+    <div class="modal fade" id="createBookingModal" tabindex="-1" role="dialog" aria-labelledby="createBookingModalLabel" aria-hidden="false">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="bookingModalLabel1">Create Meeting</h5>
+                    <h5 class="modal-title" id="createBookingModalLabel">Create Meeting</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -390,62 +337,67 @@
                     <div class="row">
                         <div class="col-md-8">
                             <form id="createBookingForm">
-                                <div class="form-group1">
-                                    <label for="title1">Title:</label>
-                                    <input type="text" class="form-control1" id="title1" placeholder="Enter title">
+                                <div class="form-group">
+                                    <label for="createTitle">Title:</label>
+                                    <input type="text" class="form-control" id="createTitle" placeholder="Enter title">
                                 </div>
-                                <div class="form-group1">
-                                    <label for="attendees1">Attendees:</label>
-                                    <input type="text" class="form-control1" id="attendees1" placeholder="Enter username">
+                                <div class="form-group">
+                                    <label for="createAttendees">Attendees:</label>
+                                    <input type="text" class="form-control" id="createAttendees" placeholder="Enter attendees">
                                 </div>
-                                <div class="form-group1">
-                                    <label for="content1">Content Brief:</label>
-                                    <textarea id="content1" rows="3" class="form-control" placeholder="Enter content"></textarea>
+                                <div class="form-group">
+                                    <label for="createUsername">Username:</label>
+                                    <input type="text" class="form-control" id="createUsername" placeholder="Enter username">
                                 </div>
-                                <div class="form-group1">
+                                <div class="form-group">
+                                    <label for="createContent">Content Brief:</label>
+                                    <textarea id="createContent" rows="3" class="form-control" placeholder="Enter content"></textarea>
+                                </div>
+                                <div class="form-group">
                                     <label>Link MS Team:</label>
-                                    <input type="radio" name="linkMS" id="linkYes1" class="mr-1"> Yes
-                                    <input type="radio" name="linkMS" id="linkNo1" class="ml-3 mr-1"> No
+                                    <input type="radio" name="createLinkMS" id="createLinkYes" class="mr-1"> Yes
+                                    <input type="radio" name="createLinkMS" id="createLinkNo" class="ml-3 mr-1"> No
                                 </div>
-                                <div class="form-group1">
+                                <div class="form-group">
                                     <label>Recurrence pattern:</label>
-                                    <input type="radio" name="recurrence" id="only1" onclick="toggleRecurrence1('only')"> Only
-                                    <input type="radio" name="recurrence" id="daily1" onclick="toggleRecurrence1('daily')"> Daily
-                                    <input type="radio" name="recurrence" id="weekly1" onclick="toggleRecurrence1('weekly')"> Weekly
+                                    <input type="radio" name="createRecurrence" id="createOnly" onclick="toggleCreateRecurrence('only')"> Only
+                                    <input type="radio" name="createRecurrence" id="createDaily" onclick="toggleCreateRecurrence('daily')"> Daily
+                                    <input type="radio" name="createRecurrence" id="createWeekly" onclick="toggleCreateRecurrence('weekly')"> Weekly
                                 </div>
-                                <div id="recurrenceOnly1" class="form-group1" style="display:none;">
-                                    <div class="only-label1">
-                                        <label for="dateOnly1">Date: </label>
-                                        <input type="datetime-local" class="form-control1 ml-2" id="dateOnly1">
+                                <div id="createRecurrenceOnly" class="form-group" style="display:none;">
+                                    <div class="only-label">
+                                        <label for="createDateOnly">Date: </label>
+                                        <input type="datetime-local" class="form-control ml-2" id="createDateOnly">
+                                        <input type="time" class="form-control ml-2" id="createTimeOnly">
                                     </div>
                                 </div>
-                                <div id="recurrenceDaily1" class="form-group1" style="display:none;">
-                                    <div class="daily-label1">
-                                        <label for="dateStartDaily1">Range: </label>
-                                        <input type="datetime-local" class="form-control ml-2" id="dateStartDaily1">
-                                        <input type="datetime-local" class="form-control ml-2" id="dateEndDaily1">
+                                <div id="createRecurrenceDaily" class="form-group" style="display:none;">
+                                    <div class="daily-label">
+                                        <label for="createDateStartDaily">Range: </label>
+                                        <input type="datetime-local" class="form-control ml-2" id="createDateStartDaily">
+                                        <input type="datetime-local" class="form-control ml-2" id="createDateEndDaily">
                                     </div>
                                 </div>
-                                <div id="recurrenceWeekly1" class="form-group1" style="display:none;">
-                                    <div class="weekly-label1">
+                                <div id="createRecurrenceWeekly" class="form-group" style="display:none;">
+                                    <div class="weekly-label">
                                         <label>Weekly:</label>
                                         <div class="form-inline ml-2">
-                                            <input type="checkbox" id="mo1" class="ml-2"> Mo
-                                            <input type="checkbox" id="tu1" class="ml-2"> Tu
-                                            <input type="checkbox" id="we1" class="ml-2"> We
-                                            <input type="checkbox" id="th1" class="ml-2"> Th
-                                            <input type="checkbox" id="fr1" class="ml-2"> Fr
+                                            <input type="checkbox" id="createMo" class="ml-2"> Mo
+                                            <input type="checkbox" id="createTu" class="ml-2"> Tu
+                                            <input type="checkbox" id="createWe" class="ml-2"> We
+                                            <input type="checkbox" id="createTh" class="ml-2"> Th
+                                            <input type="checkbox" id="createFr" class="ml-2"> Fr
                                         </div>
                                     </div>
-                                    <div class="range-label1">
+                                    <div class="range-label">
                                         <label>Range:</label>
-                                        <input type="datetime-local" class="form-control ml-2" id="dateStartWeekly1">
-                                        <input type="datetime-local" class="form-control ml-2" id="dateEndWeekly1">
+                                        <input type="datetime-local" class="form-control ml-2" id="createDateStartWeekly">
+                                        <input type="datetime-local" class="form-control ml-2" id="createDateEndWeekly">
                                     </div>
                                 </div>
                             </form>
                         </div>
-                        <div class="col-md-4 room-info1">
+                        <div class="col-md-4 room-info">
                             <h5>Room Information</h5>
                             <p><strong>Time:</strong></p>
                             <p><strong>Building:</strong> 789 Tower</p>
@@ -466,7 +418,6 @@
         </div>
     </div>
 </div>
-
 
 <section>
     <span class="overlay"></span>
@@ -517,12 +468,11 @@
 
     function fetchBookingDetails(bookingId, isEdit) {
         jQuery.ajax({
-            url: `/bookings/${bookingId}`, // API endpoint lấy thông tin cuộc họp
+            url: `/api/v1/bookings/${bookingId}`, // Updated URL to use the REST API
             type: 'GET',
             success: function(response) {
                 const booking = response;
                 $('#bookingForm').data('booking-id', booking.bookingId); // Gán ID vào form
-
                 // Gán giá trị vào input
                 $('#title').val(booking.title);
                 $('#attendees').val(booking.attendees);
@@ -560,8 +510,9 @@
                 // Hiển thị modal
                 $('#bookingModal').modal('show');
             },
-            error: function(error) {
-                console.error('Lỗi lấy dữ liệu cuộc họp:', error);
+            error: function(xhr, textStatus, errorThrown) {
+                console.error('Lỗi lấy dữ liệu cuộc họp:', xhr.status, textStatus, errorThrown);
+                showNotification(`Failed to fetch booking details: ${xhr.status} ${textStatus}`, false);
             }
         });
     }
@@ -615,7 +566,7 @@
             console.log("Sending update data:", updatedData);
 
             jQuery.ajax({
-                url: `/bookings/edit/${bookingId}`,
+                url: `/api/v1/bookings/${bookingId}`, // Updated URL to use the REST API
                 type: 'PUT',
                 contentType: 'application/json',
                 data: JSON.stringify(updatedData),
@@ -644,70 +595,117 @@
     }
 
     function toggleRecurrence(type) {
+        // Clear fields based on the selected type
+        if (type === "only") {
+            $('#dateStartDaily, #dateEndDaily, #dateStartWeekly, #dateEndWeekly').val('');
+            $('input[type="checkbox"]').prop('checked', false);
+        } else if (type === "daily") {
+            $('#dateOnly, #dateStartWeekly, #dateEndWeekly').val('');
+            $('input[type="checkbox"]').prop('checked', false);
+        } else if (type === "weekly") {
+            $('#dateOnly, #dateStartDaily, #dateEndDaily').val('');
+        }
+
+        // Toggle visibility and enable/disable fields
         $('#recurrenceOnly').toggle(type === "only");
         $('#recurrenceDaily').toggle(type === "daily");
         $('#recurrenceWeekly').toggle(type === "weekly");
+
+        if (type === "only") {
+            $('#dateOnly').prop('disabled', false);
+            $('#dateStartDaily, #dateEndDaily, #dateStartWeekly, #dateEndWeekly, input[type="checkbox"]').prop('disabled', true);
+        } else if (type === "daily") {
+            $('#dateStartDaily, #dateEndDaily').prop('disabled', false);
+            $('#dateOnly, #dateStartWeekly, #dateEndWeekly, input[type="checkbox"]').prop('disabled', true);
+        } else if (type === "weekly") {
+            $('#dateStartWeekly, #dateEndWeekly, input[type="checkbox"]').prop('disabled', false);
+            $('#dateOnly, #dateStartDaily, #dateEndDaily').prop('disabled', true);
+        }
+    }
+
+    function openCreateForm() {
+        // Reset the form fields
+        $('#createTitle').val('');
+        $('#createAttendees').val('');
+        $('#createContent').val('');
+        $('#createLinkMS').prop('checked', false);
+        $('input[name="createRecurrence"]').prop('checked', false);
+        $('#createDateOnly').val('');
+        $('#createTimeOnly').val('');
+        $('#createDateStartDaily').val('');
+        $('#createDateEndDaily').val('');
+        $('#createDateStartWeekly').val('');
+        $('#createDateEndWeekly').val('');
+        $('#createUsername').val('');
+        $('input[type="checkbox"]').prop('checked', false);
+
+        // Show the create form modal
+        $('#createBookingModal').modal('show');
+        $('#createBookingModalLabel').text('Create Booking');
+    }
+
+    function toggleCreateRecurrence(type) {
+        document.getElementById('createRecurrenceOnly').style.display = type === 'only' ? 'block' : 'none';
+        document.getElementById('createRecurrenceDaily').style.display = type === 'daily' ? 'block' : 'none';
+        document.getElementById('createRecurrenceWeekly').style.display = type === 'weekly' ? 'block' : 'none';
     }
 
     function createBooking() {
-        const selectedType = $('input[name="recurrence"]:checked').attr('id');
-        let newBookingData = {
-            title: $('#title1').val() || '',
-            attendees: $('#attendees1').val() || '',
-            content: $('#content1').val() || '',
-            bookingType: selectedType.toUpperCase(),
-            startTime: $('#dateOnly1').val() || $('#dateStartDaily1').val() || $('#dateStartWeekly1').val() || '',
-            endTime: selectedType === 'only' ? $('#dateOnly1').val() : ($('#dateEndDaily1').val() || $('#dateEndWeekly1').val() || ''),
-            username: $('#username1').val() || '',
-            roomId: $('#roomId1').val() || 1
+        const selectedType = $('input[name="createRecurrence"]:checked').attr('id');
+        let bookingData = {
+            title: $('#createTitle').val(),
+            attendees: $('#createAttendees').val(),
+            content: $('#createContent').val(),
+            linkMS: $('input[name="createLinkMS"]:checked').attr('id') === 'createLinkYes',
+            bookingType: selectedType.replace('create', '').toUpperCase(), // Ensure correct format
+            startTime: selectedType === 'createOnly' ? $('#createDateOnly').val() : ($('#createDateStartDaily').val() || $('#createDateStartWeekly').val() || ''),
+            endTime: selectedType === 'createOnly' ? $('#createTimeOnly').val() : ($('#createDateEndDaily').val() || $('#createDateEndWeekly').val() || ''),
+            weekdays: selectedType === 'createWeekly' ? ["mo", "tu", "we", "th", "fr"].filter(day => $('#create' + day.charAt(0).toUpperCase() + day.slice(1)).prop('checked')).join(',') : null,
+            username: $('#createUsername').val()
         };
 
-        if (selectedType === 'weekly') {
-            newBookingData.weekdays = ["mo1", "tu1", "we1", "th1", "fr1"].filter(day => $('#' + day).prop('checked')).join(',');
-        } else {
-            newBookingData.weekdays = null; // Không có weekdays cho loại Daily
+        if (selectedType === 'createOnly') {
+            const startDateTime = new Date($('#createDateOnly').val());
+            const endTime = $('#createTimeOnly').val();
+            const [endHours, endMinutes] = endTime.split(':');
+            const endDateTime = new Date(startDateTime);
+            endDateTime.setHours(endHours);
+            endDateTime.setMinutes(endMinutes);
+
+            bookingData.startTime = startDateTime.toISOString().slice(0, 19).replace('T', ' ');
+            bookingData.endTime = endDateTime.toISOString().slice(0, 19).replace('T', ' ');
         }
 
-        if (!newBookingData.username) {
-            console.error('Username is missing');
-            showNotification("Username is required.", false);
-            return;
-        }
-
-        if (!newBookingData.endTime) {
-            console.error('End time is missing');
-            showNotification("End time is required.", false);
-            return;
-        }
-
-        console.log("Sending new booking data:", newBookingData);
+        console.log("Creating booking with data:", bookingData);
 
         jQuery.ajax({
-            url: '/api/v1/bookings',
+            url: '/api/v1/bookings', // Updated URL to use the REST API
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(newBookingData),
+            data: JSON.stringify(bookingData),
             success: function(response) {
-                showNotification("Created booking successfully.", false);
-                $('#bookingModal1').modal('hide');
-                setTimeout(() => location.reload(), 1000);
+                let notificationMessage = "Created booking successfully.";
+                if (selectedType === 'createDaily') {
+                    notificationMessage += ` Booking period: ${bookingData.startTime} to ${bookingData.endTime}.`;
+                }
+                showNotification(notificationMessage, true); // Show success notification
+                $('#createBookingModal').modal('hide');
+                setTimeout(() => location.reload(), 1000); // Reload the page after 1 second
             },
             error: function(xhr) {
-                console.error('Error creating booking:', xhr.responseText);
-                showNotification("Failed to create booking.", false);
+                if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.retMsg) {
+                    showNotification(`Failed to create booking: ${xhr.responseJSON.retMsg}`, false); // Show conflict error message
+                } else {
+                    console.error('Error creating booking:', xhr.status, xhr.statusText, xhr.responseText);
+                    showNotification("Failed to create booking.", false); // Show generic error message
+                }
             }
         });
     }
 
-    function toggleRecurrence1(type) {
-        $('#recurrenceOnly1').toggle(type === "only");
-        $('#recurrenceDaily1').toggle(type === "daily");
-        $('#recurrenceWeekly1').toggle(type === "weekly");
-    }
-
 
     tinymce.init({
-        selector: '#content',
+        selector: '#content, #createContent',
         plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
         toolbar: 'bold italic underline | alignleft aligncenter alignright alignjustify | link image',
         external_plugins: {
