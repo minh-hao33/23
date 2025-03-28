@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +24,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/bookings/**",
                                 "/api/v1/bookings/**",
@@ -39,13 +41,14 @@ public class SecurityConfig {
                                 "/api/v1/users/all",
                                 "/api/v1/users/check",
                                 "/api/v1/users/getUserByUsername/").permitAll()
-                        .requestMatchers("/api/v1/users/create/**").hasAnyAuthority("Admin", "Supervisor")
-                        .requestMatchers("/api/v1/users/update/**").hasAnyAuthority("Admin", "Supervisor")
+                        .requestMatchers("/api/v1/users/create/**").hasAnyAuthority("ADMIN", "SUPERVISOR")
+                        .requestMatchers("/api/v1/users/update/**").hasAnyAuthority("ADMIN", "SUPERVISOR")
                         .requestMatchers("/api/v1/users/delete/**")
                         .hasAuthority("ADMIN") // Chỉ Admin mới được xóa người dùng
 
                         .anyRequest().authenticated()
-                )
+                ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(withDefaults()); // Thay vì httpBasic(), dùng httpBasic(withDefaults())
 
         return http.build();

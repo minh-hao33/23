@@ -8,6 +8,8 @@ import com.example.hrms.common.http.model.Result;
 import com.example.hrms.common.http.model.ResultPageData;
 import com.example.hrms.enumation.RoleEnum;
 import com.example.hrms.exception.InvalidPasswordException;
+import com.example.hrms.security.SecurityUtils;
+import com.example.hrms.utils.RequestUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,8 +19,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -88,11 +94,22 @@ public class UserRestController {
             throw new InvalidPasswordException("Invalid password.");
         }
 
+        // Store security context case
+        RequestUtils.setSessionAttr(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext());
+
+        Authentication authentication = new PreAuthenticatedAuthenticationToken(user, null, SecurityUtils.getAuthorities(user.getRole_name()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Set session valid within 30 minutes
+        RequestUtils.session(false).setMaxInactiveInterval(1800);
+
         return new Result("Success", "Login successful.");
     }
 
     @PutMapping("/update/{username}")
-    @PreAuthorize("hasAnyAuthority('Admin', 'Supervisor')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SUPERVISOR')")
     public Result updateAccount(@PathVariable String username, @RequestBody UserDTO.UpdateReq userReq) {
         User existingUser = userService.getUserByUsername(username);
         if (existingUser == null) {

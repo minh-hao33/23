@@ -6,3 +6,8 @@ spring:
 
 server:
     port: 8080
+    reactive:
+        session:
+            cookie:
+                http-only: true
+                secure: true
