@@ -5,7 +5,6 @@ import com.example.hrms.biz.meetingroom.model.criteria.MeetingRoomCriteria;
 import com.example.hrms.biz.meetingroom.model.dto.MeetingRoomDTO;
 import com.example.hrms.biz.meetingroom.repository.MeetingRoomMapper;
 import com.example.hrms.common.http.criteria.Page;
-import com.example.hrms.utils.MeetingRoomUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -21,86 +20,82 @@ import static org.mockito.Mockito.*;
 
 class MeetingRoomServiceTest {
 
-    @Mock
-    private MeetingRoomMapper mapper;
+  @Mock
+  private MeetingRoomMapper mapper;
 
-    @InjectMocks
-    private MeetingRoomService service;
+  @InjectMocks
+  private MeetingRoomService service;
 
-    public MeetingRoomServiceTest() {
-        MockitoAnnotations.openMocks(this);
-    }
+  public MeetingRoomServiceTest() {
+    MockitoAnnotations.openMocks(this);
+  }
 
-    @Test
-    void testCount() {
-        MeetingRoomCriteria criteria = new MeetingRoomCriteria();
-        when(mapper.count(criteria)).thenReturn(5);
+  @Test
+  void testCount() {
+    MeetingRoomCriteria criteria = new MeetingRoomCriteria();
+    when(mapper.count(criteria)).thenReturn(5);
 
-        int total = service.count(criteria);
-        assertEquals(5, total, "Expected count of meeting rooms to be 5.");
-        verify(mapper, times(1)).count(criteria);
-    }
+    int total = service.count(criteria);
+    assertEquals(5, total, "Expected count of meeting rooms to be 5.");
+    verify(mapper, times(1)).count(criteria);
+  }
 
-    @Test
-    void testList() {
-        Page page = new Page();
-        page.setPageNo(1);
-        page.setPageSize(2);
+  @Test
+  void testList() {
+    Page page = new Page();
+    page.setPageNo(1);
+    page.setPageSize(2);
 
-        MeetingRoomCriteria criteria = new MeetingRoomCriteria();
+    MeetingRoomCriteria criteria = new MeetingRoomCriteria();
 
-        // Mocking data using the builder pattern
-        List<MeetingRoom> mockRooms = new ArrayList<>();
-        mockRooms.add(new MeetingRoomUtils.Builder()
-                .roomId(1L)
-                .roomName("Room A")
-                .location("Floor 1")
-                .capacity(10)
-                .username("User A")
-                .startTime(LocalDateTime.of(2025, 3, 1, 10, 0))
-                .endTime(LocalDateTime.of(2025, 3, 1, 12, 0))
-                .status(null)
-                .buildMeetingRoom());
-        mockRooms.add(new MeetingRoomUtils.Builder()
-                .roomId(2L)
-                .roomName("Room B")
-                .location("Floor 2")
-                .capacity(15)
-                .username("User B")
-                .startTime(LocalDateTime.of(2025, 3, 2, 14, 0))
-                .endTime(LocalDateTime.of(2025, 3, 2, 16, 0))
-                .status(null)
-                .buildMeetingRoom());
+    // Mocking data
+    List<MeetingRoom> mockRooms = new ArrayList<>();
+    mockRooms.add(new MeetingRoom(
+        1L, "Room A", "Floor 1", 10,
+        "User A", LocalDateTime.of(2025, 3, 1, 10, 0),
+        LocalDateTime.of(2025, 3, 1, 12, 0),
+        null, "Title A", "Attendees A",
+        "Content A", null, null
+    ));
+    mockRooms.add(new MeetingRoom(
+        2L, "Room B", "Floor 2", 15,
+        "User B", LocalDateTime.of(2025, 3, 2, 14, 0),
+        LocalDateTime.of(2025, 3, 2, 16, 0),
+        null, "Title B", "Attendees B",
+        "Content B", null, null
+    ));
 
-        when(mapper.select(page.getPageSize(), page.getOffset(),
-                criteria.getRoomId(), criteria.getRoomName(), criteria.getLocation(),
-                criteria.getCapacity(), criteria.getUsername(),
-                criteria.getStartTime(), criteria.getEndTime(),
-                criteria.getStatus())).thenReturn(mockRooms);
+    when(mapper.select(page.getPageSize(), page.getOffset(),
+        criteria.getRoomId(), criteria.getRoomName(), criteria.getLocation(),
+        criteria.getCapacity(), criteria.getUsername(),
+        criteria.getStartTime(), criteria.getEndTime(),
+        criteria.getStatus(), criteria.getTitle(),
+        criteria.getAttendees(), criteria.getContent(),
+        criteria.getBookingType(), criteria.getWeekdays())).thenReturn(mockRooms);
 
-        // Execute test
-        List<MeetingRoomDTO.Resp> result = service.list(page, criteria);
+    // Execute test
+    List<MeetingRoomDTO.Resp> result = service.list(page, criteria);
 
-        // Assertions
-        assertEquals(2, result.size(), "Expected 2 meeting rooms in result.");
-        assertEquals("Room A", result.get(0).getRoomName());
-        assertEquals("Room B", result.get(1).getRoomName());
-        verify(mapper, times(1)).select(anyInt(), anyInt(), any(), any(), any(), any(), any(), any(), any(), any());
-    }
+    // Assertions
+    assertEquals(2, result.size(), "Expected 2 meeting rooms in result.");
+    assertEquals("Room A", result.get(0).getRoomName());
+    assertEquals("Room B", result.get(1).getRoomName());
+    verify(mapper, times(1)).select(anyInt(), anyInt(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),any());
+  }
 
-    @Test
-    void testListWithException() {
-        Page page = new Page();
-        page.setPageNo(1);
-        page.setPageSize(2);
+  @Test
+  void testListWithException() {
+    Page page = new Page();
+    page.setPageNo(1);
+    page.setPageSize(2);
 
-        MeetingRoomCriteria criteria = new MeetingRoomCriteria();
-        when(mapper.select(anyInt(), anyInt(), any(), any(), any(), any(), any(), any(), any(), any()))
-                .thenThrow(new RuntimeException("Database error"));
+    MeetingRoomCriteria criteria = new MeetingRoomCriteria();
+    when(mapper.select(anyInt(), anyInt(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),any()))
+        .thenThrow(new RuntimeException("Database error"));
 
-        // Execute and assert exception
-        Exception exception = assertThrows(RuntimeException.class, () -> service.list(page, criteria));
-        assertEquals("Could not fetch meeting room list, please try again later.", exception.getMessage());
-        verify(mapper, times(1)).select(anyInt(), anyInt(), any(), any(), any(), any(), any(), any(), any(), any());
-    }
+    // Execute and assert exception
+    Exception exception = assertThrows(RuntimeException.class, () -> service.list(page, criteria));
+    assertEquals("Unable to fetch meeting rooms. Please try again.", exception.getMessage());
+    verify(mapper, times(1)).select(anyInt(), anyInt(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),any());
+  }
 }

@@ -10,6 +10,33 @@ spring:
 #    properties:
 #      hibernate:
 #        dialect: org.hibernate.dialect.MySQL8Dialect
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 10
+        queue-capacity: 25
+      thread-name-prefix: email-async-
+mail:
+  from: ${MAIL_USERNAME}
+  host: smtp.gmail.com
+  port: 587
+  username: ${MAIL_USERNAME}
+  password: ${MAIL_PASSWORD}
+  smtp:
+    auth: true
+    starttls.enable: true
+    debug: true
+    timeout: 5000
+    connection-timeout: 5000
+    write-timeout: 5000
+
+# Logging configuration
+logging:
+  level:
+    com.example.hrms.biz.commoncode.email: DEBUG
+    org.springframework.mail: DEBUG
+
 mybatis:
     type-aliases-package: com.example.hrms.biz.booking.model,
         com.example.hrms.biz.department.model,

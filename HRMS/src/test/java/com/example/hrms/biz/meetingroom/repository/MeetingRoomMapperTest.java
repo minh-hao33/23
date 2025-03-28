@@ -28,16 +28,21 @@ public class MeetingRoomMapperTest {
         MeetingRoomCriteria mCriteria = new MeetingRoomCriteria();
 
         List<MeetingRoom> meetings = mapper.select(
-                page.getPageSize(),
-                page.getOffset(),
-                mCriteria.getRoomId(),
-                mCriteria.getRoomName(),
-                mCriteria.getLocation(),
-                mCriteria.getCapacity(),
-                mCriteria.getUsername(),
-                mCriteria.getStartTime(),
-                mCriteria.getEndTime(),
-                mCriteria.getStatus()
+            page.getPageSize(),
+            page.getOffset(),
+            mCriteria.getRoomId(),
+            mCriteria.getRoomName(),
+            mCriteria.getLocation(),
+            mCriteria.getCapacity(),
+            mCriteria.getUsername(),
+            mCriteria.getStartTime(),
+            mCriteria.getEndTime(),
+            mCriteria.getStatus(),
+            mCriteria.getTitle(),
+            mCriteria.getAttendees(),
+            mCriteria.getContent(),
+            mCriteria.getBookingType(),
+            mCriteria.getWeekdays()
         );
 
         assertEquals(2, meetings.size(), "Expected 2 rooms for page 1.");
@@ -55,16 +60,21 @@ public class MeetingRoomMapperTest {
         mCriteria.setEndTime(LocalDateTime.of(2025, 3, 1, 12, 0));
 
         List<MeetingRoom> meetings = mapper.select(
-                page.getPageSize(),
-                page.getOffset(),
-                mCriteria.getRoomId(),
-                mCriteria.getRoomName(),
-                mCriteria.getLocation(),
-                mCriteria.getCapacity(),
-                mCriteria.getUsername(),
-                mCriteria.getStartTime(),
-                mCriteria.getEndTime(),
-                mCriteria.getStatus()
+            page.getPageSize(),
+            page.getOffset(),
+            mCriteria.getRoomId(),
+            mCriteria.getRoomName(),
+            mCriteria.getLocation(),
+            mCriteria.getCapacity(),
+            mCriteria.getUsername(),
+            mCriteria.getStartTime(),
+            mCriteria.getEndTime(),
+            mCriteria.getStatus(),
+            mCriteria.getTitle(),
+            mCriteria.getAttendees(),
+            mCriteria.getContent(),
+            mCriteria.getBookingType(),
+            mCriteria.getWeekdays()
         );
 
         assertTrue(meetings.size() > 0, "Expected rooms for user 'john.doe' within the specified time range.");
@@ -79,16 +89,21 @@ public class MeetingRoomMapperTest {
         MeetingRoomCriteria mCriteria = new MeetingRoomCriteria();
 
         List<MeetingRoom> meetings = mapper.select(
-                page.getPageSize(),
-                page.getOffset(),
-                mCriteria.getRoomId(),
-                mCriteria.getRoomName(),
-                mCriteria.getLocation(),
-                mCriteria.getCapacity(),
-                mCriteria.getUsername(),
-                mCriteria.getStartTime(),
-                mCriteria.getEndTime(),
-                mCriteria.getStatus()
+            page.getPageSize(),
+            page.getOffset(),
+            mCriteria.getRoomId(),
+            mCriteria.getRoomName(),
+            mCriteria.getLocation(),
+            mCriteria.getCapacity(),
+            mCriteria.getUsername(),
+            mCriteria.getStartTime(),
+            mCriteria.getEndTime(),
+            mCriteria.getStatus(),
+            mCriteria.getTitle(),
+            mCriteria.getAttendees(),
+            mCriteria.getContent(),
+            mCriteria.getBookingType(),
+            mCriteria.getWeekdays()
         );
 
         assertTrue(meetings.size() > 0, "Expected all rooms when criteria is null.");
@@ -106,16 +121,21 @@ public class MeetingRoomMapperTest {
         mCriteria.setEndTime(LocalDateTime.of(2025, 3, 1, 12, 0));
 
         List<MeetingRoom> meetings = mapper.select(
-                page.getPageSize(),
-                page.getOffset(),
-                mCriteria.getRoomId(),
-                mCriteria.getRoomName(),
-                mCriteria.getLocation(),
-                mCriteria.getCapacity(),
-                mCriteria.getUsername(),
-                mCriteria.getStartTime(),
-                mCriteria.getEndTime(),
-                mCriteria.getStatus()
+            page.getPageSize(),
+            page.getOffset(),
+            mCriteria.getRoomId(),
+            mCriteria.getRoomName(),
+            mCriteria.getLocation(),
+            mCriteria.getCapacity(),
+            mCriteria.getUsername(),
+            mCriteria.getStartTime(),
+            mCriteria.getEndTime(),
+            mCriteria.getStatus(),
+            mCriteria.getTitle(),
+            mCriteria.getAttendees(),
+            mCriteria.getContent(),
+            mCriteria.getBookingType(),
+            mCriteria.getWeekdays()
         );
 
         assertTrue(meetings.isEmpty(), "Expected no matching rooms for nonexistent user.");
@@ -139,8 +159,13 @@ public class MeetingRoomMapperTest {
                 mCriteria.getUsername(),
                 mCriteria.getStartTime(),
                 mCriteria.getEndTime(),
-                mCriteria.getStatus()
-        );
+                mCriteria.getStatus(),
+                mCriteria.getTitle(),
+                mCriteria.getAttendees(),
+                mCriteria.getContent(),
+                mCriteria.getBookingType(),
+                mCriteria.getWeekdays()
+            );
 
         assertTrue(meetings.size() > 0, "Expected all rooms when invalid pagination values are corrected.");
     }
