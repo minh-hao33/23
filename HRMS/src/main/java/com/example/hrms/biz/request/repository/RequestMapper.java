@@ -12,6 +12,11 @@ import java.util.List;
 @Mapper
 public interface RequestMapper {
 
+    @Select("SELECT request_id, username, department_id, request_type, request_reason, request_status, " +
+            "approver_username, start_time, end_time, created_at, updated_at, approved_at " +
+            "FROM requests WHERE request_id = #{requestId}")
+    Request getRequestById(@Param("requestId") Long requestId);
+
     @Select("SELECT COUNT(request_id) " +
             "FROM requests r " +
             "WHERE " +
@@ -65,4 +70,18 @@ public interface RequestMapper {
                                  @Param("approverUsername") String approverUsername,
                                  @Param("startTime") Date startTime,
                                  @Param("endTime") Date endTime);
+
+    @Select("SELECT * FROM requests WHERE department_id = #{departmentId} LIMIT #{pageSize} OFFSET #{offset}")
+    List<Request> getRequestsByDepartment(@Param("departmentId") Long departmentId,
+                                          @Param("pageSize") int pageSize,
+                                          @Param("offset") int offset);
+
+    int countByDepartment(Long departmentId);
+    @Update("UPDATE requests SET request_status = #{status}, approved_at = NOW(), approver_username = #{approverUsername} " +
+            "WHERE request_id = #{requestId} AND department_id = #{departmentId}")
+    int updateRequestStatus(@Param("requestId") Long requestId,
+                            @Param("status") String status,
+                            @Param("approverUsername") String approverUsername,
+                            @Param("departmentId") Long departmentId);
+
 }

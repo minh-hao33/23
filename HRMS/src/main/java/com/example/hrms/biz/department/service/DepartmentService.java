@@ -28,9 +28,22 @@ public class DepartmentService {
     public void insert(DepartmentDTO.Req req) {
         // Kiểm tra trùng tên phòng ban
         if (departmentMapper.countByName(req.getDepartmentName()) > 0) {
-            throw new RuntimeException("Department name already exists");
+            throw new IllegalArgumentException("Department name already exists");
+        }
+
+        // Tạo đối tượng Department từ DTO request
+        Department department = new Department();
+        department.setDepartmentName(req.getDepartmentName());
+
+        // Chèn vào cơ sở dữ liệu
+        departmentMapper.insertDepartment(department);
+
+        // Kiểm tra xem departmentId có được gán hay không (nếu cần)
+        if (department.getDepartmentId() == null) {
+            throw new RuntimeException("Failed to insert department");
         }
     }
+
 
     public void updateDepartment(Long id, DepartmentDTO.Req req) {
         if (findById(id).isEmpty()) {
