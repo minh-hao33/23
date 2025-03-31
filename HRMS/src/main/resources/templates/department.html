@@ -145,11 +145,6 @@
             <label for="departmentName">Tên Phòng Ban:</label>
             <input type="text" id="departmentName" name="departmentName">
             <span id="departmentError" style="color: red;"></span>
-            <label for="userName">Tên Nhân Viên:</label>
-            <input type="text" id="userName" name="userName">
-            <span id="userError" style="color: red;"></span>
-            <label for="roleName">Vai Trò:</label>
-            <input type="text" id="roleName" name="roleName">
             <input type="submit" value="Thêm Phòng Ban">
         </form>
     </div>
@@ -199,8 +194,6 @@
         editDepartmentId = null;
         document.getElementById('modalTitle').textContent = 'Thêm Phòng Ban Mới';
         document.getElementById('departmentName').value = '';
-        document.getElementById('userName').value = '';
-        document.getElementById('roleName').value = '';
         document.getElementById('addDepartmentForm').querySelector('input[type="submit"]').value = 'Thêm Phòng Ban';
         document.getElementById('myModal').style.display = 'block';
     }
@@ -210,8 +203,6 @@
         editDepartmentId = id; // Lưu ID để dùng khi cập nhật
         document.getElementById('modalTitle').textContent = 'Sửa Phòng Ban';
         document.getElementById('departmentName').value = departmentName;
-        document.getElementById('userName').value = userName;
-        document.getElementById('roleName').value = roleName;
         document.getElementById('addDepartmentForm').querySelector('input[type="submit"]').value = 'Cập Nhật Phòng Ban';
         document.getElementById('myModal').style.display = 'block';
     }
@@ -225,15 +216,10 @@
     async function submitDepartment(event) {
         event.preventDefault();
         const departmentNameInput = document.getElementById('departmentName');
-        const userNameInput = document.getElementById('userName');
-        const roleNameInput = document.getElementById('roleName');
         const departmentName = departmentNameInput.value.trim();
-        const userName = userNameInput.value.trim();
-        const roleName = roleNameInput.value.trim();
-        const departmentData = { departmentName, userName, roleName };
+        const departmentData = { departmentName};
         // Clear previous error messages
         document.getElementById('departmentError').textContent = '';
-        document.getElementById('userError').textContent = '';
         try {
             let response;
             if (editDepartmentId) {
@@ -253,8 +239,6 @@
             if (!response.ok) {
                 if (result.message.includes('Department name already exists')) {
                     document.getElementById('departmentError').textContent = 'Tên phòng ban đã tồn tại!';
-                } else if (result.message.includes('Username already exists in this department')) {
-                    document.getElementById('userError').textContent = 'Nhân viên này đã có trong phòng ban!';
                 }
                 throw new Error(result.message);
             }
