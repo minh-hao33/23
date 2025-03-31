@@ -18,11 +18,11 @@ spring:
         queue-capacity: 25
       thread-name-prefix: email-async-
 mail:
-  from: ${MAIL_USERNAME}
+  from: emailai.system@gmail.com
   host: smtp.gmail.com
   port: 587
-  username: ${MAIL_USERNAME}
-  password: ${MAIL_PASSWORD}
+  username: emailai.system@gmail.com
+  password: sros otfu hxsl szpe
   smtp:
     auth: true
     starttls.enable: true
