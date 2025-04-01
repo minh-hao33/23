@@ -32,7 +32,7 @@ public interface UserMapper {
 
     // Cập nhật thông tin người dùng
     @Update("UPDATE Users SET email = #{email}, password = #{password}, " +
-            "department_id = (SELECT department_id FROM Departments WHERE department_name = #{departmentName}), " +
+            "department_id = (SELECT department_id FROM Departments WHERE department_name = #{departmentName}) " +
             "role_name = #{role_name}, is_supervisor = #{isSupervisor}, status = #{status}, " +
             "employee_name = #{employee_name} " +
             "WHERE username = #{username}")

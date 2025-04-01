@@ -32,7 +32,6 @@ public class SecurityConfig {
                                 "/meeting-room/**",
                                 "/api/v1/meeting-room/**",
                                 "/departments/**",
-                                "/api/v1/departments/**",
                                 "/roles/**",
                                 "/api/v1/roles/**",
                                 "/requests/**",
@@ -42,6 +41,7 @@ public class SecurityConfig {
                                 "/api/v1/users/all",
                                 "/api/v1/users/check",
                                 "/api/v1/users/getUserByUsername/").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**", "users/login","users/home").permitAll()
                         .requestMatchers("/api/v1/users/create/**").hasAnyAuthority("ADMIN", "SUPERVISOR")
                         .requestMatchers("/api/v1/users/update/**").hasAnyAuthority("ADMIN", "SUPERVISOR")
                         .requestMatchers("/api/v1/users/delete/**")
@@ -53,6 +53,12 @@ public class SecurityConfig {
                 .httpBasic(withDefaults()); // Thay vì httpBasic(), dùng httpBasic(withDefaults())
 
         return http.build();
+    }
+
+    @Bean
+    public GrantedAuthorityDefaults grantedAuthorityDefaults() {
+        // Remove the default "ROLE_" prefix
+        return new GrantedAuthorityDefaults("");
     }
 
     @Bean

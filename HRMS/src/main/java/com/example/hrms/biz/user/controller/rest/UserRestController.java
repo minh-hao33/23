@@ -264,13 +264,9 @@ public class UserRestController {
                     content = @Content)
     })
     @PutMapping("/change-password")
-    public Result changePassword(@RequestBody UserDTO.ChangePasswordReq request, HttpSession session) {
-        // Kiểm tra người dùng đã đăng nhập chưa
-        String loggedInUsername = (String) session.getAttribute("loggedInUser");
-        if (loggedInUsername == null) {
-            return new Result("Error", "User is not logged in.");
-        }
-        User user = userService.getUserByUsername(loggedInUsername);
+    public Result changePassword(@RequestBody UserDTO.ChangePasswordReq request) {
+        String username = SecurityUtils.getCurrentUsername();
+        User user = userService.getUserByUsername(username);
         if (user == null) {
             return new Result("Error", "User not found.");
         }
