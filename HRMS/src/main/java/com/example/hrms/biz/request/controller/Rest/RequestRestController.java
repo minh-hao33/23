@@ -10,8 +10,7 @@ import com.example.hrms.common.http.criteria.Page;
 import com.example.hrms.common.http.model.Result;
 import com.example.hrms.common.http.model.ResultData;
 import com.example.hrms.common.http.model.ResultPageData;
-import com.example.hrms.enumation.RequestTypeEnum;
-import com.example.hrms.exception.ResourceNotFoundException;
+import com.example.hrms.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,6 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,6 +61,7 @@ public class RequestRestController {
         return response;
     }
     @Operation(summary = "Get requests of staff in the same department")
+    @PreAuthorize("hasRole('SUPERVISOR')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get success",
                     content = {@Content(mediaType = "application/json",
@@ -73,7 +74,7 @@ public class RequestRestController {
     })
     @GetMapping("/staff-requests")
     public ResultPageData<List<RequestDto.Resp>> getRequestsForSupervisor(Page page) {
-        String supervisorUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String supervisorUsername = SecurityUtils.getCurrentUsername();
         User supervisor = userService.getUserByUsername(supervisorUsername);
 
         if (supervisor == null || !supervisor.isSupervisor()) {

@@ -12,7 +12,7 @@ public class UserDTO {
         private String employee_name;
         private String password;
         private Long departmentId;
-        private String department_name;
+        private String departmentName;
         private RoleEnum role_name;
         private boolean isSupervisor;
         private String status;
@@ -24,7 +24,7 @@ public class UserDTO {
             user.setEmployee_name(this.username);
             user.setPassword(this.password);
             user.setDepartmentId(this.departmentId);
-            user.setDepartment_name(this.department_name);
+            user.setDepartmentName(this.departmentName);
             user.setRole_name(String.valueOf(this.role_name));
             user.setSupervisor(this.isSupervisor);
             user.setStatus(this.status);

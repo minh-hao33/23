@@ -13,7 +13,7 @@ public class User {
     private boolean isSupervisor;
     private String status;
     private String email;
-    private String department_name;
+    private String departmentName;
 
     public void setSupervisor(boolean isSupervisor) {
         this.isSupervisor = isSupervisor;
