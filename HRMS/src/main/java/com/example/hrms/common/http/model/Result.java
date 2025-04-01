@@ -117,6 +117,10 @@ public class Result {
     setNowDate();
   }
 
+
+  public Result(String success, long totalLeaveDays) {
+  }
+
   public void setNowDate() {
     date = new Date().toString();
   }
