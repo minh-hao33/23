@@ -83,5 +83,31 @@ public interface RequestMapper {
                             @Param("status") String status,
                             @Param("approverUsername") String approverUsername,
                             @Param("departmentId") Long departmentId);
+    @Select("SELECT COALESCE(SUM(DATEDIFF(end_time, start_time) + 1), 0) " +
+        "FROM requests " +
+        "WHERE request_status = 'APPROVED' " +
+        "AND request_type IN ('PAID_LEAVE') " +
+        "AND username = #{username}")
+    Integer calculateTotalLeaveDays(@Param("username") String username);
+    @Insert("INSERT INTO Requests (username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time) " +
+        "VALUES (#{username}, #{departmentId}, #{requestType}, #{requestReason}, COALESCE(#{requestStatus}, 'PENDING'), #{approverUsername}, #{startTime}, #{endTime})")
+    @Options(useGeneratedKeys = true, keyProperty = "requestId")
+    void insertRequest(Request request);
+
+    @Select("SELECT department_id FROM Users WHERE username = #{username}")
+    Long findDepartmentByUsername(@Param("username") String username);
+
+    @Select("SELECT approver_username FROM Requests WHERE department_id = #{departmentId} " +
+        "ORDER BY created_at DESC LIMIT 1")
+    String findLatestApproverByDepartment(@Param("departmentId") Long departmentId);
+    @Update("UPDATE Requests SET request_type = #{requestType}, request_reason = #{requestReason}, " +
+        "start_time = #{startTime}, end_time = #{endTime}, updated_at = CURRENT_TIMESTAMP " +
+        "WHERE request_id = #{requestId} AND request_status = 'PENDING'")
+    int updateRequest(Request request);
+    @Select("SELECT * FROM requests WHERE request_id = #{requestId}")
+    Request findById(@Param("requestId") Long requestId);
+
+    @Delete("DELETE FROM requests WHERE request_id = #{requestId} AND request_status NOT IN ('REJECTED', 'APPROVED')")
+    int deleteRequest(@Param("requestId") Long requestId);
 
 }

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum RequestStatusEnum {
+    PENDING("Pending"),   // Thêm trạng thái PENDING
     APPROVED("Approved"),
     REJECTED("Rejected");
 
@@ -12,5 +13,4 @@ public enum RequestStatusEnum {
     RequestStatusEnum(String value) {
         this.value = value;
     }
-
 }
