@@ -10,6 +10,7 @@ import com.example.hrms.common.http.criteria.Page;
 import com.example.hrms.common.http.model.Result;
 import com.example.hrms.common.http.model.ResultData;
 import com.example.hrms.common.http.model.ResultPageData;
+import com.example.hrms.exception.ResourceNotFoundException;
 import com.example.hrms.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
