@@ -29,7 +29,6 @@
       font-size: 14px; /* Chỉnh chữ nhỏ hơn */
       border: none; /* Xóa viền */
       background: none; /* Xóa nền */
-
     }
     .logout-button i {
       font-size: 24px; /* Giữ kích thước icon */
@@ -64,7 +63,6 @@
       gap: 60px; /* Tăng khoảng cách giữa các phần tử */
       margin-bottom: 20px;
     }
-
     .filter-box input, .filter-box select, .filter-box button {
       padding: 8px;
       border: 1px solid #ccc;
@@ -76,7 +74,6 @@
       border: none;
       cursor: pointer;
     }
-
     .filter-box button:hover {
       background-color: #FFFFFF;
     }
@@ -93,7 +90,7 @@
       } catch (error) {
         console.error("Lỗi:", error);
         document.getElementById("requestsTableBody").innerHTML =
-                `<tr><td colspan="8" style="text-align:center; color: red;">Lỗi khi tải dữ liệu.</td></tr>`;
+                `<tr><td colspan="9" style="text-align:center; color: red;">Lỗi khi tải dữ liệu.</td></tr>`;
       }
     }
     function populateTable(data) {
@@ -112,12 +109,13 @@
         row.insertCell(4).textContent = request.requestReason || "-";
         row.insertCell(5).textContent = request.approverUsername || "Chưa có";
         row.insertCell(6).textContent = formatRequestStatus(request.requestStatus);
-        const editCell = row.insertCell(7);
+        const editCell = row.insertCell(7); // Action column
         const editButton = document.createElement("button");
         editButton.className = "edit-btn";
-        editButton.innerHTML = '<i class="fas fa-edit"></i>'; // Biểu tượng chỉnh sửa
-        editButton.onclick = () => editRequest(request.id);
+        editButton.innerHTML = '<i class="fas fa-edit"></i>'; // Edit icon
+        editButton.onclick = () => editRequest(request.requestId);
         editCell.appendChild(editButton);
+        row.setAttribute('data-department', formatDepartmentName(request.departmentId)); // Hidden attribute for department
       });
     }
     function formatDate(dateString) {
@@ -131,7 +129,6 @@
       const endDate = new Date(end).toISOString().split("T")[0]; // YYYY-MM-DD
       return startDate === endDate ? startDate : `${startDate} - ${endDate}`;
     }
-
     function formatRequestType(type) {
       return {
         "UNPAID_LEAVE": "Nghỉ không lương",
@@ -142,28 +139,28 @@
       return {
         "APPROVED": "Đã duyệt",
         "REJECTED": "Từ chối",
-        "PENDING": "Chờ duyệt"
+        "PENDING": "Chờ duyệt",
       }[status] || "-";
     }
+
     function filterRequests() {
       const startDate = document.getElementById("startDate").value;
       const endDate = document.getElementById("endDate").value;
-      // Kiểm tra nếu ngày bắt đầu lớn hơn ngày kết thúc
-      if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-        alert("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
-        return;
-      }
       const requestType = document.getElementById("requestType").value;
       const requestStatus = document.getElementById("requestStatus").value;
       const requestReason = document.getElementById("requestReason").value.toLowerCase();
+      const departmentName = document.getElementById("departmentName").value.toLowerCase(); // New filter
+
       document.querySelectorAll("#requestsTableBody tr").forEach(row => {
         const [type, , date, , reason, , status] = [...row.cells].map(cell => cell.textContent.trim());
+        const department = row.getAttribute('data-department').toLowerCase(); // Get hidden department attribute
         let show = true;
         if (startDate && new Date(date) < new Date(startDate)) show = false;
         if (endDate && new Date(date) > new Date(endDate)) show = false;
         if (requestType && type !== formatRequestType(requestType)) show = false;
         if (requestStatus && status !== formatRequestStatus(requestStatus)) show = false;
         if (requestReason && !reason.toLowerCase().includes(requestReason)) show = false;
+        if (departmentName && !department.includes(departmentName)) show = false; // New filter condition
         row.style.display = show ? "" : "none";
       });
     }
@@ -173,12 +170,28 @@
       document.getElementById("requestType").value = "";
       document.getElementById("requestStatus").value = "";
       document.getElementById("requestReason").value = "";
-      fetchRequests(); // Tải lại danh sách yêu cầu
+      document.getElementById("departmentName").value = ""; // Reset new filter
+      fetchRequests(); // Reload the request list
     }
+
+    function formatDepartmentName(departmentId) {
+      return {
+        1: "IT",
+        2: "HR",
+        3: "Finance",
+      }[departmentId] || "-";
+    }
+
+    window.onload = function() {
+      fetchRequests();
+      document.querySelector('.filter-box button[onclick="filterRequests()"]').onclick = filterRequests;
+      document.querySelector('.filter-box button[onclick="resetFilters()"]').onclick = resetFilters;
+    };
     function editRequest(requestId) {
       window.location.href = `edit_request.html?id=${requestId}`;
     }
     window.onload = fetchRequests;
+
   </script>
 </head>
 <body>
@@ -205,10 +218,16 @@
       </select>
     </label>
     <label>Lý do: <input type="text" id="requestReason"></label>
-    <i onclick="filterRequests()" class="fa-solid fa-magnifying-glass"></i>
-    <i onclick="resetFilters()" class="fa-solid fa-rotate-right"></i>
-    <button>Thêm mới</button>
-
+    <label>Phòng ban:
+      <select id="departmentName">
+        <option value="">Tất cả</option>
+        <option value="IT">IT</option>
+        <option value="HR">HR</option>
+        <option value="Finance">Finance</option>
+      </select>
+    </label> <!-- New filter -->
+    <button onclick="filterRequests()">Lọc</button> <!-- Ensure this button calls the filter function -->
+    <button onclick="resetFilters()">Đặt lại</button> <!-- Ensure this button calls the reset function -->
   </div>
   <table>
     <thead>
