@@ -128,14 +128,16 @@ public class RequestRestController {
     }
 
     @Operation(summary = "Create a new request")
+    @PreAuthorize("hasRole('EMPLOYEE')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Request created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid request data"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized")
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     @PostMapping("/create")
-    public Result createRequest(@RequestBody RequestDto.Req requestDto,
-        @RequestParam String username) {
+    public Result createRequest(@RequestBody RequestDto.Req requestDto) {
+        String username = SecurityUtils.getCurrentUsername();
         boolean success = requestService.createRequest(username, requestDto);
 
         if (!success) {
@@ -144,26 +146,30 @@ public class RequestRestController {
 
         return new Result("Success", "Request created successfully.");
     }
+    @Operation(summary = "Update an existing request")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Request updated successfully",
+            content = { @Content(mediaType = "application/json",
+                schema = @Schema(implementation = Result.class)) }),
+        @ApiResponse(responseCode = "400", description = "Invalid request data",
+            content = @Content),
+        @ApiResponse(responseCode = "401", description = "Unauthorized",
+            content = @Content),
+        @ApiResponse(responseCode = "403", description = "Forbidden",
+            content = @Content),
+        @ApiResponse(responseCode = "404", description = "Request not found",
+            content = @Content)
+    })
     @PutMapping("/{id}")
     public Result updateRequest(@PathVariable Long id, @RequestBody Request request) {
-        String supervisorUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         request.setRequestId(id);
-        try {
-            boolean updated = requestService.updateRequest(request);
-            if (updated) {
-                return new Result("Success", "Request updated successfully by " + supervisorUsername);
-            } else {
-                return new Result("Error", "Request not found.");
-            }
-        } catch (IllegalArgumentException e) {
-            return new Result("Error", "Invalid request: " + e.getMessage());
-        } catch (RuntimeException e) {
-            return new Result("Error", e.getMessage());
-        } catch (Exception e) {
-            return new Result("Error", "An unexpected error occurred. Please try again later.");
-        }
+        requestService.updateRequest(request);
+        return new Result("Success", "Request updated successfully.");
     }
+
     @Operation(summary = "Delete a request")
+    @PreAuthorize("hasRole('EMPLOYEE')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Request deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Request not found"),
@@ -171,15 +177,8 @@ public class RequestRestController {
     })
     @DeleteMapping("/{id}")
     public Result deleteRequest(@PathVariable Long id) {
-        try {
             requestService.deleteRequest(id);
             return new Result("Success", "Request deleted successfully");
-        } catch (ResourceNotFoundException e) {
-            return new Result("Error", "Request not found");
-        } catch (IllegalStateException e) {
-            return new Result("Error", e.getMessage());
-        } catch (Exception e) {
-            return new Result("Error", "An unexpected error occurred. Please try again later.");
-        }
+
     }
 }

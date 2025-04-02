@@ -23,7 +23,7 @@ public class SecurityUtils {
     }
 
     public static Collection<? extends GrantedAuthority> getAuthorities(
-            RoleEnum role) {
+        RoleEnum role) {
 
         return getGrantedAuthorities(role.name());
     }
