@@ -65,9 +65,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    @Bean
-    public GrantedAuthorityDefaults grantedAuthorityDefaults() {
-        // Remove the default "ROLE_" prefix
-        return new GrantedAuthorityDefaults("");
-    }
+
+
 }
