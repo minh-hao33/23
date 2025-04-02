@@ -29,8 +29,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/bookings/**",
                                 "/api/v1/bookings/**",
-                                "/meeting-room/**",
-                                "/api/v1/meeting-room/**",
                                 "/departments/**",
                                 "/roles/**",
                                 "/api/v1/roles/**",
@@ -41,7 +39,17 @@ public class SecurityConfig {
                                 "/api/v1/users/all",
                                 "/api/v1/users/check",
                                 "/api/v1/users/getUserByUsername/").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**", "users/login","users/home").permitAll()
+                        .requestMatchers("/api/v1/meeting-room/**").hasRole("EMPLOYEE")
+                        .requestMatchers("/meeting-room/**").hasRole("EMPLOYEE")
+                        .requestMatchers("/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/fonts/**",
+                                "users/login",
+                                "users/home",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-resources/").permitAll()
                         .requestMatchers("/api/v1/users/create/**").hasAnyAuthority("ADMIN", "SUPERVISOR")
                         .requestMatchers("/api/v1/users/update/**").hasAnyAuthority("ADMIN", "SUPERVISOR")
                         .requestMatchers("/api/v1/users/delete/**")

@@ -31,6 +31,15 @@ mail:
     connection-timeout: 5000
     write-timeout: 5000
 
+springdoc:
+    show-actuator: true
+    api-docs:
+      path: /v3/api-docs
+    swagger-ui:
+      enabled: true
+      path: /swagger-ui.html
+      url: /v3/api-docs
+
 # Logging configuration
 logging:
   level:
