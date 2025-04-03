@@ -14,4 +14,9 @@ public class RequestController {
         model.addAttribute("requests", new Request());
         return "requests";
     }
+    @RequestMapping("/create")
+    public String openCreate1(Model model) {
+        model.addAttribute("create1", new Request());
+        return "create1";
+    }
 }

@@ -7,10 +7,12 @@ import com.example.hrms.biz.request.repository.RequestMapper;
 import com.example.hrms.biz.user.model.User;
 import com.example.hrms.biz.user.repository.UserMapper;
 import com.example.hrms.common.http.criteria.Page;
+import com.example.hrms.enumation.RequestStatusEnum;
 import com.example.hrms.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -91,42 +93,29 @@ public class RequestService {
             throw new IllegalStateException("Cannot delete request with status REJECTED or APPROVED");
         }
     }
-    public List<RequestDto.Resp> getRequestsForSupervisor(Page page, Long departmentId) {
-        page.validate();
-        List<Request> requests = requestMapper.getRequestsByDepartment(departmentId, page.getPageSize(), page.getOffset());
-        return requests.stream().map(RequestDto.Resp::toResponse).toList();
-    }
-    public int countRequestsByDepartment(Long departmentId) {
-        return requestMapper.countByDepartment(departmentId);
-    }
-
-    public void approveOrRejectRequest(Long requestId, String action, String supervisorUsername) {
-        User supervisor = userMapper.getUserByUsername(supervisorUsername);
-
-        if (supervisor == null || !supervisor.isSupervisor()) {
-            throw new RuntimeException("User is not a supervisor");
-        }
-
-        Request request = requestMapper.getRequestById(requestId);
-        if (request == null) {
-            throw new RuntimeException("Request not found");
-        }
-
-        if (!request.getDepartmentId().equals(supervisor.getDepartmentId())) {
-            throw new RuntimeException("Supervisor can only approve/reject requests in their department");
-        }
-
-        String newStatus = switch (action.toUpperCase()) {
-            case "APPROVE" -> "APPROVED";
-            case "REJECT" -> "REJECTED";
-            default -> throw new IllegalArgumentException("Invalid action");
-        };
-
-        int updated = requestMapper.updateRequestStatus(requestId, newStatus, supervisorUsername, supervisor.getDepartmentId());
-        if (updated == 0) {
-            throw new RuntimeException("Failed to update request status");
+    public List<RequestDto.Resp> getRequestsBySupervisor(String supervisorUsername) {
+        log.info("Fetching requests for supervisor: {}", supervisorUsername);
+        try {
+            List<Request> requests = requestMapper.getRequestsBySupervisor(supervisorUsername);
+            if (requests.isEmpty()) {
+                log.warn("No requests found for supervisor: {}", supervisorUsername);
+            } else {
+                for (Request request : requests) {
+                    log.info("Request: {}", request);
+                }
+            }
+            return requests.stream().map(RequestDto.Resp::toResponse).collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error fetching requests", e);
+            throw new RuntimeException("Could not fetch requests, please try again later.");
         }
     }
 
-
+    // Xử lý approve/reject request
+    public void approveOrRejectRequest(Long requestId, RequestStatusEnum requestStatus, String approverUsername) {
+        int updatedRows = requestMapper.updateRequestStatus(requestId, requestStatus, approverUsername);
+        if (updatedRows == 0) {
+            throw new RuntimeException("Request not found or already processed.");
+        }
+    }
 }

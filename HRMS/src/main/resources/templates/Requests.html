@@ -191,7 +191,8 @@
       window.location.href = `edit_request.html?id=${requestId}`;
     }
     window.onload = fetchRequests;
-
+    function create111() {  console.log('Đang chuyển đến trang mới');// Bước gỡ lỗi
+      window.location.href = '/requests/create'} // Thay 'newPage.html' bằng đường dẫn đến trang HTML mới của bạn}
   </script>
 </head>
 <body>
@@ -228,6 +229,8 @@
     </label> <!-- New filter -->
     <button onclick="filterRequests()">Lọc</button> <!-- Ensure this button calls the filter function -->
     <button onclick="resetFilters()">Đặt lại</button> <!-- Ensure this button calls the reset function -->
+    <button class="create-new-button" onclick="create111()">Tạo mới</button> <!-- New button -->
+
   </div>
   <table>
     <thead>

@@ -10,6 +10,7 @@ import com.example.hrms.common.http.criteria.Page;
 import com.example.hrms.common.http.model.Result;
 import com.example.hrms.common.http.model.ResultData;
 import com.example.hrms.common.http.model.ResultPageData;
+import com.example.hrms.enumation.RequestStatusEnum;
 import com.example.hrms.exception.ResourceNotFoundException;
 import com.example.hrms.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,76 +54,60 @@ public class RequestRestController {
                     content = @Content)})
     @GetMapping("")
     public ResultPageData<List<RequestDto.Resp>> list(Page page, RequestCriteria criteria) {
-        int total = requestService.count(criteria);
-        ResultPageData<List<RequestDto.Resp>> response = new ResultPageData<>(criteria, total);
-        if (total > 0) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Nếu là ADMIN → trả về toàn bộ danh sách
+        if (authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"))) {
+            int total = requestService.count(criteria);
+            ResultPageData<List<RequestDto.Resp>> response = new ResultPageData<>(criteria, total);
             response.setResultData(requestService.list(page, criteria));
-        } else {
-            response.setResultData(Collections.emptyList());
+            return response;
         }
-        return response;
+        // Nếu là SUPERVISOR → trả về request của department của supervisor
+        else if (authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("SUPERVISOR"))) {
+            String supervisorUsername = SecurityUtils.getCurrentUsername();
+            List<RequestDto.Resp> requests = requestService.getRequestsBySupervisor(supervisorUsername);
+            ResultPageData<List<RequestDto.Resp>> response = new ResultPageData<>(criteria, requests.size());
+            response.setResultData(requests);
+            return response;
+        }
+        // Nếu không phải ADMIN hoặc SUPERVISOR → chỉ trả về request của user hiện tại
+        else {
+            String username = SecurityUtils.getCurrentUsername();
+            criteria.setUsername(username); // Lọc theo username
+            int total = requestService.count(criteria);
+            ResultPageData<List<RequestDto.Resp>> response = new ResultPageData<>(criteria, total);
+            response.setResultData(requestService.list(page, criteria));
+            return response;
+        }
     }
-    @Operation(summary = "Get requests of staff in the same department")
+
+    @Operation(summary = "Approve or Reject a request")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Request approved or rejected successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request or already processed",
+                    content = @Content)})
     @PreAuthorize("hasRole('SUPERVISOR')")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get success",
-                    content = {@Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = RequestDto.Resp.class)))
-                    }),
-            @ApiResponse(responseCode = "400", description = "Invalid request",
-                    content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - User is not logged in",
-                    content = @Content)
-    })
-    @GetMapping("/staff-requests")
-    public ResultPageData<List<RequestDto.Resp>> getRequestsForSupervisor(Page page) {
-        String supervisorUsername = SecurityUtils.getCurrentUsername();
-        User supervisor = userService.getUserByUsername(supervisorUsername);
-
-        if (supervisor == null || !supervisor.isSupervisor()) {
-            throw new RuntimeException("User is not a supervisor");
-        }
-
-        int total = requestService.countRequestsByDepartment(supervisor.getDepartmentId());
-        ResultPageData<List<RequestDto.Resp>> response = new ResultPageData<>(new RequestCriteria(), total);
-        response.setResultData(total > 0 ? requestService.getRequestsForSupervisor(page, supervisor.getDepartmentId()) : Collections.emptyList());
-
-        return response;
-    }
-    @Operation(summary = "Approve or Reject Request")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Request status updated successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Result.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request",
-                    content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - User is not logged in",
-                    content = @Content),
-            @ApiResponse(responseCode = "403", description = "User is not authorized",
-                    content = @Content)
-    })
-    @PutMapping("/{requestId}/approve-reject")
-    public Result approveOrRejectRequest(@PathVariable Long requestId, @RequestParam String action) {
-        String supervisorUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+    @PostMapping("/{requestId}/approve-reject")
+    public Result approveOrRejectRequest(@PathVariable Long requestId, @RequestParam RequestStatusEnum requestStatus) {
         try {
-            requestService.approveOrRejectRequest(requestId, action, supervisorUsername);
-            return new Result("Success", "Request " + action.toLowerCase() + "d successfully");
-        } catch (IllegalArgumentException e) {
-            return new Result("Error", "Invalid action: " + action);
-        } catch (RuntimeException e) {
-            return new Result("Error", e.getMessage());
+            String supervisorUsername = SecurityUtils.getCurrentUsername();  // Lấy username của supervisor
+            requestService.approveOrRejectRequest(requestId, requestStatus, supervisorUsername);
+            return new Result("Request processed successfully");
         } catch (Exception e) {
-            return new Result("Error", "An unexpected error occurred. Please try again later.");
+            return new Result("Failed to process request: " + e.getMessage());
         }
     }
     @Operation(summary = "Get total leave days of a user")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved total leave days",
-            content = {@Content(mediaType = "application/json",
-                schema = @Schema(implementation = Result.class))
-            }),
-        @ApiResponse(responseCode = "400", description = "Invalid request",
-            content = @Content)})
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved total leave days",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Result.class))
+                    }),
+            @ApiResponse(responseCode = "400", description = "Invalid request",
+                    content = @Content)})
     @GetMapping("/days-off")
     public ResultData<Long> getTotalLeaveDays(@RequestParam String username) {
         long totalLeaveDays = requestService.getTotalLeaveDays(username);
@@ -131,10 +117,10 @@ public class RequestRestController {
     @Operation(summary = "Create a new request")
     @PreAuthorize("hasRole('EMPLOYEE')")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Request created successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid request data"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "403", description = "Forbidden")
+            @ApiResponse(responseCode = "201", description = "Request created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     @PostMapping("/create")
     public Result createRequest(@RequestBody RequestDto.Req requestDto) {
@@ -150,17 +136,17 @@ public class RequestRestController {
     @Operation(summary = "Update an existing request")
     @PreAuthorize("hasRole('EMPLOYEE')")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Request updated successfully",
-            content = { @Content(mediaType = "application/json",
-                schema = @Schema(implementation = Result.class)) }),
-        @ApiResponse(responseCode = "400", description = "Invalid request data",
-            content = @Content),
-        @ApiResponse(responseCode = "401", description = "Unauthorized",
-            content = @Content),
-        @ApiResponse(responseCode = "403", description = "Forbidden",
-            content = @Content),
-        @ApiResponse(responseCode = "404", description = "Request not found",
-            content = @Content)
+            @ApiResponse(responseCode = "200", description = "Request updated successfully",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Result.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Request not found",
+                    content = @Content)
     })
     @PutMapping("/{id}")
     public Result updateRequest(@PathVariable Long id, @RequestBody Request request) {
@@ -172,14 +158,14 @@ public class RequestRestController {
     @Operation(summary = "Delete a request")
     @PreAuthorize("hasRole('EMPLOYEE')")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Request deleted successfully"),
-        @ApiResponse(responseCode = "404", description = "Request not found"),
-        @ApiResponse(responseCode = "400", description = "Cannot delete request with status REJECTED or APPROVED")
+            @ApiResponse(responseCode = "200", description = "Request deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Request not found"),
+            @ApiResponse(responseCode = "400", description = "Cannot delete request with status REJECTED or APPROVED")
     })
     @DeleteMapping("/{id}")
     public Result deleteRequest(@PathVariable Long id) {
-            requestService.deleteRequest(id);
-            return new Result("Success", "Request deleted successfully");
+        requestService.deleteRequest(id);
+        return new Result("Success", "Request deleted successfully");
 
     }
 }
