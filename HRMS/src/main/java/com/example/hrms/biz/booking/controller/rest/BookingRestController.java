@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -67,7 +68,7 @@ public class BookingRestController {
             @ApiResponse(responseCode = "409", description = "Conflict",
                     content = @Content) })
     @PostMapping("")
-    public Result createBooking(@RequestBody BookingDTO.Req bookingReq) {
+    public Result createBooking(@RequestBody @Valid BookingDTO.Req bookingReq) {
         Booking booking = bookingReq.toBooking();
         if (bookingService.isConflict(booking)) {
             throw new InvalidArgumentException("Booking time conflicts with an existing booking.");
