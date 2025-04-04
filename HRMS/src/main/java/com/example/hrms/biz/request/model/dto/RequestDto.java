@@ -28,6 +28,7 @@ public class RequestDto {
         private Timestamp createdAt;
         private Timestamp updatedAt;
         private Timestamp approvedAt;
+        private String rejectionReason; // Thêm lý do từ chối
 
         public Request toRequest() {
             Request request = new Request();
@@ -52,6 +53,7 @@ public class RequestDto {
         private Timestamp createdAt;
         private Timestamp updatedAt;
         private Timestamp approvedAt;
+        private String rejectionReason; // Thêm lý do từ chối
 
         public static Resp toResponse(Request request) {
             Resp resp = new Resp();

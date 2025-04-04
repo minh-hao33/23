@@ -83,23 +83,28 @@ public class RequestRestController {
             return response;
         }
     }
-
-    @Operation(summary = "Approve or Reject a request")
+    @Operation(summary = "Approve or Reject a request with a reason for rejection")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Request approved or rejected successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request or already processed",
                     content = @Content)})
+
     @PreAuthorize("hasRole('SUPERVISOR')")
     @PostMapping("/{requestId}/approve-reject")
-    public Result approveOrRejectRequest(@PathVariable Long requestId, @RequestParam RequestStatusEnum requestStatus) {
+    public Result approveOrRejectRequest(
+            @PathVariable Long requestId,
+            @RequestParam RequestStatusEnum requestStatus,
+            @RequestParam(required = false) String rejectionReason) {
+
         try {
-            String supervisorUsername = SecurityUtils.getCurrentUsername();  // Lấy username của supervisor
-            requestService.approveOrRejectRequest(requestId, requestStatus, supervisorUsername);
-            return new Result("Request processed successfully");
+            String supervisorUsername = SecurityUtils.getCurrentUsername();
+            requestService.approveOrRejectRequest(requestId, requestStatus, supervisorUsername, rejectionReason);
+            return new Result("Success", "Request processed successfully");
         } catch (Exception e) {
-            return new Result("Failed to process request: " + e.getMessage());
+            return new Result("Failed", "Failed to process request: " + e.getMessage());
         }
     }
+
     @Operation(summary = "Get total leave days of a user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved total leave days",

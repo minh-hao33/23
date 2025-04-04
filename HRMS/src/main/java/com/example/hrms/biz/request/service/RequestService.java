@@ -64,25 +64,30 @@ public class RequestService {
         Long departmentId = requestMapper.findDepartmentByUsername(username);
         if (departmentId == null) return false;
 
-
         String approverUsername = requestMapper.findLatestApproverByDepartment(departmentId);
 
         Request newRequest = new Request();
         newRequest.setUsername(username);
         newRequest.setDepartmentId(departmentId);
-        newRequest.setRequestType(requestDto.getRequestType());  // 🟢 Đảm bảo đúng lớp
+        newRequest.setRequestType(requestDto.getRequestType());
         newRequest.setRequestReason(requestDto.getRequestReason());
         newRequest.setRequestStatus(requestDto.getRequestStatus());
         newRequest.setApproverUsername(approverUsername);
         newRequest.setStartTime(requestDto.getStartTime());
         newRequest.setEndTime(requestDto.getEndTime());
+        newRequest.setRejectionReason(null);  // 🔹 Đảm bảo rejectionReason là NULL khi tạo mới
 
         requestMapper.insertRequest(newRequest);
         return true;
     }
+
     public boolean updateRequest(Request request) {
+        if (request.getRequestStatus() == RequestStatusEnum.PENDING) {
+            request.setRejectionReason(null);  // 🔹 Reset rejectionReason nếu trạng thái là PENDING
+        }
         return requestMapper.updateRequest(request) > 0;
     }
+
     public void deleteRequest(Long id) throws ResourceNotFoundException {
         Request request = requestMapper.findById(id);
         if (request == null) {
@@ -112,10 +117,16 @@ public class RequestService {
     }
 
     // Xử lý approve/reject request
-    public void approveOrRejectRequest(Long requestId, RequestStatusEnum requestStatus, String approverUsername) {
-        int updatedRows = requestMapper.updateRequestStatus(requestId, requestStatus, approverUsername);
+    public void approveOrRejectRequest(Long requestId, RequestStatusEnum requestStatus, String approverUsername, String rejectionReason) {
+        if (requestStatus == RequestStatusEnum.REJECTED && (rejectionReason == null || rejectionReason.trim().isEmpty())) {
+            throw new IllegalArgumentException("Rejection reason is required when rejecting a request.");
+        }
+
+        int updatedRows = requestMapper.updateRequestStatus(requestId, requestStatus, approverUsername, rejectionReason);
         if (updatedRows == 0) {
             throw new RuntimeException("Request not found or already processed.");
         }
     }
+
+
 }
