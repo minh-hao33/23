@@ -11,8 +11,9 @@ public class DepartmentDTO {
     public static class Req {
         private Long departmentId;
         private String departmentName;
+        private String employeeName;
         private String roleName;
-        private String userName; // Add this field
+
 
         public Department toDepartment() {
             Department department = new Department();
@@ -26,8 +27,18 @@ public class DepartmentDTO {
     public static class Resp {
         private Long departmentId;
         private String departmentName;
-        private String roleName;
-        private String userName; // Add this field
+        private String employeeName; // employeeName
+        private String roleName; // roleName
+
+        public Resp() {}
+
+        // Constructor để chấp nhận các giá trị null cho employeeName và roleName
+        public Resp(Long departmentId, String departmentName, String employeeName, String roleName) {
+            this.departmentId = departmentId;
+            this.departmentName = departmentName;
+            this.employeeName = employeeName;
+            this.roleName = roleName;
+        }
 
         public static Resp toResponse(Department department) {
             Resp resp = new Resp();

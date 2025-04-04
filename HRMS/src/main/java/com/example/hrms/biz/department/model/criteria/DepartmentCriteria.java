@@ -9,15 +9,15 @@ import lombok.Setter;
 public class DepartmentCriteria extends Page {
     private Long departmentId;
     private String departmentName;
+    private String employeeName;
     private String roleName;
-    private String userName; // Add this field
 
     public DepartmentCriteria() {}
 
     public DepartmentCriteria(Long departmentId, String departmentName, String roleName, String userName) {
         this.departmentId = departmentId;
         this.departmentName = departmentName;
+        this.employeeName = employeeName;
         this.roleName = roleName;
-        this.userName = userName; // Add this field
     }
 }

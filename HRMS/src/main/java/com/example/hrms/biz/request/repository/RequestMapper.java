@@ -38,9 +38,9 @@ public interface RequestMapper {
             "    r.end_time AS endTime, " +
             "    r.created_at AS createdAt, " +
             "    r.updated_at AS updatedAt, " +
-            "    r.approved_at AS approvedAt " +
-            "FROM " +
-            "    requests r " +
+            "    r.approved_at AS approvedAt, " +
+            "    r.rejection_reason AS rejectionReason " +  // Thêm rejectionReason
+            "FROM requests r " +
             "WHERE " +
             "    (#{requestId} IS NULL OR r.request_id = #{requestId}) " +
             "    AND (#{username} IS NULL OR r.username = #{username}) " +
@@ -51,8 +51,7 @@ public interface RequestMapper {
             "    AND (#{approverUsername} IS NULL OR r.approver_username = #{approverUsername}) " +
             "    AND (#{startTime} IS NULL OR r.start_time >= #{startTime}) " +
             "    AND (#{endTime} IS NULL OR r.end_time <= #{endTime}) " +
-            "ORDER BY " +
-            "    r.request_id ASC " +
+            "ORDER BY r.request_id ASC " +
             "LIMIT #{pageSize} OFFSET #{offset}")
     List<Request> select(@Param("pageSize") int pageSize,
                          @Param("offset") int offset,
@@ -66,6 +65,7 @@ public interface RequestMapper {
                          @Param("startTime") Date startTime,
                          @Param("endTime") Date endTime);
 
+
     @Select("SELECT " +
             "    r.request_id AS requestId, " +
             "    r.username AS username, " +
@@ -75,20 +75,22 @@ public interface RequestMapper {
             "    r.request_status AS requestStatus, " +
             "    r.approver_username AS approverUsername, " +
             "    r.start_time AS startTime, " +
-            "    r.end_time AS endTime, " +
+            "    r.end_time AS EndTime, " +
             "    r.created_at AS createdAt, " +
             "    r.updated_at AS updatedAt, " +
-            "    r.approved_at AS approvedAt " +
-            "FROM " +
-            "    requests r " +
-            "WHERE " +
-            "    r.department_id = (SELECT department_id FROM users WHERE username = #{username})")
+            "    r.approved_at AS approvedAt, " +
+            "    r.rejection_reason AS rejectionReason " + // Thêm rejectionReason
+            "FROM requests r " +
+            "WHERE r.department_id = (SELECT department_id FROM users WHERE username = #{username})")
+
     List<Request> getRequestsBySupervisor(@Param("username") String username);
 
-    @Update("UPDATE requests SET request_status = #{requestStatus}, approved_at = CURRENT_TIMESTAMP, approver_username = #{approverUsername} WHERE request_id = #{requestId} AND request_status = 'PENDING'")
+    @Update("UPDATE requests SET request_status = #{status}, approver_username = #{approverUsername}, rejection_reason = #{rejectionReason} WHERE request_id = #{requestId}")
     int updateRequestStatus(@Param("requestId") Long requestId,
-                            @Param("requestStatus") RequestStatusEnum requestStatus,
-                            @Param("approverUsername") String approverUsername);
+                            @Param("status") RequestStatusEnum status,
+                            @Param("approverUsername") String approverUsername,
+                            @Param("rejectionReason") String rejectionReason);
+
 
     @Select("SELECT COALESCE(SUM(DATEDIFF(end_time, start_time) + 1), 0) " +
             "FROM requests " +

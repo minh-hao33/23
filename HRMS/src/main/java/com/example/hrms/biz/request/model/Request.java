@@ -23,6 +23,5 @@ public class Request {
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private Timestamp approvedAt;
-
-
+    private String rejectionReason; // Thêm lý do từ chối
 }

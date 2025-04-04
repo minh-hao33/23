@@ -26,6 +26,7 @@ public class RequestCriteria extends Page {
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private Timestamp approvedAt;
+    private String rejectionReason; // Thêm lý do từ chối
 
     @Override
     public String toString() {
@@ -42,6 +43,7 @@ public class RequestCriteria extends Page {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", approvedAt=" + approvedAt +
+                ", rejectionReason='" + rejectionReason + '\'' + // Hiển thị rejectionReason
                 '}';
     }
 }

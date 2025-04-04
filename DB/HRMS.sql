@@ -42,14 +42,15 @@ CREATE TABLE Requests (
     username VARCHAR(64) NOT NULL,
     department_id BIGINT NOT NULL,
     request_type VARCHAR(64) NOT NULL,
-    request_reason TEXT NOT NULL,
+    request_reason TEXT DEFAULT NULL, -- KHÔNG BẮT BUỘC NẾU ĐƯỢC DUYỆT
     request_status VARCHAR(64) NOT NULL,
     approver_username VARCHAR(64) NOT NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    approved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    approved_at TIMESTAMP NULL DEFAULT NULL, -- Chi cap nhat khi duoc duyet
+    rejection_reason TEXT DEFAULT NULL, -- Ly do rejected
     FOREIGN KEY (username) REFERENCES Users(username),
     FOREIGN KEY (approver_username) REFERENCES Users(username),
     INDEX (username),
@@ -122,12 +123,12 @@ INSERT INTO Users (username, password, email, role_name, department_id, is_super
 ('htpham', '$2a$10$Cx7mPooZBiruz8YjaOkhTu1dlfMlHN9T5IFM8wnOp.KQTd5xzEL4q', 'huutien@cmcglobal.com.vn', 'SUPERVISOR', 2, FALSE, 'Active', 'Huu Tien Pham');
 
 -- Chèn dữ liệu vào bảng Requests
-INSERT INTO Requests (username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time) VALUES
-('ntdu', 1, 'PAID_LEAVE', 'Nghỉ phép cá nhân', 'REJECTED', 'pmhao', '2025-02-28 09:00:00', '2025-02-28 17:00:00'),
-('pmhao', 1, 'UNPAID_LEAVE', 'Nghỉ phép đột xuất', 'APPROVED', 'bkkhanh', '2025-02-27 09:00:00', '2025-02-27 17:00:00'),
-('htpham', 2, 'UNPAID_LEAVE', 'Làm việc từ xa do bệnh', 'REJECTED', 'pmhao', '2025-02-26 09:00:00', '2025-02-26 17:00:00'),
-('bkkhanh', 2, 'PAID_LEAVE', 'Xin nghỉ phép do việc gia đình', 'REJECTED', 'bkkhanh', '2025-02-25 09:00:00', '2025-02-25 17:00:00'),
-('pnminh', 3, 'PAID_LEAVE', 'Làm việc tại nhà', 'APPROVED', 'pmhao', '2025-02-24 09:00:00', '2025-02-24 17:00:00');
+INSERT INTO Requests (username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time, rejection_reason) VALUES
+('ntdu', 1, 'PAID_LEAVE', 'Nghỉ phép cá nhân', 'REJECTED', 'pmhao', '2025-02-28 09:00:00', '2025-02-28 17:00:00','Không đủ ngày nghỉ phép'),
+('pmhao', 1, 'UNPAID_LEAVE', 'Nghỉ phép đột xuất', 'APPROVED', 'bkkhanh', '2025-02-27 09:00:00', '2025-02-27 17:00:00',NULL),
+('htpham', 2, 'UNPAID_LEAVE', 'Làm việc từ xa do bệnh', 'REJECTED', 'pmhao', '2025-02-26 09:00:00', '2025-02-26 17:00:00','Chưa có giấy xác nhận'),
+('bkkhanh', 2, 'PAID_LEAVE', 'Xin nghỉ phép do việc gia đình', 'REJECTED', 'bkkhanh', '2025-02-25 09:00:00', '2025-02-25 17:00:00', 'Nhân sự không đủ để thay thế'),
+('pnminh', 3, 'PAID_LEAVE', 'Làm việc tại nhà', 'APPROVED', 'pmhao', '2025-02-24 09:00:00', '2025-02-24 17:00:00', NULL);
 
 -- Chèn dữ liệu vào bảng Meeting_Rooms
 INSERT INTO Meeting_Rooms (room_name, location, capacity) VALUES
