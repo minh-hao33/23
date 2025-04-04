@@ -27,7 +27,7 @@
       cursor: pointer;
       margin-left: auto;
       font-size: 14px; /* Chỉnh chữ nhỏ hơn */
-      border: none; /* Xóa viền */
+
       background: none; /* Xóa nền */
     }
     .logout-button i {
@@ -77,22 +77,94 @@
     .filter-box button:hover {
       background-color: #FFFFFF;
     }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Adjusted width for smaller screens */
+      max-width: 600px; /* Max width for larger screens */
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+    }
+
+    .modal-content p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    .modal-content p strong {
+      display: inline-block;
+      width: 150px;
+    }
+
+    .modal-content button {
+      background-color: #d9534f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      display: block;
+      margin: 20px auto 0; /* Centered button */
+    }
+
+    .modal-content button:hover {
+      background-color: #c9302c; /* Darker shade on hover */
+    }
   </style>
   <script>
     const API_BASE_URL = "http://localhost:8080/api/v1/requests";
+    let data = []; // Khai báo biến data toàn cục
+
     async function fetchRequests() {
       try {
         const response = await fetch(API_BASE_URL);
         if (!response.ok) throw new Error(`Lỗi HTTP! Mã lỗi: ${response.status}`);
-        const data = await response.json();
-        if (!data || !data.data || !Array.isArray(data.data)) throw new Error("Dữ liệu API không hợp lệ");
-        populateTable(data.data);
+        const result = await response.json();
+        if (!result || !result.data || !Array.isArray(result.data)) throw new Error("Dữ liệu API không hợp lệ");
+        data = result.data; // Gán dữ liệu vào biến toàn cục
+        populateTable(data);
       } catch (error) {
         console.error("Lỗi:", error);
         document.getElementById("requestsTableBody").innerHTML =
                 `<tr><td colspan="9" style="text-align:center; color: red;">Lỗi khi tải dữ liệu.</td></tr>`;
       }
     }
+
     function populateTable(data) {
       const tableBody = document.getElementById("requestsTableBody");
       tableBody.innerHTML = "";
@@ -113,28 +185,32 @@
         const editButton = document.createElement("button");
         editButton.className = "edit-btn";
         editButton.innerHTML = '<i class="fas fa-edit"></i>'; // Edit icon
-        editButton.onclick = () => editRequest(request.requestId);
+        editButton.onclick = () => viewRequest(request.requestId);
         editCell.appendChild(editButton);
         row.setAttribute('data-department', formatDepartmentName(request.departmentId)); // Hidden attribute for department
       });
     }
+
     function formatDate(dateString) {
       if (!dateString) return "-";
       const date = new Date(dateString);
       return date.toISOString().split("T")[0]; // Trả về YYYY-MM-DD
     }
+
     function formatDuration(start, end) {
       if (!start || !end) return "-";
       const startDate = new Date(start).toISOString().split("T")[0]; // YYYY-MM-DD
       const endDate = new Date(end).toISOString().split("T")[0]; // YYYY-MM-DD
       return startDate === endDate ? startDate : `${startDate} - ${endDate}`;
     }
+
     function formatRequestType(type) {
       return {
         "UNPAID_LEAVE": "Nghỉ không lương",
         "PAID_LEAVE": "Nghỉ có lương",
       }[type] || "-";
     }
+
     function formatRequestStatus(status) {
       return {
         "APPROVED": "Đã duyệt",
@@ -164,6 +240,7 @@
         row.style.display = show ? "" : "none";
       });
     }
+
     function resetFilters() {
       document.getElementById("startDate").value = "";
       document.getElementById("endDate").value = "";
@@ -182,17 +259,32 @@
       }[departmentId] || "-";
     }
 
+    function viewRequest(requestId) {
+      const request = data.find(req => req.requestId === requestId);
+      if (request) {
+        document.getElementById("viewLeaveDate").textContent = formatDate(request.startTime);
+        document.getElementById("viewRequestReason").textContent = request.requestReason || "";
+        document.getElementById("viewApprovalDate").textContent = formatDate(request.endTime);
+        document.getElementById("viewPaidLeave").textContent = formatRequestType(request.requestType);
+        document.getElementById("viewUsername").textContent = request.username || "-";
+        document.getElementById("viewCreatedAt").textContent = formatDate(request.createdAt);
+        document.getElementById("viewApproverUsername").textContent = request.approverUsername || "Chưa có";
+        document.getElementById("viewRequestStatus").textContent = formatRequestStatus(request.requestStatus);
+        document.getElementById("viewDepartmentName").textContent = formatDepartmentName(request.departmentId);
+        document.getElementById("editRequestModal").style.display = "block";
+      }
+    }
+
+    function closeModal() {
+      document.getElementById("editRequestModal").style.display = "none";
+    }
+
+    // Ensure this function is called when the page loads
     window.onload = function() {
       fetchRequests();
       document.querySelector('.filter-box button[onclick="filterRequests()"]').onclick = filterRequests;
       document.querySelector('.filter-box button[onclick="resetFilters()"]').onclick = resetFilters;
     };
-    function editRequest(requestId) {
-      window.location.href = `edit_request.html?id=${requestId}`;
-    }
-    window.onload = fetchRequests;
-    function create111() {  console.log('Đang chuyển đến trang mới');// Bước gỡ lỗi
-      window.location.href = '/requests/create'} // Thay 'newPage.html' bằng đường dẫn đến trang HTML mới của bạn}
   </script>
 </head>
 <body>
@@ -226,11 +318,9 @@
         <option value="HR">HR</option>
         <option value="Finance">Finance</option>
       </select>
-    </label> <!-- New filter -->
-    <button onclick="filterRequests()">Lọc</button> <!-- Ensure this button calls the filter function -->
-    <button onclick="resetFilters()">Đặt lại</button> <!-- Ensure this button calls the reset function -->
-    <button class="create-new-button" onclick="create111()">Tạo mới</button> <!-- New button -->
-
+    </label>
+    <button onclick="filterRequests()">Lọc</button>
+    <button onclick="resetFilters()">Đặt lại</button>
   </div>
   <table>
     <thead>
@@ -249,6 +339,27 @@
     <!-- Dữ liệu sẽ được tải vào đây -->
     </tbody>
   </table>
+</div>
+
+
+<!-- Modal for viewing request -->
+<div id="editRequestModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Xem yêu cầu</h2>
+    <div id="viewRequestDetails">
+      <p><strong>Ngày nghỉ:</strong> <span id="viewLeaveDate"></span></p>
+      <p><strong>Lý do:</strong> <span id="viewRequestReason"></span></p>
+      <p><strong>Ngày phê duyệt:</strong> <span id="viewApprovalDate"></span></p>
+      <p><strong>Nghỉ có lương:</strong> <span id="viewPaidLeave"></span></p>
+      <p><strong>Người yêu cầu:</strong> <span id="viewUsername"></span></p>
+      <p><strong>Ngày tạo:</strong> <span id="viewCreatedAt"></span></p>
+      <p><strong>Người duyệt:</strong> <span id="viewApproverUsername"></span></p>
+      <p><strong>Trạng thái:</strong> <span id="viewRequestStatus"></span></p>
+      <p><strong>Phòng ban:</strong> <span id="viewDepartmentName"></span></p>
+      <button type="button" onclick="closeModal()">Hủy</button>
+    </div>
+  </div>
 </div>
 </body>
 </html>

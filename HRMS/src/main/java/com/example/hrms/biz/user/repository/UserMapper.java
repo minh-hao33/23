@@ -10,62 +10,121 @@ import java.util.List;
 @Mapper
 public interface UserMapper {
 
-    @Select("SELECT u.username, u.email, u.password, u.department_id, u.role_name, u.is_supervisor, u.status, u.employee_name, d.department_name " +
-            "FROM Users u " +
-            "LEFT JOIN Departments d ON u.department_id = d.department_id")
+    // Lấy tất cả người dùng với thông tin phòng ban
+    @Select("SELECT u.username, u.employee_name, u.password, u.department_id, " +
+            "u.role_name, u.is_supervisor, u.status, u.email, d.department_name " +
+            "FROM Users u LEFT JOIN Departments d ON u.department_id = d.department_id")
+    @Results({
+            @Result(property = "username", column = "username"),
+            @Result(property = "employeeName", column = "employee_name"),
+            @Result(property = "password", column = "password"),
+            @Result(property = "departmentId", column = "department_id"),
+            @Result(property = "roleName", column = "role_name", javaType = RoleEnum.class),
+            @Result(property = "supervisor", column = "is_supervisor"),
+            @Result(property = "status", column = "status"),
+            @Result(property = "email", column = "email"),
+            @Result(property = "departmentName", column = "department_name")
+    })
     List<User> getAllUsers();
-    // Lấy người dùng theo tên người dùng
-    @Select("SELECT u.username, u.email, u.password, u.department_id, d.department_name, " +
-            "u.role_name, u.is_supervisor, u.status, u.employee_name " +
-            "FROM Users u " +
-            "LEFT JOIN Departments d ON u.department_id = d.department_id " +
+
+    // Lấy người dùng theo username với thông tin phòng ban
+    @Select("SELECT u.username, u.employee_name, u.password, u.department_id, " +
+            "u.role_name, u.is_supervisor, u.status, u.email, d.department_name " +
+            "FROM Users u LEFT JOIN Departments d ON u.department_id = d.department_id " +
             "WHERE u.username = #{username}")
+    @Results({
+            @Result(property = "username", column = "username"),
+            @Result(property = "employeeName", column = "employee_name"),
+            @Result(property = "password", column = "password"),
+            @Result(property = "departmentId", column = "department_id"),
+            @Result(property = "roleName", column = "role_name", javaType = RoleEnum.class),
+            @Result(property = "supervisor", column = "is_supervisor"),
+            @Result(property = "status", column = "status"),
+            @Result(property = "email", column = "email"),
+            @Result(property = "departmentName", column = "department_name")
+    })
     User getUserByUsername(String username);
 
-
+    // Lấy mật khẩu theo username
     @Select("SELECT password FROM Users WHERE username = #{username}")
     String getPasswordByUsername(String username);
 
     // Thêm người dùng mới
-    @Insert("INSERT INTO Users (username, email, password, department_id, role_name, is_supervisor, status, employee_name) VALUES (#{username}, #{email}, #{password}, #{departmentId}, #{role_name}, #{isSupervisor}, #{status}, #{employee_name})")
-    void insertUser(User user);
+    @Insert("INSERT INTO Users (username, employee_name, email, password, " +
+            "department_id, role_name, is_supervisor, status) " +
+            "VALUES (#{username}, #{employeeName}, #{email}, #{password}, " +
+            "#{departmentId}, #{roleName}, #{isSupervisor}, #{status})")
+    @Options(useGeneratedKeys = false, keyProperty = "username")
+    int insertUser(User user);
 
     // Cập nhật thông tin người dùng
-    @Update("UPDATE Users SET email = #{email}, password = #{password}, " +
-            "department_id = (SELECT department_id FROM Departments WHERE department_name = #{departmentName}) " +
-            "role_name = #{role_name}, is_supervisor = #{isSupervisor}, status = #{status}, " +
-            "employee_name = #{employee_name} " +
+    @Update("UPDATE Users SET " +
+            "employee_name = #{employeeName}, " +
+            "email = #{email}, " +
+            "password = #{password}, " +
+            "department_id = #{departmentId}, " +
+            "role_name = #{roleName}, " +
+            "is_supervisor = #{isSupervisor}, " +
+            "status = #{status} " +
             "WHERE username = #{username}")
-    void updateUser(User user);
+    int updateUser(User user);
 
-
-    // Xóa người dùng theo tên người dùng
+    // Xóa người dùng
     @Delete("DELETE FROM Users WHERE username = #{username}")
-    void deleteUser(String username);
+    int deleteUser(String username);
 
-    // Tìm kiếm người dùng dựa trên departmentIds và roles
+    // Tìm kiếm người dùng với bộ lọc
     @Select("<script>" +
-            "SELECT username, email, password, department_id, role_name, is_supervisor, status, employee_name " +
-            "FROM Users " +
-            "WHERE " +
-            "    (#{departmentIds} IS NULL OR department_id IN " +
-            "        <foreach item='departmentId' collection='departmentIds' open='(' separator=',' close=')'>" +
-            "            #{departmentId}" +
-            "        </foreach>) " +
-            "    AND (#{roles} IS NULL OR role_name IN " +
-            "        <foreach item='role' collection='roles' open='(' separator=',' close=')'>" +
-            "            #{role}" +
-            "        </foreach>)" +
+            "SELECT u.username, u.employee_name, u.email, u.department_id, " +
+            "u.role_name, u.is_supervisor, u.status, d.department_name " +
+            "FROM Users u LEFT JOIN Departments d ON u.department_id = d.department_id " +
+            "WHERE 1=1 " +
+            "<if test='departmentIds != null and departmentIds.size() > 0'>" +
+            "   AND u.department_id IN " +
+            "   <foreach item='id' collection='departmentIds' open='(' separator=',' close=')'>" +
+            "       #{id}" +
+            "   </foreach>" +
+            "</if>" +
+            "<if test='roles != null and roles.size() > 0'>" +
+            "   AND u.role_name IN " +
+            "   <foreach item='role' collection='roles' open='(' separator=',' close=')'>" +
+            "       #{role}" +
+            "   </foreach>" +
+            "</if>" +
             "</script>")
-    List<User> searchUsers(@Param("departmentIds") List<Long> departmentIds, @Param("roles") List<RoleEnum> roles);
+    @Results({
+            @Result(property = "username", column = "username"),
+            @Result(property = "employeeName", column = "employee_name"),
+            @Result(property = "email", column = "email"),
+            @Result(property = "departmentId", column = "department_id"),
+            @Result(property = "roleName", column = "role_name", javaType = RoleEnum.class),
+            @Result(property = "supervisor", column = "is_supervisor"),
+            @Result(property = "status", column = "status"),
+            @Result(property = "departmentName", column = "department_name")
+    })
+    List<User> searchUsers(@Param("departmentIds") List<Long> departmentIds,
+                           @Param("roles") List<RoleEnum> roles);
 
-    // Đếm số lượng người dùng dựa trên tiêu chí
+    // Đếm số lượng người dùng theo tiêu chí
+    @Select("<script>" +
+            "SELECT COUNT(*) FROM Users WHERE 1=1 " +
+            "<if test='departmentId != null'> AND department_id = #{departmentId} </if>" +
+            "<if test='roleName != null'> AND role_name = #{roleName} </if>" +
+            "<if test='status != null'> AND status = #{status} </if>" +
+            "</script>")
     int count(UserCriteria criteria);
 
-    // Lấy đơn vị và quyền của tất cả người dùng
-    @Select("SELECT department_id, role_name FROM Users")
+    // Lấy thông tin phòng ban và quyền của người dùng
+    @Select("SELECT u.department_id, u.role_name, d.department_name " +
+            "FROM Users u LEFT JOIN Departments d ON u.department_id = d.department_id")
+    @Results({
+            @Result(property = "departmentId", column = "department_id"),
+            @Result(property = "roleName", column = "role_name", javaType = RoleEnum.class),
+            @Result(property = "departmentName", column = "department_name")
+    })
     List<User> getDepartmentsAndRoles();
 
+    // Kiểm tra username đã tồn tại chưa
     @Select("SELECT COUNT(*) FROM Users WHERE username = #{username}")
     int checkUsernameExists(String username);
 }

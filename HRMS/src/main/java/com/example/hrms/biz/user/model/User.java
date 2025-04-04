@@ -6,10 +6,10 @@ import lombok.Data;
 @Data
 public class User {
     private String username;
-    private String employee_name;
+    private String employeeName;
     private String password;
     private Long departmentId;
-    private RoleEnum role_name;
+    private RoleEnum roleName;
     private boolean isSupervisor;
     private String status;
     private String email;
@@ -19,6 +19,6 @@ public class User {
         this.isSupervisor = isSupervisor;
     }
     public void setRole_name(String roleName) {
-        this.role_name = RoleEnum.fromString(roleName);
+        this.roleName = RoleEnum.fromString(roleName);
     }
 }
