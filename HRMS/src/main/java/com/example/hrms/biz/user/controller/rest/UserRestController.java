@@ -5,11 +5,14 @@ import com.example.hrms.biz.user.model.criteria.UserCriteria;
 import com.example.hrms.biz.user.model.dto.UserDTO;
 import com.example.hrms.biz.user.service.UserService;
 import com.example.hrms.common.http.model.Result;
+import com.example.hrms.common.http.model.ResultData;
 import com.example.hrms.common.http.model.ResultPageData;
 import com.example.hrms.enumation.RoleEnum;
 import com.example.hrms.exception.InvalidPasswordException;
 import com.example.hrms.security.SecurityUtils;
 import com.example.hrms.utils.RequestUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +36,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "User API v1")
 @RestController
@@ -65,14 +70,26 @@ public class UserRestController {
         }
         return response;
     }
-
+    @GetMapping("/privileges")
+    public ResultData<String> getUserPrivileges() throws JsonProcessingException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+        Map<String, Object> response = new HashMap<>();
+        response.put("isAdmin", isAdmin);
+        response.put("username", currentUsername);
+        String jsonResponse = new ObjectMapper().writeValueAsString(response);
+        return new ResultData<>(jsonResponse);
+    }
     @Operation(summary = "Get all users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get success",
                     content = @Content) })
     @GetMapping("/all")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ResultData<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return new ResultData<>(Result.SUCCESS, "Users retrieved successfully", users);
     }
 
     @Operation(summary = "Check username and password")
@@ -103,7 +120,7 @@ public class UserRestController {
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
 
-        Authentication authentication = new PreAuthenticatedAuthenticationToken(user, null, SecurityUtils.getAuthorities(user.getRole_name()));
+        Authentication authentication = new PreAuthenticatedAuthenticationToken(user, null, SecurityUtils.getAuthorities(user.getRoleName()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Set session valid within 30 minutes
@@ -130,19 +147,23 @@ public class UserRestController {
         RoleEnum currentUserRole = userService.getCurrentUserRole();
 
         // Nếu người dùng là Supervisor, cấm cập nhật Department và Role là Admin
-        if ("Supervisor".equals(currentUserRole)) {
-            if (userReq.getDepartmentId() != null) {
+        if (RoleEnum.SUPERVISOR.equals(currentUserRole)) {
+            if (userReq.getDepartmentId() != null &&
+                    !userReq.getDepartmentId().equals(existingUser.getDepartmentId())) {
                 return new Result("Error", "Supervisors are not allowed to update Department.");
             }
-            if ("Admin".equals(userReq.getRole_name())) {
+            if (RoleEnum.ADMIN.equals(userReq.getRoleName())) {
                 return new Result("Error", "Supervisors are not allowed to assign Admin role.");
             }
         }
 
         // Cập nhật thông tin hợp lệ
-        existingUser.setPassword(userReq.getPassword());
+        existingUser.setEmployeeName(userReq.getEmployeeName());
+        if (userReq.getPassword() != null && !userReq.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(userReq.getPassword()));
+        }
         existingUser.setDepartmentId(userReq.getDepartmentId());
-        existingUser.setRole_name(String.valueOf(userReq.getRole_name()));
+        existingUser.setRoleName(userReq.getRoleName());
         existingUser.setSupervisor(userReq.isSupervisor());
         existingUser.setStatus(userReq.getStatus());
 
@@ -186,33 +207,44 @@ public class UserRestController {
             @ApiResponse(responseCode = "409", description = "Conflict",
                     content = @Content) })
     @PostMapping("/create")
-    @PreAuthorize("hasAnyAuthority('Admin', 'Supervisor')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SUPERVISOR')")
     public Result createAccount(@RequestBody UserDTO.Req userReq) {
-        // Kiểm tra tính hợp lệ của username
-        if (userService.getUserByUsername(userReq.getUsername()) != null) {
+        // Kiểm tra username đã tồn tại chưa
+        if (userService.checkUsernameExists(userReq.getUsername()) > 0) {
+            return new Result("Conflict", "Username already exists.");
+        }
+        if (userService.isUsernameDuplicated(userReq.getUsername())) {
             return new Result("Conflict", "Username already exists.");
         }
 
-        // Kiểm tra độ dài của tên nhân viên
+        // Validate dữ liệu
         if (userReq.getUsername().length() > 50) {
-            return new Result("Invalid request", "Tên nhân viên không được vượt quá 50 ký tự.");
+            return new Result("Invalid request", "Username must be less than 50 characters.");
         }
 
-        // Tạo email dựa trên username
-        String email = userReq.getUsername() + "@cmcglobal.com.vn";
-        userReq.setEmail(email);
-
-        // Kiểm tra độ dài và tính hợp lệ của mật khẩu
         if (!isValidPassword(userReq.getPassword())) {
-            return new Result("Invalid request", "Mật khẩu phải dài ít nhất 10 ký tự và bao gồm chữ hoa, chữ thường và ít nhất một ký tự đặc biệt.");
+            return new Result("Invalid request",
+                    "Password must be at least 10 characters with uppercase, lowercase and special character.");
         }
 
-        // Tạo đối tượng User từ UserDTO.Req
-        User user = userReq.toUser();
-        userService.insertUser(user);
-        return new Result("Success", "Account created successfully.");
-    }
+        // Tạo user mới
+        User user = new User();
+        user.setUsername(userReq.getUsername());
+        user.setEmployeeName(userReq.getEmployeeName());
+        user.setEmail(userReq.getUsername() + "@cmcglobal.com.vn");
+        user.setPassword(passwordEncoder.encode(userReq.getPassword()));
+        user.setDepartmentId(userReq.getDepartmentId());
+        user.setRoleName(userReq.getRoleName());
+        user.setSupervisor(userReq.isSupervisor());
+        user.setStatus("Active"); // Mặc định Active khi tạo mới
 
+        int result = userService.insertUser(user);
+        if (result > 0) {
+            return new Result("Success", "Account created successfully.");
+        } else {
+            return new Result("Error", "Failed to create account.");
+        }
+    }
     private boolean isValidPassword(String password) {
         if (password.length() < 10) {
             return false;
@@ -224,8 +256,8 @@ public class UserRestController {
     }
     @GetMapping("/check")
     public Result checkUsernameExists(@RequestParam String username) {
-        boolean isDuplicated = userService.isUsernameDuplicated(username);
-        return new Result("Success", isDuplicated ? "Username is already taken" : "Username is available");
+        int count = userService.checkUsernameExists(username);
+        return new Result("Success", count > 0 ? "Username is already taken" : "Username is available");
     }
     @PutMapping("/change-password/{username}")
     public Result changePassword(@PathVariable String username, @RequestBody UserDTO.ChangePasswordReq req) {

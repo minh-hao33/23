@@ -3,67 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Account Management</title>
+  <title>Quản lý tài khoản</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
+    body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
     }
     .container {
-      width: 100%;
-      height: 100%;
+      max-width: 1200px;
+      margin: auto;
+      background: #fff;
       padding: 20px;
-      border: 2px solid #000;
       border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      box-sizing: border-box;
-    }
-    .content-wrapper {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .tabs {
-      display: flex;
-      margin-top: 40px;
-      width: 33%;
-      margin-left: 20px;
-    }
-    .tab {
-      padding: 10px 20px;
-      cursor: pointer;
-      flex: 1;
-      text-align: center;
-      background: #f2f2f2;
-    }
-    .tab.active {
-      background-color: #ddd;
-      font-weight: bold;
-    }
-    .content {
-      display: none;
-      padding: 15px;
-      border: 1px solid #ddd;
-      flex-grow: 1;
-    }
-    .content.active {
-      display: block;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     .toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
-      align-items: center;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 15px;
     }
-    .search-bar {
-      flex-grow: 1;
-      max-width: 300px;
+    select, input, button {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
     }
     table {
       width: 100%;
@@ -76,185 +50,239 @@
       text-align: center;
     }
     th {
-      background-color: #f2f2f2;
+      background-color: #007bff;
+      color: white;
+    }
+    .error-message {
+      color: #dc3545;
+      padding: 10px;
+      margin-bottom: 15px;
+      display: none;
     }
   </style>
-  <script>
-    let allUsers = []; // Lưu danh sách user từ API
-
-    async function fetchData() {
-      try {
-        const response = await fetch('/api/v1/users/all');
-        allUsers = await response.json();
-        console.log("✅ Dữ liệu đã tải:", allUsers);
-        filterData(); // Hiển thị ban đầu
-      } catch (error) {
-        console.error('🚨 Lỗi khi lấy dữ liệu:', error);
-      }
-    }
-
-    function filterData() {
-      const selectedDepartment = document.getElementById('department').value;
-      const selectedRole = document.getElementById('role').value;
-
-      let filteredUsers = allUsers;
-      if (selectedDepartment && selectedDepartment !== "Chọn đơn vị") {
-        filteredUsers = filteredUsers.filter(user => user.department_name === selectedDepartment);
-      }
-      if (selectedRole && selectedRole !== "Chọn quyền") {
-        filteredUsers = filteredUsers.filter(user => user.role_name === selectedRole);
-      }
-
-      populateTable(filteredUsers);
-    }
-
-    function populateTable(data) {
-      const tableBody = document.getElementById('accountsTableBody');
-      tableBody.innerHTML = '';
-      data.forEach(account => {
-        const row = tableBody.insertRow();
-        row.insertCell(0).textContent = account.username;
-        row.insertCell(1).textContent = account.employee_name;
-        row.insertCell(2).textContent = account.email;
-        row.insertCell(3).textContent = account.role_name;
-        row.insertCell(4).textContent = account.department_name;
-        row.insertCell(5).textContent = account.status;
-        const editCell = row.insertCell(6);
-        const editButton = document.createElement('button');
-        editButton.innerHTML = '<i class="fas fa-edit"></i>';
-        editButton.onclick = () => editAccount(account.username);
-        editCell.appendChild(editButton);
-      });
-    }
-
-    async function fetchDepartments() {
-      try {
-        const response = await fetch('/api/v1/departments/all');
-        const result = await response.json();
-        let departments = [];
-
-        if (typeof result.retMsg === 'string') {
-          const matches = result.retMsg.match(/Department\(departmentId=(\d+), departmentName=([\w\s]+),/g);
-          if (matches) {
-            departments = matches.map(dept => {
-              const parts = dept.match(/departmentId=(\d+), departmentName=([\w\s]+)/);
-              return { departmentId: parts[1], departmentName: parts[2] };
-            });
-          }
-        }
-
-        const departmentSelect = document.getElementById('department');
-        departmentSelect.innerHTML = '<option>Chọn đơn vị</option>';
-        departments.forEach(dept => {
-          const option = document.createElement('option');
-          option.value = dept.departmentName;
-          option.textContent = dept.departmentName;
-          departmentSelect.appendChild(option);
-        });
-
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách đơn vị:', error);
-      }
-    }
-
-    async function fetchRoles() {
-      try {
-        const response = await fetch('/api/v1/roles/all');
-        const result = await response.json();
-        let roles = [];
-
-        if (typeof result.retMsg === 'string') {
-          const matches = result.retMsg.match(/Role\(roleId=\d+, roleName=(\w+)\)/g);
-          if (matches) {
-            roles = matches.map(role => {
-              const roleName = role.match(/roleName=(\w+)/)[1];
-              return { roleName };
-            });
-          }
-        }
-
-        const roleSelect = document.getElementById('role');
-        roleSelect.innerHTML = '<option>Chọn quyền</option>';
-        roles.forEach(role => {
-          const option = document.createElement('option');
-          option.value = role.roleName;
-          option.textContent = role.roleName;
-          roleSelect.appendChild(option);
-        });
-
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách quyền:', error);
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      fetchData();
-      fetchDepartments();
-      fetchRoles();
-      document.getElementById('department').addEventListener('change', filterData);
-      document.getElementById('role').addEventListener('change', filterData);
-    });
-
-    function editAccount(username) {
-      window.location.href = `/users/update/${username}`;
-    }
-
-    function resetFilters() {
-      window.location.href = "/users/create";
-    }
-
-    async function searchAccount() {
-      const username = document.getElementById('keyword').value;
-      try {
-        const response = await fetch(`/api/v1/users/getUserByUsername/${username}`);
-        const data = await response.json();
-        populateTable([data]); // Hiển thị kết quả tìm kiếm
-      } catch (error) {
-        console.error('Lỗi khi tìm kiếm:', error);
-      }
-    }
-  </script>
 </head>
 <body>
 <div class="container">
-  <div class="content-wrapper">
-    <div class="tabs">
-      <div class="tab active">Quản lý tài khoản</div>
-    </div>
-    <div class="content active">
-      <div class="toolbar">
-        <select id="department" class="border border-gray-300 rounded-md p-2">
-          <option>Chọn đơn vị</option>
-        </select>
-        <select id="role" class="border border-gray-300 rounded-md p-2">
-          <option>Chọn quyền</option>
-        </select>
-
-        <input type="text" id="keyword" class="search-bar" placeholder="Tìm kiếm theo tên, username, email">
-        <button onclick="searchAccount()">
-          <i class="fas fa-search"></i>
-        </button>
-        <button type="button" onclick="resetForm()">
-          <i class="fas fa-undo"></i>
-        </button>
-        <button id="addNewButton" class="add-new-button" onclick="resetFilters()">Thêm mới</button>
-      </div>
-      <table>
-        <thead>
-        <tr>
-          <th>Username</th>
-          <th>Tên nhân viên</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Đơn vị</th>
-          <th>Tình trạng</th>
-          <th>Chỉnh sửa</th>
-        </tr>
-        </thead>
-        <tbody id="accountsTableBody"></tbody>
-      </table>
-    </div>
+  <h2>Quản lý tài khoản</h2>
+  <div id="errorAlert" class="error-message"></div>
+  <div class="toolbar">
+    <select id="department"></select>
+    <select id="role"></select>
+    <input type="text" id="keyword" placeholder="Nhập username...">
+    <button onclick="searchAccount()">
+      <i class="fas fa-search"></i> Tìm kiếm
+    </button>
+    <button onclick="window.location.href='/users/create'"><i class="fas fa-plus"></i> Thêm mới</button>
   </div>
+  <table>
+    <thead>
+    <tr>
+      <th>Username</th>
+      <th>Tên nhân viên</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Đơn vị</th>
+      <th>Tình trạng</th>
+      <th>Chỉnh sửa</th>
+    </tr>
+    </thead>
+    <tbody id="accountsTableBody"></tbody>
+  </table>
 </div>
+
+<script>
+  let allUsers = []; // Biến toàn cục lưu danh sách user
+  let departmentsList = []; // Lưu danh sách đơn vị
+
+  // Hiển thị thông báo lỗi
+  function showError(message) {
+    const errorAlert = document.getElementById('errorAlert');
+    errorAlert.textContent = message;
+    errorAlert.style.display = 'block';
+    setTimeout(() => errorAlert.style.display = 'none', 5000);
+  }
+
+  // 🔹 Lấy danh sách user từ API
+  async function fetchData() {
+    try {
+      const response = await fetch('/api/v1/users/all');
+      if (!response.ok) throw new Error('Lỗi khi tải dữ liệu người dùng');
+
+      const result = await response.json();
+      console.log("Dữ liệu users từ API:", result);
+
+      if (Array.isArray(result.data)) {
+        // Map departmentName từ departmentId
+        allUsers = result.data.map(user => {
+          const department = departmentsList.find(d => d.departmentId === user.departmentId);
+          return {
+            ...user,
+            departmentName: department ? department.departmentName : null
+          };
+        });
+        console.log("✅ Dữ liệu đã xử lý:", allUsers);
+        filterData();
+      } else {
+        allUsers = [];
+        showError('Dữ liệu người dùng không hợp lệ');
+      }
+    } catch (error) {
+      console.error('🚨 Lỗi khi lấy dữ liệu:', error);
+      showError('Không thể tải danh sách người dùng');
+    }
+  }
+
+  // 🔹 Lấy danh sách đơn vị từ API
+  async function fetchDepartments() {
+    try {
+      const response = await fetch('/api/v1/departments/all');
+      if (!response.ok) throw new Error('Lỗi khi tải danh sách đơn vị');
+
+      const result = await response.json();
+      console.log("Dữ liệu departments từ API:", result);
+
+      // Lọc trùng lặp và lưu vào biến toàn cục
+      departmentsList = Array.isArray(result.data)
+              ? [...new Map(result.data.map(item => [item.departmentName, item])).values()]
+              : [];
+
+      // Sắp xếp theo tên đơn vị
+      departmentsList.sort((a, b) => a.departmentName.localeCompare(b.departmentName));
+
+      const departmentSelect = document.getElementById('department');
+      if (!departmentSelect) throw new Error('Không tìm thấy dropdown đơn vị');
+
+      departmentSelect.innerHTML = '<option value="">Chọn đơn vị</option>';
+      departmentsList.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept.departmentName;
+        option.textContent = dept.departmentName;
+        departmentSelect.appendChild(option);
+      });
+
+    } catch (error) {
+      console.error('🚨 Lỗi khi lấy danh sách đơn vị:', error);
+      showError('Không thể tải danh sách đơn vị');
+    }
+  }
+
+  // 🔹 Lấy danh sách quyền từ API
+  async function fetchRoles() {
+    try {
+      const response = await fetch('/api/v1/roles/all');
+      if (!response.ok) throw new Error('Lỗi khi tải danh sách quyền');
+
+      const result = await response.json();
+      console.log("Dữ liệu roles từ API:", result);
+
+      const roles = Array.isArray(result.data) ? result.data : [];
+      const roleSelect = document.getElementById('role');
+      if (!roleSelect) throw new Error('Không tìm thấy dropdown quyền');
+
+      roleSelect.innerHTML = '<option value="">Chọn quyền</option>';
+      roles.forEach(role => {
+        const option = document.createElement('option');
+        option.value = role.roleName;
+        option.textContent = role.roleName;
+        roleSelect.appendChild(option);
+      });
+
+    } catch (error) {
+      console.error('🚨 Lỗi khi lấy danh sách quyền:', error);
+      showError('Không thể tải danh sách quyền');
+    }
+  }
+
+  // 🔹 Hiển thị danh sách user lên bảng
+  function populateTable(users) {
+    const tableBody = document.getElementById('accountsTableBody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = users.map(user => `
+      <tr>
+        <td>${user.username || '-'}</td>
+        <td>${user.employeeName || '-'}</td>
+        <td>${user.email || '-'}</td>
+        <td>${user.roleName || '-'}</td>
+        <td>${user.departmentName || (user.departmentId ? 'Đang cập nhật' : 'Không có')}</td>
+        <td>${user.status || '-'}</td>
+        <td><button onclick="editAccount('${user.username}')"><i class="fas fa-edit"></i></button></td>
+      </tr>
+    `).join('');
+  }
+
+  // 🔹 Tìm kiếm user theo username
+  async function searchAccount() {
+    const username = document.getElementById('keyword')?.value.trim();
+    if (!username) {
+      filterData();
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/v1/users/getUserByUsername/${username}`);
+      if (!response.ok) throw new Error("Không tìm thấy người dùng");
+
+      const data = await response.json();
+      populateTable([data]);
+
+    } catch (error) {
+      console.error('Lỗi khi tìm kiếm:', error);
+      showError('Không tìm thấy người dùng');
+    }
+  }
+
+  // 🔹 Lọc dữ liệu theo đơn vị và quyền
+  function filterData() {
+    const departmentSelect = document.getElementById('department');
+    const roleSelect = document.getElementById('role');
+    if (!departmentSelect || !roleSelect) return;
+
+    const selectedDepartment = departmentSelect.value;
+    const selectedRole = roleSelect.value;
+
+    let filteredUsers = allUsers;
+
+    if (selectedDepartment) {
+      filteredUsers = filteredUsers.filter(user => user.departmentName === selectedDepartment);
+    }
+    if (selectedRole) {
+      filteredUsers = filteredUsers.filter(user => user.roleName === selectedRole);
+    }
+
+    populateTable(filteredUsers);
+  }
+
+  // 🔹 Chỉnh sửa tài khoản
+  function editAccount(username) {
+    if (!username) {
+      showError('Không có username để chỉnh sửa');
+      return;
+    }
+    window.location.href = `/users/update/${encodeURIComponent(username)}`;
+  }
+
+  // Khởi tạo khi trang được tải
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      await fetchDepartments();
+      await fetchRoles();
+      await fetchData();
+
+      // Thêm event listener sau khi đảm bảo các phần tử tồn tại
+      document.getElementById('department')?.addEventListener('change', filterData);
+      document.getElementById('role')?.addEventListener('change', filterData);
+
+      // Thêm sự kiện cho ô tìm kiếm
+      document.getElementById('keyword')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') searchAccount();
+      });
+
+    } catch (error) {
+      console.error('Lỗi khi khởi tạo:', error);
+      showError('Khởi tạo ứng dụng thất bại');
+    }
+  });
+</script>
 </body>
 </html>

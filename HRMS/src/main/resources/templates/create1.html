@@ -156,25 +156,6 @@
     fetchLeaveDays(username);
   });
 
-  async function fetchLeaveDays(username) {
-    try {
-      let response = await fetch(`http://localhost:8080/api/v1/requests/days-off?username=${username}`);
-      let totalLeaveDays = await response.json();
-      let remainingDays = 0 - totalLeaveDays;
-
-      document.getElementById("leaveInfo").textContent = `Ngày nghỉ phép còn lại: ${remainingDays} ngày (12 ngày)`;
-      let paidLeaveSelect = document.getElementById("paidLeave");
-      if (remainingDays <= 0) {
-        paidLeaveSelect.value = "Không";
-        paidLeaveSelect.disabled = false; // Cho phép chọn lại
-      } else {
-        paidLeaveSelect.disabled = false;
-      }
-
-    } catch (error) {
-      console.error("Lỗi:", error);
-    }
-  }
 
   let leaveType = document.getElementById("leaveType").value;
   let paidLeave = document.getElementById("paidLeave").value;

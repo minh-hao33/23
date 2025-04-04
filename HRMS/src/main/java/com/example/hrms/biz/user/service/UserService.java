@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,18 +20,16 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(UserMapper userMapper) {
         this.userMapper = userMapper;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     public boolean checkUsernamePassword(String username, String rawPassword) {
         String encodedPassword = userMapper.getPasswordByUsername(username);
-        if (encodedPassword == null) {
-            return false; // Username không tồn tại
-        }
-        return passwordEncoder.matches(rawPassword, encodedPassword);
+        return encodedPassword != null && passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     public User getUserByUsername(String username) {
@@ -42,19 +41,31 @@ public class UserService {
     }
 
     public List<User> searchUsers(UserCriteria criteria) {
-        return userMapper.searchUsers(criteria.getDepartmentIds(), criteria.getRoles());
+        return userMapper.searchUsers(
+                criteria.getDepartmentIds(),
+                criteria.getRoles()
+        );
     }
 
-    public void insertUser(User user) {
-        userMapper.insertUser(user);
+    @Transactional
+    public int insertUser(User user) {
+        // Mã hóa password trước khi lưu
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userMapper.insertUser(user);
     }
 
-    public void updateUser(User user) {
-        userMapper.updateUser(user);
+    @Transactional
+    public int updateUser(User user) {
+        // Nếu có thay đổi password thì mã hóa
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        return userMapper.updateUser(user);
     }
 
-    public void deleteUser(String username) {
-        userMapper.deleteUser(username);
+    @Transactional
+    public int deleteUser(String username) {
+        return userMapper.deleteUser(username);
     }
 
     public int count(UserCriteria criteria) {
@@ -62,35 +73,15 @@ public class UserService {
     }
 
     public List<UserDTO.Resp> list(UserCriteria criteria) {
-        List<User> users = searchUsers(criteria);
-        return users.stream()
-                .map(user -> {
-                    UserDTO.Resp resp = new UserDTO.Resp();
-                    resp.setUsername(user.getUsername());
-                    resp.setDepartmentId(user.getDepartmentId());
-                    resp.setRole_name(user.getRole_name());
-                    resp.setIsSupervisor(user.isSupervisor());
-                    resp.setStatus(user.getStatus());
-                    return resp;
-                })
+        return userMapper.searchUsers(criteria.getDepartmentIds(), criteria.getRoles())
+                .stream()
+                .map(this::convertToUserResp)
                 .collect(Collectors.toList());
     }
 
-    // Thêm phương thức để lấy đơn vị và quyền của tất cả người dùng
-    public List<UserDTO.DepartmentAndRole> getDepartmentsAndRoles() {
-        List<User> users = userMapper.getDepartmentsAndRoles();
-        return users.stream()
-                .map(user -> {
-                    UserDTO.DepartmentAndRole resp = new UserDTO.DepartmentAndRole();
-                    resp.setDepartmentId(user.getDepartmentId());
-                    resp.setRole_name(user.getRole_name());
-                    return resp;
-                })
-                .collect(Collectors.toList());
-    }
 
     public boolean isUsernameDuplicated(String username) {
-        return userMapper.checkUsernameExists(username) > 0;
+        return checkUsernameExists(username) > 0;
     }
 
     public RoleEnum getCurrentUserRole() {
@@ -100,21 +91,40 @@ public class UserService {
             return null;
         }
 
-        // Lấy tên quyền từ danh sách Authorities
-        String roleName = authentication.getAuthorities().stream()
+        return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
+                .map(role -> {
+                    try {
+                        return RoleEnum.valueOf(role.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                })
                 .orElse(null);
+    }
 
-        if (roleName == null) {
-            return null;
-        }
+    private UserDTO.Resp convertToUserResp(User user) {
+        UserDTO.Resp resp = new UserDTO.Resp();
+        resp.setUsername(user.getUsername());
+        resp.setEmployeeName(user.getEmployeeName());
+        resp.setEmail(user.getEmail());
+        resp.setDepartmentId(user.getDepartmentId());
+        resp.setDepartmentName(user.getDepartmentName());
+        resp.setRoleName(user.getRoleName());
+        resp.setIsSupervisor(user.isSupervisor());
+        resp.setStatus(user.getStatus());
+        return resp;
+    }
 
-        try {
-            // Chuyển đổi thành RoleEnum
-            return RoleEnum.valueOf(roleName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null; // Nếu không khớp với Enum
-        }
+    public boolean isValidPassword(String password) {
+        return password != null &&
+                password.length() >= 10 &&
+                !password.equals(password.toLowerCase()) &&
+                !password.equals(password.toUpperCase()) &&
+                password.matches(".*[^a-zA-Z0-9].*");
+    }
+    public int checkUsernameExists(String username) {
+        return userMapper.checkUsernameExists(username);
     }
 }
