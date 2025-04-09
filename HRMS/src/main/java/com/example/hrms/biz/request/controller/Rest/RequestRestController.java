@@ -114,7 +114,8 @@ public class RequestRestController {
             @ApiResponse(responseCode = "400", description = "Invalid request",
                     content = @Content)})
     @GetMapping("/days-off")
-    public ResultData<Long> getTotalLeaveDays(@RequestParam String username) {
+    public ResultData<Long> getTotalLeaveDays() {
+        String username = SecurityUtils.getCurrentUsername();
         long totalLeaveDays = requestService.getTotalLeaveDays(username);
         return new ResultData<>(Result.SUCCESS, "Total leave days retrieved successfully", totalLeaveDays);
     }
