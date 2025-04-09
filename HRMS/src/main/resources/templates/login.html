@@ -47,7 +47,7 @@
                     </div>
                     <div class="form-group">
                         <label>
-                            <input type="text" class="form-control" placeholder="Password ">
+                            <input type="password" class="form-control" placeholder="Password ">
                         </label>
                     </div>
                     <div class="form-group">
@@ -103,9 +103,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelector(".request-form").addEventListener("submit", async function (event) {
-            event.preventDefault(); // Ngăn chặn load lại trang mặc định
+            event.preventDefault();
 
-            // Lấy giá trị từ input
             const username = document.querySelector(".request-form input[placeholder='Username']").value.trim();
             const password = document.querySelector(".request-form input[placeholder='Password ']").value.trim();
 
@@ -120,15 +119,15 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ username, password }),
+                    credentials: "include" // 💡 Quan trọng: Gửi & nhận cookie
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
                     alert("Đăng nhập thành công!");
-                    localStorage.setItem("token", data.token); // Lưu token vào localStorage
-                    window.location.href = "/users/home"; // Chuyển hướng về index.html
+                    window.location.href = "/users/home";
                 } else {
                     alert(data.message || "Đăng nhập thất bại. Vui lòng thử lại!");
                 }
