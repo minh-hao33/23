@@ -5,6 +5,7 @@ import com.example.hrms.biz.role.model.criteria.RoleCriteria;
 import com.example.hrms.biz.role.model.dto.RoleDTO;
 import com.example.hrms.biz.role.service.RoleService;
 import com.example.hrms.common.http.model.Result;
+import com.example.hrms.common.http.model.ResultData;
 import com.example.hrms.common.http.model.ResultPageData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -54,9 +55,9 @@ public class RoleRestController {
                             array = @ArraySchema(schema = @Schema(implementation = Role.class)))})
     })
     @GetMapping("/all")
-    public Result listAll() {
+    public ResultData<List<Role>> listAll() {
         List<Role> roles = roleService.getAllRoles();
-        return new Result("Success", roles.toString());
+        return new ResultData<>(Result.SUCCESS, "Roles retrieved successfully", roles);
     }
     @Operation(summary = "Create role")
     @ApiResponses(value = {
