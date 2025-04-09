@@ -85,12 +85,14 @@ public interface RequestMapper {
 
     List<Request> getRequestsBySupervisor(@Param("username") String username);
 
-    @Update("UPDATE requests SET request_status = #{status}, approver_username = #{approverUsername}, rejection_reason = #{rejectionReason} WHERE request_id = #{requestId}")
+    @Update("UPDATE requests " +
+            "SET request_status = #{status}, approver_username = #{approverUsername}, rejection_reason = #{rejectionReason}, " +
+            "approved_at = CURRENT_TIMESTAMP " +
+            "WHERE request_id = #{requestId}")
     int updateRequestStatus(@Param("requestId") Long requestId,
                             @Param("status") RequestStatusEnum status,
                             @Param("approverUsername") String approverUsername,
                             @Param("rejectionReason") String rejectionReason);
-
 
     @Select("SELECT COALESCE(SUM(DATEDIFF(end_time, start_time) + 1), 0) " +
             "FROM requests " +
