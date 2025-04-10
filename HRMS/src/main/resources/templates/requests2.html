@@ -516,16 +516,6 @@
                 <input type="text" id="requestReason" placeholder="Nhập lý do...">
             </div>
 
-            <div class="filter-group">
-                <label for="departmentName">Phòng ban</label>
-                <select id="departmentName">
-                    <option value="">Tất cả</option>
-                    <option value="IT">IT</option>
-                    <option value="HR">HR</option>
-                    <option value="Finance">Finance</option>
-                </select>
-            </div>
-
             <div class="filter-actions">
                 <button class="btn btn-primary" onclick="filterRequests()">
                     <i class="fas fa-filter"></i> Lọc
@@ -574,11 +564,6 @@
             </div>
 
             <div class="detail-row">
-                <div class="detail-label">Phòng ban</div>
-                <div class="detail-value" id="viewDepartmentName">-</div>
-            </div>
-
-            <div class="detail-row">
                 <div class="detail-label">Loại yêu cầu</div>
                 <div class="detail-value" id="viewPaidLeave">-</div>
             </div>
@@ -624,22 +609,29 @@
             </div>
         </div>
 
-        <div class="modal-footer">
-            <div id="actionSection" style="display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
+        <div class="modal-footer" style="display: flex; flex-direction: column; gap: 10px;">
+            <div id="actionSection" style="display: none; width: 100%;">
                 <div style="margin-bottom: 10px;">
                     <label for="actionReason" style="font-weight: 500;">Lý do từ chối:</label>
-                    <input type="text" id="actionReason" class="form-control" placeholder="Nhập lý do..." style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc;">
+                    <input type="text" id="actionReason" class="form-control" placeholder="Nhập lý do từ chối..." style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-top: 5px;">
                 </div>
-                <div style="text-align: right; margin-top: 10px;">
-                    <button onclick="handleRequestAction('REJECTED')" class="btn btn-danger" style="margin-right: 8px;">Từ chối</button>
-                    <button onclick="handleRequestAction('APPROVED')" class="btn btn-success" style="margin-right: 8px;">Duyệt</button>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                    <button onclick="handleRequestAction('REJECTED')" class="btn btn-danger">Từ chối</button>
+                    <button onclick="handleRequestAction('APPROVED')" class="btn btn-success">Duyệt</button>
+                    <button class="btn btn-outline" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Đóng
+                    </button>
                 </div>
             </div>
 
-            <button class="btn btn-outline" onclick="closeModal()">
-                <i class="fas fa-times"></i> Đóng
-            </button>
+            <!-- Nếu không hiển thị action (tức không phải trạng thái PENDING) thì vẫn có nút Đóng -->
+            <div id="viewOnlyFooter" style="display: none; text-align: right;">
+                <button class="btn btn-outline" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Đóng
+                </button>
+            </div>
         </div>
+
     </div>
 </div>
 
@@ -730,7 +722,7 @@
             const actionCell = row.insertCell(8);
             const viewButton = document.createElement("button");
             viewButton.className = "action-btn";
-            viewButton.innerHTML = '<i class="fas fa-eye"></i>';
+            viewButton.innerHTML = '<i class="fas fa-edit"></i>';
             viewButton.title = "Xem chi tiết";
             viewButton.onclick = () => {
                 currentRequestIndex = index;
@@ -784,7 +776,6 @@
         const requestType = document.getElementById("requestType").value;
         const requestStatus = document.getElementById("requestStatus").value;
         const requestReason = document.getElementById("requestReason").value.toLowerCase();
-        const departmentName = document.getElementById("departmentName").value.toLowerCase();
 
         filteredData = data.filter(request => {
             const requestDate = new Date(request.createdAt).toISOString().split('T')[0];
@@ -792,12 +783,10 @@
             const statusMatch = !requestStatus || request.requestStatus === requestStatus;
             const reasonMatch = !requestReason ||
                 (request.requestReason && request.requestReason.toLowerCase().includes(requestReason));
-            const departmentMatch = !departmentName ||
-                formatDepartmentName(request.departmentId).toLowerCase().includes(departmentName);
             const startDateMatch = !startDate || requestDate >= startDate;
             const endDateMatch = !endDate || requestDate <= endDate;
 
-            return typeMatch && statusMatch && reasonMatch && departmentMatch &&
+            return typeMatch && statusMatch && reasonMatch &&
                 startDateMatch && endDateMatch;
         });
 
@@ -810,7 +799,6 @@
         document.getElementById("requestType").value = "";
         document.getElementById("requestStatus").value = "";
         document.getElementById("requestReason").value = "";
-        document.getElementById("departmentName").value = "";
         filteredData = [...data];
         populateTable(filteredData);
     }
@@ -838,7 +826,6 @@
 
         // Gán dữ liệu vào các phần tử trong modal
         document.getElementById("viewUsername").textContent = request.username || "-";
-        document.getElementById("viewDepartmentName").textContent = formatDepartmentName(request.departmentId);
         document.getElementById("viewPaidLeave").textContent = formatRequestType(request.requestType);
         document.getElementById("viewLeaveDate").textContent = formatDuration(request.startTime, request.endTime);
         document.getElementById("viewApprovalDate").textContent = request.approverUsername ? formatDate(request.updatedAt) : "-";
@@ -856,11 +843,15 @@
 
         // Hiển thị phần hành động nếu trạng thái là "PENDING"
         const actionSection = document.getElementById("actionSection");
+        const viewOnlyFooter = document.getElementById("viewOnlyFooter");
         if (request.requestStatus === "PENDING") {
             actionSection.style.display = "block";
+            viewOnlyFooter.style.display = "none";
         } else {
             actionSection.style.display = "none";
+            viewOnlyFooter.style.display = "block";
         }
+
 
         // Hiển thị modal
         const modal = document.getElementById("editRequestModal");
@@ -895,6 +886,7 @@
             alert("Vui lòng nhập lý do từ chối.");
             return; // không gửi request nếu chưa có lý do
         }
+
         const url = `/api/v1/requests/${currentRequestId}/approve-reject?requestStatus=${status}&rejectionReason=${encodeURIComponent(reason)}`;
 
         fetch(url, {
@@ -913,8 +905,6 @@
                 alert("Lỗi: " + error.message);
             });
     }
-
-
     function closeModal() {
         const modal = document.getElementById("editRequestModal");
         modal.classList.remove("show");

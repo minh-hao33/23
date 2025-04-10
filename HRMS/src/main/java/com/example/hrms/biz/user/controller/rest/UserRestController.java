@@ -1,5 +1,6 @@
 package com.example.hrms.biz.user.controller.rest;
 
+import com.example.hrms.biz.commoncode.email.EmailService;
 import com.example.hrms.biz.user.model.User;
 import com.example.hrms.biz.user.model.criteria.UserCriteria;
 import com.example.hrms.biz.user.model.dto.UserDTO;
@@ -45,10 +46,11 @@ public class UserRestController {
 
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
-
-    public UserRestController(UserService userService) {
+    private final EmailService emailService;
+    public UserRestController(UserService userService,EmailService emailService) {
         this.userService = userService;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.emailService = emailService;
     }
 
     @Operation(summary = "List users")
@@ -84,29 +86,56 @@ public class UserRestController {
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @PostMapping("/login")
-    public Result checkLogin(@RequestBody UserDTO.Req loginRequest, HttpSession session) {
+    public ResultData<Map<String, String>> checkLogin(@RequestBody UserDTO.Req loginRequest, HttpSession session) {
         User user = userService.getUserByUsername(loginRequest.getUsername());
-        if (user == null) {
+        if (user == null || !user.getUsername().equals(loginRequest.getUsername())) {
             throw new UsernameNotFoundException("Username not found.");
         }
-
         boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
         if (!passwordMatches) {
             throw new InvalidPasswordException("Invalid password.");
         }
-
         RequestUtils.setSessionAttr(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
-
         Authentication authentication = new PreAuthenticatedAuthenticationToken(
                 user, null, SecurityUtils.getAuthorities(user.getRoleName()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         RequestUtils.session(false).setMaxInactiveInterval(1800);
-        return new Result("Success", "Login successful.");
+
+        // Tạo response data chứa username và role
+        Map<String, String> responseData = new HashMap<>();
+        responseData.put("username", user.getUsername());
+        responseData.put("role", user.getRoleName().name());
+
+        return new ResultData<>("Success", "Login successful.", responseData);
     }
 
+    @Operation(summary = "Check username and password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login success",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content)
+    })
+    @PostMapping("/check-login")
+    public Result checkLogin(@RequestBody UserDTO.Req loginRequest) {
+        User user = userService.getUserByUsername(loginRequest.getUsername());
+
+        if (user == null) {
+            return new Result("Error", "Username not found.");
+        }
+
+        boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+        if (!passwordMatches) {
+            return new Result("Error", "Invalid password.");
+        }
+
+        return new Result("Success", "Login successful.");
+    }
     @PutMapping("/update/{username}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'SUPERVISOR')")
     public Result updateAccount(@PathVariable String username, @RequestBody UserDTO.UpdateReq userReq) {
@@ -133,7 +162,10 @@ public class UserRestController {
 
         existingUser.setEmployeeName(userReq.getEmployeeName());
         if (userReq.getPassword() != null && !userReq.getPassword().isEmpty()) {
-            existingUser.setPassword(passwordEncoder.encode(userReq.getPassword()));
+            String rawPassword = userReq.getPassword(); // Lưu trữ mật khẩu gốc
+            existingUser.setPassword(passwordEncoder.encode(rawPassword)); // Mã hóa mật khẩu
+            // Gửi email thông báo mật khẩu mới không mã hóa
+            emailService.sendEmail(existingUser.getEmail(), "Password Update", "Your new password is: " + rawPassword);
         }
         existingUser.setDepartmentId(userReq.getDepartmentId());
         existingUser.setRoleName(userReq.getRoleName());
@@ -222,8 +254,12 @@ public class UserRestController {
             return new Result("Error", "Password must be at least 10 characters long and include uppercase, lowercase, and a special character.");
         }
 
-        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        String rawPassword = req.getNewPassword(); // Lưu trữ mật khẩu gốc
+        user.setPassword(passwordEncoder.encode(rawPassword)); // Mã hóa mật khẩu
         userService.updateUser(user);
+
+        // Gửi email thông báo mật khẩu mới không mã hóa
+        emailService.sendEmail(user.getEmail(), "Password Update", "Your new password is: " + rawPassword);
 
         return new Result("Success", "Password changed successfully.");
     }
@@ -236,15 +272,12 @@ public class UserRestController {
         if (user == null) {
             return new Result("Error", "User not found.");
         }
-
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             return new Result("Error", "Old password is incorrect.");
         }
-
         if (!isValidPassword(request.getNewPassword())) {
             return new Result("Error", "New password must be at least 10 characters long and include uppercase, lowercase, and a special character.");
         }
-
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userService.updateUser(user);
         return new Result("Success", "Password changed successfully.");
@@ -254,7 +287,6 @@ public class UserRestController {
     @PostMapping("/logout")
     public Result logout(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         session.invalidate();
-
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -264,7 +296,6 @@ public class UserRestController {
                 response.addCookie(cookie);
             }
         }
-
         return new Result("Success", "Logged out successfully.");
     }
 }
