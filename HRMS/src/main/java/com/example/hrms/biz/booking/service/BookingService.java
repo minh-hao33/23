@@ -4,17 +4,18 @@ import com.example.hrms.biz.booking.model.Booking;
 import com.example.hrms.biz.booking.model.criteria.BookingCriteria;
 import com.example.hrms.biz.booking.model.dto.BookingDTO;
 import com.example.hrms.biz.booking.repository.BookingMapper;
-import com.example.hrms.utils.DateUtils;
+import com.example.hrms.exception.InvalidArgumentException;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.time.*;
 import java.util.*;
 
 import com.example.hrms.enumation.BookingType;
@@ -32,22 +33,17 @@ public class BookingService {
     }
 
     public void insert(BookingDTO.Req req) {
-        List<Booking> booking = handleBookingType(req);
-
-        if (!booking.isEmpty()) {
-            bookingMapper.insert(req.toBooking());
+        Booking booking = req.toBooking();
+        List<Booking> bookings = handleBookingType(booking);
+        for (Booking b : bookings) {
+            bookingMapper.insert(b);
         }
     }
 
-    public void updateBooking(Booking req) {
-        // Ensure date and time fields are set
-        if (req.getStartTime() == null || req.getEndTime() == null) {
-            throw new IllegalArgumentException("Date and time fields cannot be null or empty");
-        }
-
-        List<Booking> booking = handleBookingType(BookingDTO.Req.fromBooking(req));
-        if (!booking.isEmpty()) {
-            bookingMapper.updateBooking(req);
+    public void updateBooking(Booking booking) {
+        List<Booking> bookings = handleBookingType(booking);
+        for (Booking b : bookings) {
+            bookingMapper.updateBooking(b);
         }
     }
 
@@ -77,106 +73,97 @@ public class BookingService {
         return bookings.stream().map(BookingDTO.Resp::toResponse).toList();
     }
 
-    private List<Booking> handleBookingType(BookingDTO.Req req) {
-        List<Booking> bookings = new ArrayList<>();
+    public List<Booking> handleBookingType(Booking booking) {
+        List<Booking> generatedBookings = new ArrayList<>();
 
-
-        // Log the input data
-        System.out.println("Start Date: " + req.getStartDate());
-        System.out.println("Start Time: " + req.getStartTime());
-        System.out.println("End Date: " + req.getEndDate());
-        System.out.println("End Time: " + req.getEndTime());
-
-        // Kiểm tra dữ liệu đầu vào
-        if (req.getStartDate() == null || req.getStartTime() == null ||
-                req.getEndDate() == null || req.getEndTime() == null ||
-                req.getStartDate().trim().isEmpty() || req.getStartTime().trim().isEmpty() ||
-                req.getEndDate().trim().isEmpty() || req.getEndTime().trim().isEmpty()) {
-            throw new IllegalArgumentException("Date and time fields cannot be null or empty");
+        if (booking.getBookingType() == null) {
+            booking.setBookingType(BookingType.ONLY);
         }
 
-        try {
-            LocalDateTime startDateTime = DateUtils.parseDateTime(req.getStartDate() + " " + req.getStartTime());
-            LocalDateTime endDateTime = DateUtils.parseDateTime(req.getEndDate() + " " + req.getEndTime());
+        LocalTime startTime = booking.getStartTime().toLocalTime();
+        LocalTime endTime = booking.getEndTime().toLocalTime();
 
-            switch (req.getBookingType().toUpperCase()) {
-                case "ONLY":
-                    Booking booking = req.toBooking();
-                    booking.setBookingType(BookingType.ONLY);
-                    LocalDateTime today = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))
-                            .withHour(startDateTime.getHour())
-                            .withMinute(startDateTime.getMinute())
-                            .withSecond(startDateTime.getSecond())
-                            .withNano(startDateTime.getNano());
-                    booking.setStartTime(LocalDateTime.parse(DateUtils.formatDateTime(today)));
-                    booking.setEndTime(LocalDateTime.parse(DateUtils.formatDateTime(today)));
-                    booking.setWeekdays(null);
-                    bookings.add(booking);
-                    break;
+        switch (booking.getBookingType()) {
+            case ONLY:
+                // Gán lại ngày hiện tại nếu người dùng chỉ chọn giờ
+                LocalDate today = LocalDate.now();
+                booking.setStartTime(LocalDateTime.of(today, startTime));
+                booking.setEndTime(LocalDateTime.of(today, endTime));
+                booking.setWeekdays(null);
+                generatedBookings.add(booking);
+                break;
 
-                case "DAILY":
-                    long daysBetween = ChronoUnit.DAYS.between(startDateTime.toLocalDate(), endDateTime.toLocalDate()) + 1;
-                    for (int i = 0; i < daysBetween; i++) {
-                        LocalDateTime startTimeToday = startDateTime.plusDays(i);
-                        LocalDateTime endTimeToday = startTimeToday.withHour(endDateTime.getHour())
-                                .withMinute(endDateTime.getMinute())
-                                .withSecond(endDateTime.getSecond())
-                                .withNano(endDateTime.getNano());
-                        Booking dailyBooking = req.toBooking();
-                        dailyBooking.setBookingType(BookingType.DAILY);
-                        dailyBooking.setStartTime(LocalDateTime.parse(DateUtils.formatDateTime(startTimeToday)));
-                        dailyBooking.setEndTime(LocalDateTime.parse(DateUtils.formatDateTime(endTimeToday)));
-                        dailyBooking.setWeekdays(null);
-                        bookings.add(dailyBooking);
+            case DAILY:
+                // Sinh booking mỗi ngày trong khoảng từ ngày bắt đầu đến ngày kết thúc
+                LocalDate dailyStart = booking.getStartTime().toLocalDate();
+                LocalDate dailyEnd = booking.getEndTime().toLocalDate();
+
+                for (LocalDate date = dailyStart; !date.isAfter(dailyEnd); date = date.plusDays(1)) {
+                    Booking b = copyBooking(booking);
+                    b.setStartTime(LocalDateTime.of(date, startTime));
+                    b.setEndTime(LocalDateTime.of(date, endTime));
+                    b.setBookingType(BookingType.DAILY);
+                    b.setWeekdays(null);
+                    generatedBookings.add(b);
+                }
+                break;
+
+            case WEEKLY:
+                // WEEKLY cần chuỗi weekdays hợp lệ
+                if (booking.getWeekdays() == null || booking.getWeekdays().isBlank()) {
+                    throw new InvalidArgumentException("WEEKLY booking requires weekdays.");
+                }
+
+                Set<DayOfWeek> selectedDays = parseWeekdays(booking.getWeekdays());
+                LocalDate weeklyStart = booking.getStartTime().toLocalDate();
+                LocalDate weeklyEnd = booking.getEndTime().toLocalDate();
+
+                for (LocalDate date = weeklyStart; !date.isAfter(weeklyEnd); date = date.plusDays(1)) {
+                    if (selectedDays.contains(date.getDayOfWeek())) {
+                        Booking b = copyBooking(booking);
+                        b.setStartTime(LocalDateTime.of(date, startTime));
+                        b.setEndTime(LocalDateTime.of(date, endTime));
+                        b.setBookingType(BookingType.WEEKLY);
+                        b.setWeekdays(booking.getWeekdays());
+                        generatedBookings.add(b);
                     }
-                    break;
+                }
+                break;
 
-                case "WEEKLY":
-                    List<String> weekdays = (req.getWeekdays() != null && !req.getWeekdays().isEmpty())
-                            ? req.getWeekdays()
-                            : Arrays.asList("mo", "tu", "we", "th", "fr");
-
-                    LocalDateTime current = startDateTime;
-                    while (!current.isAfter(endDateTime)) {
-                        for (String day : weekdays) {
-                            LocalDateTime startTimeToday = getDayOfWeek(current, day);
-                            if (startTimeToday != null && !startTimeToday.isBefore(startDateTime) && !startTimeToday.isAfter(endDateTime)) {
-                                LocalDateTime endTimeToday = startTimeToday.withHour(endDateTime.getHour())
-                                        .withMinute(endDateTime.getMinute())
-                                        .withSecond(endDateTime.getSecond())
-                                        .withNano(endDateTime.getNano());
-                                Booking weeklyBooking = req.toBooking();
-                                weeklyBooking.setBookingType(BookingType.WEEKLY);
-                                weeklyBooking.setStartTime(LocalDateTime.parse(DateUtils.formatDateTime(startTimeToday)));
-                                weeklyBooking.setEndTime(LocalDateTime.parse(DateUtils.formatDateTime(endTimeToday)));
-                                weeklyBooking.setWeekdays(String.valueOf(new ArrayList<>(Collections.singletonList(day)))); // Đổi sang List<String>
-                                bookings.add(weeklyBooking);
-                            }
-                        }
-                        current = current.plusWeeks(1);
-                    }
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Invalid booking type: " + req.getBookingType());
-            }
-        } catch (DateTimeParseException e) {
-            System.err.println("Failed to parse date/time: " + e.getMessage());
-            throw new IllegalArgumentException("Invalid date/time format: " + e.getMessage(), e);
+            default:
+                throw new IllegalArgumentException("Invalid booking type.");
         }
-        return bookings;
+
+        return generatedBookings;
     }
 
-    // Cải tiến hàm lấy ngày trong tuần
-    private LocalDateTime getDayOfWeek(LocalDateTime start, String day) {
-        Map<String, DayOfWeek> dayMap = Map.of(
-                "mo", DayOfWeek.MONDAY, "tu", DayOfWeek.TUESDAY, "we", DayOfWeek.WEDNESDAY,
-                "th", DayOfWeek.THURSDAY, "fr", DayOfWeek.FRIDAY
-        );
-        DayOfWeek targetDay = dayMap.get(day.toLowerCase());
-        if (targetDay == null) return null;
+    // Tạo bản sao Booking (copy thông tin chung)
+    private Booking copyBooking(Booking original) {
+        Booking b = new Booking();
+        b.setUsername(original.getUsername());
+        b.setRoomId(original.getRoomId());
+        b.setTitle(original.getTitle());
+        b.setAttendees(original.getAttendees());
+        b.setContent(original.getContent());
+        b.setStatus(original.getStatus());
+        return b;
+    }
 
-        LocalDateTime targetDate = start.with(TemporalAdjusters.nextOrSame(targetDay));
-        return targetDate.isAfter(start) ? targetDate : targetDate.plusWeeks(1);
+    // Chuyển chuỗi weekdays "Mo,We,Fr" thành Set<DayOfWeek>
+    private Set<DayOfWeek> parseWeekdays(String weekdays) {
+        Map<String, DayOfWeek> map = Map.of(
+                "Mo", DayOfWeek.MONDAY,
+                "Tu", DayOfWeek.TUESDAY,
+                "We", DayOfWeek.WEDNESDAY,
+                "Th", DayOfWeek.THURSDAY,
+                "Fr", DayOfWeek.FRIDAY,
+                "Sa", DayOfWeek.SATURDAY,
+                "Su", DayOfWeek.SUNDAY
+        );
+
+        return Arrays.stream(weekdays.split(","))
+                .map(String::trim)
+                .map(map::get)
+                .collect(Collectors.toSet());
     }
 }

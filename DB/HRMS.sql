@@ -138,20 +138,43 @@ INSERT INTO Meeting_Rooms (room_name, location, capacity) VALUES
 
 -- Chèn dữ liệu vào bảng Bookings
 INSERT INTO Bookings (username, room_id, title, attendees, content, start_time, end_time, status, booking_type, weekdays) VALUES
--- ONLY: Chỉ đặt một lần, không có weekdays
-('ntdu', 1, 'DKR1_Training 1 (Draft)', 'ntdu, pmhao, pnminh, bkkhanh, nhtien', 'Buổi đào tạo nội bộ', '2025-03-01 10:00:00', '2025-03-01 12:00:00', 'Requested', 'ONLY', NULL),
-('pmhao', 2, 'Finance Meeting', 'pmhao, bkkhanh', 'Thảo luận ngân sách', '2025-03-02 14:00:00', '2025-03-02 16:00:00', 'Confirmed', 'ONLY', NULL),
+-- ONLY: Cuộc họp một lần
+('ntdu', 1, 'DKR1_Training 1 (Draft)', 'ntdu, pmhao, pnminh, bkkhanh, nhtien', 'Buổi đào tạo nội bộ', '2025-03-01 10:00:00', '2025-03-01 12:00:00', 'Cancelled', 'ONLY', NULL),
+('ntdu', 2, 'Finance Meeting', 'pmhao, bkkhanh', 'Thảo luận ngân sách', '2025-04-11 14:00:00', '2025-04-11 16:00:00', 'Confirmed', 'ONLY', NULL),
 ('bkkhanh', 3, 'IT Strategy Session', 'bkkhanh, ntdu', 'Chiến lược IT năm 2025', '2025-03-03 09:00:00', '2025-03-03 11:00:00', 'Cancelled', 'ONLY', NULL),
 ('pnminh', 1, 'HR Policy Review', 'nhtien, pmhao', 'Xem xét chính sách nhân sự', '2025-03-04 13:00:00', '2025-03-04 15:00:00', 'Requested', 'ONLY', NULL),
-('htpham', 2, 'Project Kickoff', 'htpham, ntdu', 'Khởi động dự án mới', '2025-03-05 08:00:00', '2025-03-05 10:00:00', 'Confirmed', 'ONLY', NULL),
+('pmhao', 1, 'Customer Feedback Session', 'pmhao, bkkhanh', 'Lắng nghe ý kiến khách hàng', '2025-04-20 15:00:00', '2025-04-20 16:00:00', 'Confirmed', 'ONLY', NULL),
 
--- DAILY: Có start_time và end_time, nhưng không có weekdays
-('ntdu', 1, 'Daily Scrum Meeting', 'ntdu, pmhao, nhtien', 'Họp Scrum hằng ngày', '2025-03-06 09:00:00', '2025-03-20 09:30:00', 'Confirmed', 'DAILY', NULL),
-('pmhao', 2, 'Daily Standup', 'pmhao, bkkhanh', 'Cập nhật công việc hằng ngày', '2025-03-07 10:00:00', '2025-03-21 10:30:00', 'Confirmed', 'DAILY', NULL),
+-- DAILY: Họp từ ngày 15/04/2025 đến 17/04/2025
+('ntdu', 1, 'Daily QA Sync', 'ntdu, htpham', 'Đồng bộ QA hàng ngày', '2025-04-15 10:30:00', '2025-04-15 11:00:00', 'Confirmed', 'DAILY', NULL),
+('ntdu', 1, 'Daily QA Sync', 'ntdu, htpham', 'Đồng bộ QA hàng ngày', '2025-04-16 10:30:00', '2025-04-16 11:00:00', 'Confirmed', 'DAILY', NULL),
+('ntdu', 1, 'Daily QA Sync', 'ntdu, htpham', 'Đồng bộ QA hàng ngày', '2025-04-17 10:30:00', '2025-04-17 11:00:00', 'Confirmed', 'DAILY', NULL),
+-- Daily từ ngày 06/03/2025 đến 08/03/2025
+('ntdu', 1, 'Daily Scrum Meeting', 'ntdu, pmhao, nhtien', 'Họp Scrum hằng ngày', '2025-03-06 09:00:00', '2025-03-06 09:30:00', 'Cancelled', 'DAILY', NULL),
+('ntdu', 1, 'Daily Scrum Meeting', 'ntdu, pmhao, nhtien', 'Họp Scrum hằng ngày', '2025-03-07 09:00:00', '2025-03-07 09:30:00', 'Cancelled', 'DAILY', NULL),
+('ntdu', 1, 'Daily Scrum Meeting', 'ntdu, pmhao, nhtien', 'Họp Scrum hằng ngày', '2025-03-08 09:00:00', '2025-03-08 09:30:00', 'Cancelled', 'DAILY', NULL),
+-- Daily từ ngày 11/04/2025 đến 12/04/2025
+('pmhao', 2, 'Daily Standup', 'pmhao, bkkhanh', 'Cập nhật công việc hằng ngày', '2025-04-11 09:00:00', '2025-04-11 09:30:00', 'Confirmed', 'DAILY', NULL),
+('pmhao', 2, 'Daily Standup', 'pmhao, bkkhanh', 'Cập nhật công việc hằng ngày', '2025-04-12 09:00:00', '2025-04-12 09:30:00', 'Confirmed', 'DAILY', NULL),
 
--- WEEKLY: Có weekdays, start_time, end_time
-('bkkhanh', 3, 'Weekly IT Sync', 'bkkhanh, ntdu', 'Đồng bộ công việc IT hằng tuần', '2025-03-01 10:00:00', '2025-03-31 11:00:00', 'Confirmed', 'WEEKLY', 'Mo,We,Fr'),
-('pnminh', 1, 'Weekly HR Meeting', 'nhtien, pmhao', 'Họp phòng nhân sự hằng tuần', '2025-03-01 14:00:00', '2025-03-30 15:00:00', 'Requested', 'WEEKLY', 'Tu,Th'),
-('htpham', 2, 'Engineering Weekly', 'htpham, ntdu', 'Cập nhật tiến độ kỹ thuật', '2025-03-01 08:30:00', '2025-03-29 09:30:00', 'Confirmed', 'WEEKLY', 'Mo,We,Fr');
+-- Weekly từ ngày 11/04/2025 đến ngày 20/04/2025 (Fr, Mo, Tu, Fr) đặt ngày 11, 14, 15, 18
+('bkkhanh', 3, 'Weekly IT Sync', 'bkkhanh, ntdu', 'Đồng bộ công việc IT hằng tuần', '2025-04-11 10:00:00', '2025-04-11 11:00:00', 'Confirmed', 'WEEKLY', 'Mo,Tu,Fr'),
+('bkkhanh', 3, 'Weekly IT Sync', 'bkkhanh, ntdu', 'Đồng bộ công việc IT hằng tuần', '2025-04-14 10:00:00', '2025-04-14 11:00:00', 'Confirmed', 'WEEKLY', 'Mo,Tu,Fr'),
+('bkkhanh', 3, 'Weekly IT Sync', 'bkkhanh, ntdu', 'Đồng bộ công việc IT hằng tuần', '2025-04-15 10:00:00', '2025-04-15 11:00:00', 'Confirmed', 'WEEKLY', 'Mo,Tu,Fr'),
+('bkkhanh', 3, 'Weekly IT Sync', 'bkkhanh, ntdu', 'Đồng bộ công việc IT hằng tuần', '2025-04-18 10:00:00', '2025-04-18 11:00:00', 'Confirmed', 'WEEKLY', 'Mo,Tu,Fr'),
+-- Weekly từ ngày 01/03/2025 đến ngày 04/03/2025 (Mo, Tu) đặt ngày 03, 04
+('pnminh', 1, 'Weekly HR Meeting', 'nhtien, pmhao', 'Họp phòng nhân sự hằng tuần', '2025-03-03 14:00:00', '2025-03-03 15:00:00', 'Cancelled', 'WEEKLY', 'Mo,Tu'),
+('pnminh', 1, 'Weekly HR Meeting', 'nhtien, pmhao', 'Họp phòng nhân sự hằng tuần', '2025-03-04 14:00:00', '2025-03-04 15:00:00', 'Cancelled', 'WEEKLY', 'Mo,Tu'),
+-- Weekly từ ngày 11/04/2025 đến ngày 17/04/2025 (Fr, Mo, We, Th) đặt ngày 11, 14, 16, 17
+('htpham', 2, 'Engineering Weekly', 'htpham, ntdu', 'Cập nhật tiến độ kỹ thuật', '2025-04-11 08:30:00', '2025-04-11 09:30:00', 'Confirmed', 'WEEKLY', 'Mo,We,Th,Fr'),
+('htpham', 2, 'Engineering Weekly', 'htpham, ntdu', 'Cập nhật tiến độ kỹ thuật', '2025-04-14 08:30:00', '2025-04-14 09:30:00', 'Confirmed', 'WEEKLY', 'Mo,We,Th,Fr'),
+('htpham', 2, 'Engineering Weekly', 'htpham, ntdu', 'Cập nhật tiến độ kỹ thuật', '2025-04-16 08:30:00', '2025-04-16 09:30:00', 'Confirmed', 'WEEKLY', 'Mo,We,Th,Fr'),
+('htpham', 2, 'Engineering Weekly', 'htpham, ntdu', 'Cập nhật tiến độ kỹ thuật', '2025-04-17 08:30:00', '2025-04-17 09:30:00', 'Confirmed', 'WEEKLY', 'Mo,We,Th,Fr'),
+-- WEEKLY: Họp mỗi thứ Ba và thứ Năm từ ngày 22/04 đến 29/04
+('pnminh', 2, 'Dev Team Weekly', 'pnminh, nhtien', 'Lập kế hoạch sprint', '2025-04-22 14:00:00', '2025-04-22 15:00:00', 'Confirmed', 'WEEKLY', 'Tu,Th'),
+('pnminh', 2, 'Dev Team Weekly', 'pnminh, nhtien', 'Lập kế hoạch sprint', '2025-04-24 14:00:00', '2025-04-24 15:00:00', 'Confirmed', 'WEEKLY', 'Tu,Th'),
+('pnminh', 2, 'Dev Team Weekly', 'pnminh, nhtien', 'Lập kế hoạch sprint', '2025-04-29 14:00:00', '2025-04-29 15:00:00', 'Confirmed', 'WEEKLY', 'Tu,Th');
 
 select * from requests;
+
+select * from bookings;

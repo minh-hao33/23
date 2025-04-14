@@ -19,5 +19,3 @@ public class DateUtils {
         return dateTime.atZone(ZONE_ID).format(getDateTimeFormatter());
     }
 }
-
-
