@@ -240,8 +240,30 @@
     });
 
     function logout() {
-        localStorage.clear();
-        window.location.reload();
+        fetch('/api/v1/users/logout', {
+            method: 'POST',
+            credentials: 'include', // rất quan trọng để gửi cookie/session đi kèm
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Xóa dữ liệu localStorage, cookie, session nếu cần
+                    localStorage.clear();
+
+                    // Xóa cookie bằng cách set expired
+                    document.cookie.split(";").forEach(function(c) {
+                        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                    });
+
+                    // Redirect hoặc reload trang
+                    window.location.href = "/users/login";
+                } else {
+                    alert("Đăng xuất không thành công. Vui lòng thử lại.");
+                }
+            })
+            .catch(error => {
+                console.error("Logout error:", error);
+                alert("Lỗi trong quá trình đăng xuất.");
+            });
     }
 </script>
 

@@ -114,17 +114,30 @@ public interface UserMapper {
             "</script>")
     int count(UserCriteria criteria);
 
-    // Lấy thông tin phòng ban và quyền của người dùng
-    @Select("SELECT u.department_id, u.role_name, d.department_name " +
-            "FROM Users u LEFT JOIN Departments d ON u.department_id = d.department_id")
-    @Results({
-            @Result(property = "departmentId", column = "department_id"),
-            @Result(property = "roleName", column = "role_name", javaType = RoleEnum.class),
-            @Result(property = "departmentName", column = "department_name")
-    })
-    List<User> getDepartmentsAndRoles();
 
     // Kiểm tra username đã tồn tại chưa
     @Select("SELECT COUNT(*) FROM Users WHERE username = #{username}")
     int checkUsernameExists(String username);
+
+    // Lấy department_id của supervisor
+    @Select("SELECT department_id FROM Users WHERE username = #{supervisorUsername} AND is_supervisor = true")
+    String getDepartmentIdBySupervisor(String supervisorUsername);
+
+    // Lấy tất cả người dùng trong phòng ban
+    @Select("SELECT u.username, u.employee_name, u.password, u.department_id, " +
+            "u.role_name, u.is_supervisor, u.status, u.email, d.department_name " +
+            "FROM Users u LEFT JOIN Departments d ON u.department_id = d.department_id " +
+            "WHERE u.department_id = #{departmentId}")
+    @Results({
+            @Result(property = "username", column = "username"),
+            @Result(property = "employeeName", column = "employee_name"),
+            @Result(property = "password", column = "password"),
+            @Result(property = "departmentId", column = "department_id"),
+            @Result(property = "roleName", column = "role_name", javaType = RoleEnum.class),
+            @Result(property = "supervisor", column = "is_supervisor"),
+            @Result(property = "status", column = "status"),
+            @Result(property = "email", column = "email"),
+            @Result(property = "departmentName", column = "department_name")
+    })
+    List<User> getUsersByDepartment(String departmentId);
 }
