@@ -70,10 +70,19 @@ public class BookingRestController {
     @PostMapping("")
     public Result createBooking(@RequestBody @Valid BookingDTO.Req bookingReq) {
         Booking booking = bookingReq.toBooking();
-        if (bookingService.isConflict(booking)) {
-            throw new InvalidArgumentException("Booking time conflicts with an existing booking.");
+        // Sinh danh sách các Booking dựa vào kiểu đặt phòng
+        List<Booking> bookings = bookingService.handleBookingType(booking);
+        // Kiểm tra xung đột cho từng booking
+        for (Booking b : bookings) {
+            if (bookingService.isConflict(b)) {
+                throw new InvalidArgumentException("Booking time conflicts with an existing booking.");
+            }
         }
-        bookingService.insert(bookingReq);
+        // Chèn từng booking vào DB
+        for (Booking b : bookings) {
+            bookingService.insert(BookingDTO.Req.fromBooking(b));
+        }
+
         return new Result("Success", "Booking created successfully.");
     }
 
@@ -85,12 +94,27 @@ public class BookingRestController {
             @ApiResponse(responseCode = "404", description = "Booking not found",
                     content = @Content) })
     @PutMapping("/{id}")
-    public Result updateBooking(@PathVariable Long id, @RequestBody BookingDTO.Req bookingReq) {
+    public Result updateBooking(@PathVariable Long id, @RequestBody @Valid BookingDTO.Req bookingReq) {
         Booking booking = bookingReq.toBooking();
         booking.setBookingId(id);
-        bookingService.updateBooking(booking);
+
+        // Generate the list of updated bookings based on the booking type
+        List<Booking> updatedBookings = bookingService.handleBookingType(booking);
+
+        // Check for conflicts with existing bookings
+        for (Booking updatedBooking : updatedBookings) {
+            if (bookingService.isConflict(updatedBooking)) {
+                throw new InvalidArgumentException("Booking time conflicts with an existing booking.");
+            }
+        }
+
+        // Update each booking in the database
+        for (Booking updatedBooking : updatedBookings) {
+            bookingService.updateBooking(updatedBooking);
+        }
         return new Result("Success", "Booking updated successfully.");
     }
+
 
     @Operation(summary = "Delete booking")
     @ApiResponses(value = {
@@ -105,4 +129,3 @@ public class BookingRestController {
         return new Result("Success", "Booking deleted successfully.");
     }
 }
-
