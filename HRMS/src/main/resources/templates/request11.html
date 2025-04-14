@@ -796,6 +796,7 @@
         <th>Lý do</th>
         <th>Người duyệt</th>
         <th>Trạng thái</th>
+        <th>Lý do từ chối</th>
         <th>Hành động</th>
       </tr>
       </thead>
@@ -943,14 +944,24 @@
       return;
     }
 
+    const currentDate = new Date();
+    const startTime = new Date(`${startDate}T08:00:00+07:00`);
+    const endTime = new Date(`${endDate}T17:00:00+07:00`);
 
-    const startTime = new Date(`${startDate}T08:00:00+07:00`).toISOString();
-    const endTime = new Date(`${endDate}T17:00:00+07:00`).toISOString();
+    if (startTime >= endTime) {
+      alert("Ngày bắt đầu phải bé hơn ngày kết thúc!");
+      return;
+    }
+
+    if (startTime < currentDate) {
+      alert("Ngày bắt đầu không được nhỏ hơn thời gian hiện tại!");
+      return;
+    }
 
     const requestBody = {
       requestType: type,
-      startTime: startTime,
-      endTime: endTime,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
       requestReason: reason,
       requestStatus: "PENDING"
     };
@@ -1014,7 +1025,7 @@
 
       if (remaining > 0) {
         infoElements.forEach(el => {
-          el.innerText = `Bạn đã nghỉ ${usedDays} ngày. Còn lại ${remaining} ngày nghỉ có phép.`;
+          el.innerText = ` Còn lại ${remaining} ngày nghỉ có phép.`;
           el.className = "text-info mb-2";
         });
 
@@ -1029,7 +1040,7 @@
 
       } else {
         infoElements.forEach(el => {
-          el.innerText = `Bạn đã nghỉ hết ${totalDaysPerYear} ngày phép. Từ giờ nghỉ sẽ tính là không lương.`;
+          el.innerText = `Bạn đã nghỉ hết ${totalDaysPerYear} ngày phép.`;
           el.className = "text-danger mb-2";
         });
 
@@ -1115,12 +1126,21 @@
       statusBadge.className = `status-badge status-${request.requestStatus.toLowerCase()}`;
       statusBadge.textContent = formatRequestStatus(request.requestStatus);
       statusCell.appendChild(statusBadge);
+      // Lý do từ chối
+      const rejectReasonCell = row.insertCell(7);
+      rejectReasonCell.textContent = request.rejectionReason && request.requestStatus === "REJECTED"
+              ? request.rejectionReason
+              : "";
+      rejectReasonCell.style.maxWidth = "200px";
+      rejectReasonCell.style.whiteSpace = "nowrap";
+      rejectReasonCell.style.overflow = "hidden";
+      rejectReasonCell.style.textOverflow = "ellipsis";
 
       // Hành động
-      const actionCell = row.insertCell(7);
+      const actionCell = row.insertCell(8);
       const viewButton = document.createElement("button");
       viewButton.className = "action-btn";
-      viewButton.innerHTML = '<i class="fas fa-eye"></i>';
+      viewButton.innerHTML = '<i class="fas fa-edit"></i>';
 
 // Không cho click nếu đã duyệt hoặc bị từ chối
       if (request.requestStatus === "APPROVED" || request.requestStatus === "REJECTED") {
@@ -1190,8 +1210,8 @@
       const [type, , date, , reason, , status] = [...row.cells].map(cell => cell.textContent.trim().toLowerCase());
       const department = row.getAttribute('data-department').toLowerCase();
       const statusText = status.includes("đã duyệt") ? "APPROVED" :
-          status.includes("từ chối") ? "REJECTED" :
-              status.includes("chờ duyệt") ? "PENDING" : "";
+              status.includes("từ chối") ? "REJECTED" :
+                      status.includes("chờ duyệt") ? "PENDING" : "";
 
       let show = true;
 
@@ -1244,7 +1264,7 @@
     document.getElementById("editRequestType").value = request.requestType;
     document.getElementById("editStartDate").value = request.startTime?.split('T')[0] || ""; // ISO date
     document.getElementById("editEndDate").value = request.endTime?.split('T')[0] || "";
-    document.getElementById("editRequestReason").value = request.requestReason || "-";
+    document.getElementById("editRequestReason").value = request.requestReason || "";
 
     const statusElement = document.getElementById("viewStatus");
     statusElement.textContent = formatRequestStatus(request.requestStatus);
@@ -1328,14 +1348,28 @@
     if (!currentRequestId) return;
 
     const requestType = document.getElementById("editRequestType").value;
-    const startTime = document.getElementById("editStartDate").value;
-    const endTime = document.getElementById("editEndDate").value;
+    const startDate = document.getElementById("editStartDate").value;
+    const endDate = document.getElementById("editEndDate").value;
     const requestReason = document.getElementById("editRequestReason").value;
+
+    const currentDate = new Date();
+    const startTime = new Date(`${startDate}T08:00:00+07:00`);
+    const endTime = new Date(`${endDate}T17:00:00+07:00`);
+
+    if (startTime >= endTime) {
+      alert("Ngày bắt đầu phải bé hơn ngày kết thúc!");
+      return;
+    }
+
+    if (startTime < currentDate) {
+      alert("Ngày bắt đầu không được nhỏ hơn thời gian hiện tại!");
+      return;
+    }
 
     const payload = {
       requestType,
-      startTime,
-      endTime,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
       requestReason
     };
 
@@ -1359,7 +1393,6 @@
       alert("Có lỗi xảy ra khi cập nhật!");
     }
   }
-
 </script>
 </body>
 </html>

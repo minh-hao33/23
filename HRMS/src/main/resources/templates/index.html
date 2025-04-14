@@ -32,7 +32,15 @@
                 <li class="nav-item active"><a href="/users/home" class="nav-link">Home</a></li>
                 <li class="nav-item" id="office"><a href="#" class="nav-link">Office</a></li>
                 <li class="nav-item" id="meeting"><a href="#" class="nav-link">Meeting</a></li>
-                <li class="nav-item cta mr-md-2"><a href="#" class="nav-link">Login</a></li>
+                <li class="nav-item cta mr-md-2" id="loginBtn"><a href="/users/login" class="nav-link">Login</a></li>
+                <li class="nav-item dropdown" id="userInfo" style="display: none;">
+                    <a class="nav-link dropdown-toggle" href="#" id="usernameDisplay" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                    <div class="dropdown-menu" aria-labelledby="usernameDisplay">
+                        <a class="dropdown-item" href="#">Profile</a>
+                        <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
+                    </div>
+                </li>
+
             </ul>
         </div>
     </div>
@@ -207,20 +215,36 @@
 
 <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
 <script>
-    // Lấy vai trò từ localStorage
-    var role = localStorage.getItem('Role');
-    // var role = 'ADMIN';
-    if (role === 'ADMIN') {
-        // Admin có thể truy cập tất cả các mục
-    } else if (role === 'EMPLOYEE') {
-        // Employee chỉ có thể truy cập Home và Login
-        document.getElementById('office').style.display = 'none';
-        document.getElementById('meeting').style.display = 'none';
-    } else if (role === 'SUPERVISOR') {
-        // Supervisor không thể truy cập Office
-        document.getElementById('office').style.display = 'none';
+    document.addEventListener('DOMContentLoaded', function () {
+        const username = localStorage.getItem('Username');
+        const role = localStorage.getItem('Role');
+
+        if (username && role) {
+            // Ẩn nút login
+            document.getElementById('loginBtn').style.display = 'none';
+
+            // Hiện user info
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('usernameDisplay').textContent = username;
+
+            // Xử lý role nếu cần
+            if (role === 'ADMIN') {
+                // Hiện tất cả
+            } else if (role === 'EMPLOYEE') {
+                document.getElementById('office').style.display = 'none';
+                document.getElementById('meeting').style.display = 'none';
+            } else if (role === 'SUPERVISOR') {
+                document.getElementById('office').style.display = 'none';
+            }
+        }
+    });
+
+    function logout() {
+        localStorage.clear();
+        window.location.reload();
     }
 </script>
+
 
 <script src="/js/jquery.min.js"></script>
 <script src="/js/jquery-migrate-3.0.1.min.js"></script>
@@ -234,8 +258,6 @@
 <script src="/js/aos.js"></script>
 <script src="/js/jquery.animateNumber.min.js"></script>
 <script src="/js/scrollax.min.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
-<script src="/js/google-map.js"></script>
 <script src="/js/main.js"></script>
 
 </body>
