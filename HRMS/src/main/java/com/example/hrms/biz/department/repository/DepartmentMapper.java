@@ -13,44 +13,47 @@ public interface DepartmentMapper {
     @Options(useGeneratedKeys = true, keyProperty = "departmentId")
     void insertDepartment(Department department);
 
-    // Lấy danh sách phòng ban (Chỉ tên phòng ban)
-    @Select("SELECT department_id AS departmentId, department_name AS departmentName FROM Departments ORDER BY department_name ASC")
-    List<Department> findAllDepartments();
-
-    // Lấy danh sách phòng ban kèm nhân viên và vai trò
     @Select("""
     SELECT 
         d.department_id AS departmentId, 
         d.department_name AS departmentName, 
         u.employee_name AS employeeName, 
         r.role_name AS roleName 
-    FROM Users u 
-    JOIN Departments d ON u.department_id = d.department_id 
-    JOIN Roles r ON u.role_name = r.role_name 
-    WHERE 
-        (#{departmentId} IS NULL OR d.department_id = #{departmentId}) 
-        AND (#{departmentName} IS NULL OR d.department_name LIKE CONCAT('%', #{departmentName}, '%')) 
-        AND (#{employeeName} IS NULL OR u.employee_name LIKE CONCAT('%', #{employeeName}, '%')) 
-        AND (#{roleName} IS NULL OR r.role_name LIKE CONCAT('%', #{roleName}, '%')) 
+    FROM Departments d 
+    LEFT JOIN Users u ON u.department_id = d.department_id 
+    LEFT JOIN Roles r ON u.role_name = r.role_name 
     ORDER BY d.department_name ASC, r.role_name ASC
 """)
-    List<Department> findWithEmployeesAndRoles(DepartmentCriteria criteria);
-
+    List<Department> findAllDepartmentsWithNullableUserInfo();
+    @Select("""
+    SELECT 
+        d.department_id AS departmentId,
+        d.department_name AS departmentName,
+        u.employee_name AS employeeName,
+        r.role_name AS roleName
+    FROM Users u
+    JOIN Departments d ON u.department_id = d.department_id
+    JOIN Roles r ON u.role_name = r.role_name
+    WHERE u.department_id = (SELECT department_id FROM Users WHERE username = #{username})
+    ORDER BY d.department_name ASC, r.role_name ASC
+""")
+    List<Department> findByDepartmentOfUser(@Param("username") String username);
 
     // Tìm phòng ban theo ID
     @Select("""
-        SELECT 
-            d.department_id AS departmentId, 
-            d.department_name AS departmentName, 
-            r.role_name AS roleName, 
-            u.employee_name AS employeeName 
-        FROM Departments d 
-        JOIN Users u ON d.department_id = u.department_id 
-        JOIN Roles r ON u.role_name = r.role_name 
-        WHERE d.department_id = #{id} 
-        ORDER BY r.role_name ASC
-    """)
+    SELECT 
+        d.department_id AS departmentId, 
+        d.department_name AS departmentName, 
+        u.employee_name AS employeeName,
+        r.role_name AS roleName 
+    FROM Departments d 
+    LEFT JOIN Users u ON d.department_id = u.department_id 
+    LEFT JOIN Roles r ON u.role_name = r.role_name 
+    WHERE d.department_id = #{id} 
+    ORDER BY r.role_name ASC
+""")
     List<Department> findById(Long id);
+
 
     // Đếm số lượng phòng ban theo tên (loại trừ ID hiện tại)
     @Select("SELECT COUNT(*) FROM Departments WHERE department_name = #{departmentName} AND (#{departmentId} IS NULL OR department_id != #{departmentId})")
@@ -61,4 +64,7 @@ public interface DepartmentMapper {
 
     @Delete("DELETE FROM Departments WHERE department_id = #{departmentId}")
     void deleteDepartment(Long departmentId);
+    @Update("UPDATE Users SET department_id = NULL WHERE department_id = #{departmentId}")
+    void updateUsersToNull(Long departmentId);
+
 }

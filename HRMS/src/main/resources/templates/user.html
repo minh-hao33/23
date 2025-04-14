@@ -1,20 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Account Management</title>
-  <!-- Bootstrap CSS -->
+  <title>Meeting CMC Global</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <!-- Custom CSS -->
+  <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700,800,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
+  <link rel="stylesheet" href="/css/animate.css">
+  <link rel="stylesheet" href="/css/owl.carousel.min.css">
+  <link rel="stylesheet" href="/css/owl.theme.default.min.css">
+  <link rel="stylesheet" href="/css/magnific-popup.css">
+  <link rel="stylesheet" href="/css/aos.css">
+  <link rel="stylesheet" href="/css/ionicons.min.css">
+  <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
+  <link rel="stylesheet" href="/css/jquery.timepicker.css">
+  <link rel="stylesheet" href="/css/flaticon.css">
+  <link rel="stylesheet" href="/css/icomoon.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/sessionTimeout.js"></script>
   <style>
     :root {
       --primary-color: #a1cbe4;
       --primary-hover: #4786ba;
-      --danger-color: #e74c3c;
-      --danger-hover: #c0392b;
+      --danger-color: #d31616;
+      --danger-hover: #17dce3;
       --success-color: #2ecc71;
       --success-hover: #27ae60;
       --warning-color: #f39c12;
@@ -22,8 +33,8 @@
       --dark-color: #1fbec3;
       --light-color: #ecf0f1;
       --border-color: #dfe6e9;
-      --text-color: #2d3436;
-      --text-light: #636e72;
+      --text-color: #02a7ee;
+      --text-light: #070707;
       --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       --transition: all 0.3s ease;
     }
@@ -32,26 +43,36 @@
       font-family: 'Roboto', sans-serif;
       background-color: #f5f7fa;
       color: var(--text-color);
-      line-height: 1.6;
-      padding: 20px;
-    }
-
-    .container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      padding: 30px;
-    }
-
-    .header {
+      line-height: 2.3;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border-color);
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
     }
 
+    .ftco-navbar-light {
+      background: #02a7ee !important;
+      flex-shrink: 0;
+      position: static;
+      width: 100%;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 2px 4px rgba(239, 243, 244, 0.1);
+    }
+
+    .main-content {
+      flex: 1;
+      overflow: auto;
+      padding: 20px 0;
+      min-height: calc(100vh - 60px - 10px); /* 80px là navbar, 200px là footer, chỉnh tùy vào thực tế */
+    }
+
+    footer {
+      margin-top: auto;
+    }
+
+
+    /* Các style còn lại giữ nguyên */
     .header h1 {
       font-size: 28px;
       font-weight: 500;
@@ -79,7 +100,6 @@
     }
 
     .filter-group label {
-      font-size: 13px;
       margin-bottom: 5px;
       color: var(--text-light);
       font-weight: 500;
@@ -90,31 +110,6 @@
       border-radius: 8px;
       box-shadow: var(--shadow);
       margin-bottom: 20px;
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .status-active {
-      background-color: rgba(46, 204, 113, 0.1);
-      color: var(--success-color);
-    }
-
-    .status-inactive {
-      background-color: rgba(241, 196, 15, 0.1);
-      color: #f1c40f;
-    }
-
-    .status-banned {
-      background-color: rgba(231, 76, 60, 0.1);
-      color: var(--danger-color);
     }
 
     .action-btn {
@@ -164,121 +159,323 @@
       margin-top: 20px;
     }
 
-    .page-info {
+    /* Navbar container */
+    .navbar-container {
       display: flex;
+      width: 100%;
+      max-width: 100%;
+      padding: 0 15px;
       align-items: center;
-      margin: 0 15px;
-      font-size: 14px;
-      color: var(--text-light);
+    }
+
+    .navbar-brand {
+      font-size: 1.25rem;
+      white-space: nowrap;
+      margin-right: 1rem;
+      color: #ffffff
+    }
+
+    .navbar-toggler {
+      order: 2;
+      margin-left: auto;
+    }
+    .ftco-navbar-light .navbar-nav > .nav-item.active > a {
+      color: rgb(255, 255, 255);
+    }
+    .ftco-navbar-light .navbar-nav > .nav-item > .nav-link {
+      color: #ffffff;
+
+      #ftco-nav {
+        order: 1;
+        flex-grow: 1;
+      }
+    }
+    .ftco-navbar-light .navbar-brand {
+      color: #ffffff;
+    }
+
+    .navbar-nav {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0;
+      margin: 0;
+    }
+
+    .nav-item {
+      margin: 0 0.5rem;
+      white-space: nowrap;
+    }
+
+    .nav-link {
+      padding: 0.5rem 0.75rem;
+      color: #FFFFFF;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+    }
+
+    .content-padding {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+
+    @media (min-width: 1200px) {
+      .navbar-container {
+        max-width: 100%;
+        padding: 0 30px;
+      }
+      .content-padding {
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .navbar-toggler {
+        order: 3;
+      }
+      #ftco-nav {
+        order: 4;
+        flex-basis: 100%;
+      }
+      .navbar-nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .nav-item {
+        margin: 0.25rem 0;
+        width: 100%;
+      }
     }
 
     @media (max-width: 768px) {
       .filter-group {
         min-width: 100%;
       }
-
       .container {
         padding: 20px;
       }
-
       .pagination-container {
         flex-wrap: wrap;
       }
-
-      .page-info {
-        width: 100%;
-        justify-content: center;
-        margin: 10px 0;
-      }
     }
+    .ftco-navbar-light .navbar-nav > .nav-item > .nav-link:hover {
+      color: #ffffff; }
+
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>Account Management</h1>
+<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+  <div class="navbar-container">
+    <a class="navbar-brand" href="/users/home">Meeting CMC Global</a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="oi oi-menu"></span> Menu
+    </button>
+
+    <div class="collapse navbar-collapse" id="ftco-nav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item active"><a href="/users/home" class="nav-link">Home</a></li>
+        <li class="nav-item" id="office"><a href="#" class="nav-link">Office</a></li>
+        <li class="nav-item" id="meeting"><a href="#" class="nav-link">Meeting</a></li>
+        <li class="nav-item cta mr-md-2" id="loginBtn"><a href="/users/login" class="nav-link">Login</a></li>
+        <li class="nav-item dropdown" id="userInfo" style="display: none;">
+          <a class="nav-link dropdown-toggle" href="#" id="usernameDisplay" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+          <div class="dropdown-menu" aria-labelledby="usernameDisplay">
+            <a class="dropdown-item" href="#">Profile</a>
+            <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
+</nav>
 
-  <div id="errorAlert" class="alert alert-error alert-dismissible fade show" style="display: none;">
-    <span id="errorMessage"></span>
-    <button type="button" class="btn-close" onclick="document.getElementById('errorAlert').style.display = 'none'"></button>
-  </div>
+<main class="main-content">
+  <div class="content-padding">
+    <div id="errorAlert" class="alert alert-error alert-dismissible fade show" style="display: none;">
+      <span id="errorMessage"></span>
+      <button type="button" class="btn-close" onclick="document.getElementById('errorAlert').style.display = 'none'"></button>
+    </div>
 
-  <div class="filter-container">
-    <div class="filter-box">
-      <div class="filter-group">
-        <label for="department">Department</label>
-        <select id="department" class="form-select">
-          <option value="">All Departments</option>
-        </select>
-      </div>
+    <div class="filter-container mb-4">
+      <div class="filter-box row gx-3">
+        <div class="filter-group col-md-3 col-sm-6 mb-3">
+          <label for="department">Department</label>
+          <select id="department" class="form-select">
+            <option value="">All Departments</option>
+          </select>
+        </div>
 
-      <div class="filter-group">
-        <label for="role">Role</label>
-        <select id="role" class="form-select">
-          <option value="">All Roles</option>
-        </select>
-      </div>
+        <div class="filter-group col-md-3 col-sm-6 mb-3">
+          <label for="role">Role</label>
+          <select id="role" class="form-select">
+            <option value="">All Roles</option>
+          </select>
+        </div>
 
-      <div class="filter-group">
-        <label for="keyword">Search</label>
-        <div class="input-group">
-          <input type="text" id="keyword" class="form-control" placeholder="Enter username...">
-          <button class="btn btn-primary" onclick="searchAccount()">
-            <i class="fas fa-search"></i>
+        <div class="filter-group col-md-4 col-sm-8 mb-3">
+          <label for="keyword">Search</label>
+          <div class="input-group">
+            <input type="text" id="keyword" class="form-control" placeholder="Enter username...">
+            <button class="btn btn-primary" onclick="searchAccount()">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-group col-md-2 col-sm-4 mb-3 d-flex align-items-end">
+          <button id="addButton" class="btn btn-success w-100" onclick="window.location.href='/users/create'">
+            <i class="fas fa-plus"></i> Add New
           </button>
         </div>
       </div>
+    </div>
 
-      <div class="filter-group">
-        <button id="addButton" class="btn btn-success" onclick="window.location.href='/users/create'">
-          <i class="fas fa-plus"></i> Add New
-        </button>
+    <div class="table-container row gx-3">
+      <table class="table table-hover">
+        <thead class="table-dark">
+        <tr>
+          <th>Username</th>
+          <th>Employee Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="accountsTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          <li class="page-item" id="prevPage">
+            <a class="page-link" href="#" aria-label="Previous" onclick="changePage(currentPage - 1)">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <li class="page-item" id="nextPage">
+            <a class="page-link" href="#" aria-label="Next" onclick="changePage(currentPage + 1)">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</main>
+
+
+<footer class="ftco-footer ftco-bg-dark ftco-section">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-md">
+        <div class="ftco-footer-widget mb-4">
+          <h2 class="ftco-heading-2">Plataforma.</h2>
+          <p>away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+          <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-5">
+            <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li>
+            <li class="ftco-animate"><a href="#"><span class="icon-facebook"></span></a></li>
+            <li class="ftco-animate"><a href="#"><span class="icon-instagram"></span></a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="ftco-footer-widget mb-4 ml-md-5">
+          <h2 class="ftco-heading-2">Useful Links</h2>
+          <ul class="list-unstyled">
+            <li><a href="#" class="py-2 d-block">Speakers</a></li>
+            <li><a href="#" class="py-2 d-block">Shcedule</a></li>
+            <li><a href="#" class="py-2 d-block">Events</a></li>
+            <li><a href="#" class="py-2 d-block">Blog</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="ftco-footer-widget mb-4">
+          <h2 class="ftco-heading-2">Privacy</h2>
+          <ul class="list-unstyled">
+            <li><a href="#" class="py-2 d-block">Career</a></li>
+            <li><a href="#" class="py-2 d-block">About Us</a></li>
+            <li><a href="#" class="py-2 d-block">Contact Us</a></li>
+            <li><a href="#" class="py-2 d-block">Services</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="ftco-footer-widget mb-4">
+          <h2 class="ftco-heading-2">Have a Questions?</h2>
+          <div class="block-23 mb-3">
+            <ul>
+              <li><span class="icon icon-map-marker"></span><span class="text">203 Fake St. Mountain View, San Francisco, California, USA</span></li>
+              <li><a href="#"><span class="icon icon-phone"></span><span class="text">+2 392 3929 210</span></a></li>
+              <li><a href="#"><span class="icon icon-envelope"></span><span class="text">info@yourdomain.com</span></a></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-  <div class="table-container">
-    <table class="table table-hover">
-      <thead class="table-dark">
-      <tr>
-        <th>Username</th>
-        <th>Employee Name</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Department</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody id="accountsTableBody"></tbody>
-    </table>
-  </div>
-
-  <!-- Pagination Controls -->
-  <div class="pagination-container">
-    <nav aria-label="Page navigation">
-      <ul class="pagination">
-        <li class="page-item" id="prevPage">
-          <a class="page-link" href="#" aria-label="Previous" onclick="changePage(currentPage - 1)">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <!-- Page numbers will be inserted here by JavaScript -->
-        <li class="page-item" id="nextPage">
-          <a class="page-link" href="#" aria-label="Next" onclick="changePage(currentPage + 1)">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
-</div>
-
-<!-- Bootstrap JS Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+</footer>
+<div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
 <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const username = localStorage.getItem('Username');
+    const role = localStorage.getItem('Role');
+
+    if (username && role) {
+      // Ẩn nút login
+      document.getElementById('loginBtn').style.display = 'none';
+
+      // Hiện user info
+      document.getElementById('userInfo').style.display = 'block';
+      document.getElementById('usernameDisplay').textContent = username;
+
+      // Xử lý role nếu cần
+      if (role === 'ADMIN') {
+        // Hiện tất cả
+      } else if (role === 'EMPLOYEE') {
+        document.getElementById('office').style.display = 'none';
+        document.getElementById('meeting').style.display = 'none';
+      } else if (role === 'SUPERVISOR') {
+        document.getElementById('office').style.display = 'none';
+      }
+    }
+  });
+
+  function logout() {
+    fetch('/api/v1/users/logout', {
+      method: 'POST',
+      credentials: 'include', // rất quan trọng để gửi cookie/session đi kèm
+    })
+            .then(response => {
+              if (response.ok) {
+                // Xóa dữ liệu localStorage, cookie, session nếu cần
+                localStorage.clear();
+
+                // Xóa cookie bằng cách set expired
+                document.cookie.split(";").forEach(function(c) {
+                  document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+
+                // Redirect hoặc reload trang
+                window.location.href = "/users/login";
+              } else {
+                alert("Đăng xuất không thành công. Vui lòng thử lại.");
+              }
+            })
+            .catch(error => {
+              console.error("Logout error:", error);
+              alert("Lỗi trong quá trình đăng xuất.");
+            });
+  }
   let allUsers = [];
   let filteredUsers = [];
   let departmentsList = [];
@@ -286,7 +483,7 @@
 
   // Pagination variables
   let currentPage = 1;
-  let pageSize = 8; // Đã thay đổi từ 10 thành 8
+  let pageSize = 8;
   let totalPages = 1;
 
   function showError(message) {
@@ -299,7 +496,7 @@
 
   async function fetchData() {
     try {
-      const response = await fetch('/api/v1/users/all');
+      const response = await fetch('/api/v1/users');
       if (!response.ok) throw new Error('Error fetching user data');
 
       const result = await response.json();
@@ -573,9 +770,16 @@
       const result = await response.json();
 
       // Show Bootstrap toast notification
-      const toast = new bootstrap.Toast(document.getElementById('deleteToast'));
-      document.getElementById('toastMessage').textContent = result.message || 'Deleted successfully';
-      toast.show();
+      const toastMessageEl = document.getElementById('toastMessage');
+      if (toastMessageEl) {
+        toastMessageEl.textContent = result.message || 'Deleted successfully';
+      }
+
+      const toastEl = document.getElementById('deleteToast');
+      if (toastEl) {
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
 
       await fetchData();
 
@@ -584,6 +788,7 @@
       showError("Failed to delete user");
     }
   }
+
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -605,18 +810,20 @@
   });
 </script>
 
-<!-- Toast Notification -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-  <div id="deleteToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header bg-success text-white">
-      <strong class="me-auto">Success</strong>
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div class="toast-body">
-      <span id="toastMessage"></span>
-    </div>
-  </div>
-</div>
+
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery-migrate-3.0.1.min.js"></script>
+<script src="/js/popper.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/jquery.easing.1.3.js"></script>
+<script src="/js/jquery.waypoints.min.js"></script>
+<script src="/js/jquery.stellar.min.js"></script>
+<script src="/js/owl.carousel.min.js"></script>
+<script src="/js/jquery.magnific-popup.min.js"></script>
+<script src="/js/aos.js"></script>
+<script src="/js/jquery.animateNumber.min.js"></script>
+<script src="/js/scrollax.min.js"></script>
+<script src="/js/main.js"></script>
 
 </body>
 </html>

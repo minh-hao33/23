@@ -44,32 +44,31 @@ public class DepartmentRestController {
                     content = @Content)})
     @GetMapping("")
     public ResultPageData<List<DepartmentDTO.Resp>> listDepartments(DepartmentCriteria criteria) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        List<DepartmentDTO.Resp> responseList;
-        int total;
+        List<Department> departments = departmentService.listWithEmployeesAndRoles(criteria);
+        List<DepartmentDTO.Resp> responseList = departments.stream()
+                .map(dept -> new DepartmentDTO.Resp(
+                        dept.getDepartmentId(),
+                        dept.getDepartmentName(),
+                        dept.getEmployeeName(),
+                        dept.getRoleName()
+                ))
+                .collect(Collectors.toList());
 
-        boolean isAdminOrSupervisor = authentication.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ADMIN") || auth.getAuthority().equals("SUPERVISOR"));
-
-        if (isAdminOrSupervisor) {
-            // Nếu là admin hoặc supervisor, trả về đầy đủ thông tin phòng ban (bao gồm Employee và Role)
-            List<Department> departments = departmentService.listWithEmployeesAndRoles(criteria);
-            total = departments.size();
-            responseList = departments.stream()
-                    .map(department -> new DepartmentDTO.Resp(department.getDepartmentId(), department.getDepartmentName(), null, null))  // Có thể hiển thị thêm Employee và Role nếu cần
-                    .collect(Collectors.toList());
-        } else {
-            // Nếu là employee, trả về chỉ tên phòng ban (không hiển thị Employee và Role)
-            List<Department> departments = departmentService.listWithEmployeesAndRoles(criteria);
-            total = departments.size();
-            responseList = departments.stream()
-                    .map(department -> new DepartmentDTO.Resp(department.getDepartmentId(), department.getDepartmentName(), null, null))  // Không có thông tin Employee và Role
-                    .collect(Collectors.toList());
-        }
-
-        ResultPageData<List<DepartmentDTO.Resp>> response = new ResultPageData<>(criteria, total);
+        ResultPageData<List<DepartmentDTO.Resp>> response = new ResultPageData<>(criteria, departments.size());
         response.setResultData(responseList);
         return response;
+    }
+
+    @Operation(summary = "Get department by ID")
+    @GetMapping("/{id}")
+    public ResultData<List<DepartmentDTO.Resp>> getDepartmentById(@PathVariable Long id) {
+        List<Department> departments = departmentService.findById(id);
+        List<DepartmentDTO.Resp> responseList = departments.stream()
+                .map(DepartmentDTO.Resp::toResponse)
+                .collect(Collectors.toList());
+        ResultData<List<DepartmentDTO.Resp>> result = new ResultData<>();
+        result.setResultData(responseList);
+        return result;
     }
 
     @Operation(summary = "Create department")

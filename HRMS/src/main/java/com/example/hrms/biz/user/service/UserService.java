@@ -22,14 +22,9 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserMapper userMapper) {
+    public UserService(UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
-        this.passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    public boolean checkUsernamePassword(String username, String rawPassword) {
-        String encodedPassword = userMapper.getPasswordByUsername(username);
-        return encodedPassword != null && passwordEncoder.matches(rawPassword, encodedPassword);
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User getUserByUsername(String username) {
@@ -38,13 +33,6 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userMapper.getAllUsers();
-    }
-
-    public List<User> searchUsers(UserCriteria criteria) {
-        return userMapper.searchUsers(
-                criteria.getDepartmentIds(),
-                criteria.getRoles()
-        );
     }
 
     @Transactional
@@ -56,13 +44,8 @@ public class UserService {
 
     @Transactional
     public int updateUser(User user) {
-        // Nếu có thay đổi password thì mã hóa
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
         return userMapper.updateUser(user);
     }
-
     @Transactional
     public int deleteUser(String username) {
         return userMapper.deleteUser(username);
@@ -93,6 +76,7 @@ public class UserService {
 
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
+                .map(role -> role.startsWith("ROLE_") ? role.substring(5) : role) // bỏ "ROLE_"
                 .findFirst()
                 .map(role -> {
                     try {
@@ -104,6 +88,7 @@ public class UserService {
                 .orElse(null);
     }
 
+
     private UserDTO.Resp convertToUserResp(User user) {
         UserDTO.Resp resp = new UserDTO.Resp();
         resp.setUsername(user.getUsername());
@@ -112,19 +97,27 @@ public class UserService {
         resp.setDepartmentId(user.getDepartmentId());
         resp.setDepartmentName(user.getDepartmentName());
         resp.setRoleName(user.getRoleName());
-        resp.setIsSupervisor(user.isSupervisor());
         resp.setStatus(user.getStatus());
         return resp;
     }
 
-    public boolean isValidPassword(String password) {
-        return password != null &&
-                password.length() >= 10 &&
-                !password.equals(password.toLowerCase()) &&
-                !password.equals(password.toUpperCase()) &&
-                password.matches(".*[^a-zA-Z0-9].*");
-    }
+
     public int checkUsernameExists(String username) {
         return userMapper.checkUsernameExists(username);
+    }
+
+    public List<UserDTO.Resp> findAllUsersInDepartment(String supervisorUsername) {
+        try {
+            // Lấy department ID của supervisor
+            String departmentId = userMapper.getDepartmentIdBySupervisor(supervisorUsername);
+
+            // Lấy tất cả người dùng trong phòng ban đó
+            List<User> users = userMapper.getUsersByDepartment(departmentId);
+
+            // Trả về danh sách người dùng đã chuyển đổi
+            return users.stream().map(this::convertToUserResp).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Could not fetch users, please try again later.");
+        }
     }
 }

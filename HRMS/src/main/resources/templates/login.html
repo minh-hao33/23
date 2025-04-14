@@ -39,21 +39,24 @@
             </div>
             <div class="col-lg-2 col"></div>
             <div class="col-lg-4 col-md-6 mt-0 mt-md-5">
-                <form action="#" class="request-form ftco-animate">
+                <form id="loginForm" class="request-form ftco-animate" novalidate>
                     <h2>Login</h2>
                     <div class="form-group">
                         <label>
-                            <input type="text" class="form-control" placeholder="Username" autocomplete="off" autocapitalize="off">
+                            <input type="text" id="username" class="form-control" placeholder="Username" autocomplete="off">
                         </label>
+                        <div id="usernameError" class="text-danger mt-1" style="font-size: 0.9rem;"></div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label>
-                            <input type="password" id="password" class="form-control" placeholder="Password " autocomplete="off">
-                            <i class="fas fa-eye" id="togglePassword" style="position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer;"></i>
+                            <input type="password" id="password" class="form-control" placeholder="Password" autocomplete="off">
+                            <i class="fas fa-eye" id="togglePassword"
+                               style="position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer;"></i>
                         </label>
+                        <div id="passwordError" class="text-danger mt-1" style="font-size: 0.9rem;"></div>
                     </div>
                     <div class="form-group">
-                        <input type="submit" value="Sign In" class="btn btn-primary py-3 px-4">
+                        <button type="button" id="loginBtn" class="btn btn-primary py-3 px-4">Sign In</button>
                     </div>
                 </form>
             </div>
@@ -100,50 +103,59 @@
         const passwordField = document.getElementById("password");
 
         togglePassword.addEventListener("click", function () {
-            passwordField.type = "text";
-            setTimeout(() => {
-                passwordField.type = "password";
-            }, 2000); // 2 giây
+            passwordField.type = passwordField.type === "password" ? "text" : "password";
         });
 
-        document.querySelector(".request-form").addEventListener("submit", async function (event) {
-            event.preventDefault();
+        document.getElementById("loginBtn").addEventListener("click", async function () {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const usernameError = document.getElementById("usernameError");
+            const passwordError = document.getElementById("passwordError");
 
-            const username = document.querySelector(".request-form input[placeholder='Username']").value.trim();
-            const password = document.querySelector(".request-form input[placeholder='Password ']").value.trim();
+            // Clear errors
+            usernameError.textContent = "";
+            passwordError.textContent = "";
 
             if (!username || !password) {
-                alert("Vui lòng nhập đầy đủ Username và Password!");
+                if (!username) usernameError.textContent = "Vui lòng nhập tên đăng nhập.";
+                if (!password) passwordError.textContent = "Vui lòng nhập mật khẩu.";
                 return;
             }
 
             try {
                 const response = await fetch("/api/v1/users/login", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, password }),
                     credentials: "include"
                 });
 
-                const data = await response.json();
-                console.log("Dữ liệu từ server trả về:", data);
+                const contentType = response.headers.get("Content-Type") || "";
+                const isJson = contentType.includes("application/json");
+                const data = isJson ? await response.json() : null;
 
                 if (response.ok) {
                     localStorage.setItem("Username", data.data.username);
                     localStorage.setItem("Role", data.data.role);
                     window.location.href = "/users/home";
                 } else {
-                    alert(data.message || "Đăng nhập thất bại. Lưu ý: Username có phân biệt chữ hoa và chữ thường.");
+                    const message = data?.message || "Đăng nhập thất bại.";
+                    if (message.toLowerCase().includes("username")) {
+                        usernameError.textContent = "Tên đăng nhập không đúng.";
+                    } else if (message.toLowerCase().includes("password")) {
+                        passwordError.textContent = "Mật khẩu không đúng.";
+                    } else {
+                        passwordError.textContent = message;
+                    }
                 }
             } catch (error) {
                 console.error("Lỗi:", error);
-                alert("Lỗi kết nối đến server. Vui lòng thử lại sau!");
+                passwordError.textContent = "Không thể kết nối đến server.";
             }
         });
     });
 </script>
+
 
 <script src="/js/jquery.min.js"></script>
 <script src="/js/jquery-migrate-3.0.1.min.js"></script>

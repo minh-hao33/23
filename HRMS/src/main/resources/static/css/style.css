@@ -1525,7 +1525,7 @@ pre {
 
 .table-dark {
   color: #fff;
-  background-color: #212529; }
+  background-color: #02a7ee; }
   .table-dark th,
   .table-dark td,
   .table-dark thead th {
@@ -8838,7 +8838,6 @@ h1, h2, h3, h4, h5,
         display: none; } }
 
 .form-control {
-  height: 52px !important;
   background: #fff !important;
   color: #000000 !important;
   font-size: 18px;
@@ -8919,7 +8918,7 @@ textarea.form-control {
 
 .ftco-footer {
   font-size: 16px;
-  background: #000;
+  background: #007bff;
   padding: 7em 0; }
   .ftco-footer .ftco-footer-logo {
     text-transform: uppercase;

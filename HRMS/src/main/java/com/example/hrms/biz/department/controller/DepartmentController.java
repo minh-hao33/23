@@ -24,16 +24,18 @@ public class DepartmentController {
     }
     @GetMapping("")
     public String openDepartmentView(Model model) {
-        // Lấy tất cả phòng ban
-        List<Department> departments = departmentService.listWithEmployeesAndRoles(new DepartmentCriteria());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAdminOrSupervisor = authentication.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ADMIN") || auth.getAuthority().equals("SUPERVISOR"));
+        String username = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+
+        List<Department> departments = departmentService.listWithEmployeesAndRoles(new DepartmentCriteria());
 
         model.addAttribute("departments", departments);
-        model.addAttribute("isAdminOrSupervisor", isAdminOrSupervisor);
+        model.addAttribute("isAdmin", isAdmin);
         return "department"; // Trả về view 'department.html'
     }
+
 
 
 }
