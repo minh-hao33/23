@@ -91,4 +91,18 @@ public class BookingDTO {
             return resp;
         }
     }
+
+    @Getter
+    @Setter
+    public static class CheckReq {
+        private String startTime;
+        private String endTime;
+        public Booking toBooking() {
+            Booking booking = new Booking();
+            DateTimeFormatter formatter = DateUtils.getDateTimeFormatter();
+            booking.setStartTime(LocalDateTime.parse(this.startTime, formatter));
+            booking.setEndTime(LocalDateTime.parse(this.endTime, formatter));
+            return booking;
+        }
+    }
 }
