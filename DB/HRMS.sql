@@ -134,7 +134,10 @@ INSERT INTO Requests (username, department_id, request_type, request_reason, req
 INSERT INTO Meeting_Rooms (room_name, location, capacity) VALUES
 ('Sky Room', 'Floor 1', 10),
 ('Star Room', 'Floor 2', 15),
-('Admin Room', 'Floor 3', 20);
+('Admin Room', 'Floor 3', 20),
+('Ocean Room', 'Floor 4', 12),
+('Sun Room', 'Floor 5', 8),
+('Moon Room', 'Floor 6', 18);
 
 -- Chèn dữ liệu vào bảng Bookings
 INSERT INTO Bookings (username, room_id, title, attendees, content, start_time, end_time, status, booking_type, weekdays) VALUES
@@ -144,7 +147,12 @@ INSERT INTO Bookings (username, room_id, title, attendees, content, start_time, 
 ('bkkhanh', 3, 'IT Strategy Session', 'bkkhanh, ntdu', 'Chiến lược IT năm 2025', '2025-03-03 09:00:00', '2025-03-03 11:00:00', 'Cancelled', 'ONLY', NULL),
 ('pnminh', 1, 'HR Policy Review', 'nhtien, pmhao', 'Xem xét chính sách nhân sự', '2025-03-04 13:00:00', '2025-03-04 15:00:00', 'Requested', 'ONLY', NULL),
 ('pmhao', 1, 'Customer Feedback Session', 'pmhao, bkkhanh', 'Lắng nghe ý kiến khách hàng', '2025-04-20 15:00:00', '2025-04-20 16:00:00', 'Confirmed', 'ONLY', NULL),
-
+('ntdu', 4, 'Ocean Retro', 'ntdu, pmhao', 'Buổi họp tổng kết quý trước', '2025-03-29 14:00:00', '2025-03-29 15:00:00', 'Cancelled', 'ONLY', NULL),
+('ntdu', 4, 'Ocean Brainstorm', 'ntdu, pmhao, htpham', 'Buổi brainstorm chiến lược cho quý mới', '2025-04-10 10:00:00', '2025-04-10 11:30:00', 'Confirmed', 'ONLY', NULL),
+('pmhao', 5, 'Sunlight Planning', 'pmhao, bkkhanh', 'Lên kế hoạch dự án ánh sáng', '2025-03-25 10:00:00', '2025-03-25 11:00:00', 'Cancelled', 'ONLY', NULL),
+('pmhao', 5, 'Sunlight Review', 'pmhao, bkkhanh', 'Xem xét tiến độ dự án ánh sáng', '2025-04-18 14:00:00', '2025-04-18 15:00:00', 'Confirmed', 'ONLY', NULL),
+('bkkhanh', 6, 'Moon Project Kickoff', 'bkkhanh, ntdu', 'Bắt đầu dự án Moonlight', '2025-04-15 15:00:00', '2025-04-15 16:00:00', 'Confirmed', 'ONLY', NULL),
+('bkkhanh', 6, 'Moon Pre-Kickoff', 'bkkhanh, ntdu', 'Chuẩn bị khởi động dự án Moon', '2025-03-20 15:00:00', '2025-03-20 16:00:00', 'Cancelled', 'ONLY', NULL),
 -- DAILY: Họp từ ngày 15/04/2025 đến 17/04/2025
 ('ntdu', 1, 'Daily QA Sync', 'ntdu, htpham', 'Đồng bộ QA hàng ngày', '2025-04-15 10:30:00', '2025-04-15 11:00:00', 'Confirmed', 'DAILY', NULL),
 ('ntdu', 1, 'Daily QA Sync', 'ntdu, htpham', 'Đồng bộ QA hàng ngày', '2025-04-16 10:30:00', '2025-04-16 11:00:00', 'Confirmed', 'DAILY', NULL),
@@ -156,7 +164,18 @@ INSERT INTO Bookings (username, room_id, title, attendees, content, start_time, 
 -- Daily từ ngày 11/04/2025 đến 12/04/2025
 ('pmhao', 2, 'Daily Standup', 'pmhao, bkkhanh', 'Cập nhật công việc hằng ngày', '2025-04-11 09:00:00', '2025-04-11 09:30:00', 'Confirmed', 'DAILY', NULL),
 ('pmhao', 2, 'Daily Standup', 'pmhao, bkkhanh', 'Cập nhật công việc hằng ngày', '2025-04-12 09:00:00', '2025-04-12 09:30:00', 'Confirmed', 'DAILY', NULL),
-
+-- Daily từ ngày 10/04/2025 đến 11/04/2025
+('ntdu', 4, 'Daily Ocean Sync', 'ntdu, htpham', 'Họp cập nhật tiến độ', '2025-04-10 09:00:00', '2025-04-10 09:30:00', 'Cancelled', 'DAILY', NULL),
+('ntdu', 4, 'Daily Ocean Sync', 'ntdu, htpham', 'Họp cập nhật tiến độ', '2025-04-11 09:00:00', '2025-04-11 09:30:00', 'Cancelled', 'DAILY', NULL),
+-- Daily từ ngày 21/04/2025 đến 22/04/2025
+('ntdu', 4, 'Daily Ocean Sync', 'ntdu, htpham', 'Họp cập nhật tiến độ', '2025-04-21 09:00:00', '2025-04-21 09:30:00', 'Confirmed', 'DAILY', NULL),
+('ntdu', 4, 'Daily Ocean Sync', 'ntdu, htpham', 'Họp cập nhật tiến độ', '2025-04-22 09:00:00', '2025-04-22 09:30:00', 'Confirmed', 'DAILY', NULL),
+-- Daily từ ngày 12/04/2025 đến 13/04/2025
+('pmhao', 5, 'Morning Sun Sync', 'pmhao, bkkhanh', 'Daily Morning Catch-up', '2025-04-12 08:30:00', '2025-04-12 09:00:00', 'Cancelled', 'DAILY', NULL),
+('pmhao', 5, 'Morning Sun Sync', 'pmhao, bkkhanh', 'Daily Morning Catch-up', '2025-04-13 08:30:00', '2025-04-13 09:00:00', 'Cancelled', 'DAILY', NULL),
+-- Daily từ ngày 23/04/2025 đến 24/04/2025
+('pmhao', 5, 'Morning Sun Sync', 'pmhao, bkkhanh', 'Daily Morning Catch-up', '2025-04-23 08:30:00', '2025-04-23 09:00:00', 'Confirmed', 'DAILY', NULL),
+('pmhao', 5, 'Morning Sun Sync', 'pmhao, bkkhanh', 'Daily Morning Catch-up', '2025-04-24 08:30:00', '2025-04-24 09:00:00', 'Confirmed', 'DAILY', NULL),
 -- Weekly từ ngày 11/04/2025 đến ngày 20/04/2025 (Fr, Mo, Tu, Fr) đặt ngày 11, 14, 15, 18
 ('bkkhanh', 3, 'Weekly IT Sync', 'bkkhanh, ntdu', 'Đồng bộ công việc IT hằng tuần', '2025-04-11 10:00:00', '2025-04-11 11:00:00', 'Confirmed', 'WEEKLY', 'Mo,Tu,Fr'),
 ('bkkhanh', 3, 'Weekly IT Sync', 'bkkhanh, ntdu', 'Đồng bộ công việc IT hằng tuần', '2025-04-14 10:00:00', '2025-04-14 11:00:00', 'Confirmed', 'WEEKLY', 'Mo,Tu,Fr'),
@@ -173,8 +192,12 @@ INSERT INTO Bookings (username, room_id, title, attendees, content, start_time, 
 -- WEEKLY: Họp mỗi thứ Ba và thứ Năm từ ngày 22/04 đến 29/04
 ('pnminh', 2, 'Dev Team Weekly', 'pnminh, nhtien', 'Lập kế hoạch sprint', '2025-04-22 14:00:00', '2025-04-22 15:00:00', 'Confirmed', 'WEEKLY', 'Tu,Th'),
 ('pnminh', 2, 'Dev Team Weekly', 'pnminh, nhtien', 'Lập kế hoạch sprint', '2025-04-24 14:00:00', '2025-04-24 15:00:00', 'Confirmed', 'WEEKLY', 'Tu,Th'),
-('pnminh', 2, 'Dev Team Weekly', 'pnminh, nhtien', 'Lập kế hoạch sprint', '2025-04-29 14:00:00', '2025-04-29 15:00:00', 'Confirmed', 'WEEKLY', 'Tu,Th');
-
+('pnminh', 2, 'Dev Team Weekly', 'pnminh, nhtien', 'Lập kế hoạch sprint', '2025-04-29 14:00:00', '2025-04-29 15:00:00', 'Confirmed', 'WEEKLY', 'Tu,Th'),
+-- WEEKLY: Họp mỗi thứ Ba và thứ Năm từ ngày 09/04 đến 18/04
+('bkkhanh', 6, 'Moonlight Weekly', 'bkkhanh, ntdu', 'Họp cập nhật tiến độ Moon', '2025-04-09 14:00:00', '2025-04-09 15:00:00', 'Cancelled', 'WEEKLY', 'We,Fr'),
+('bkkhanh', 6, 'Moonlight Weekly', 'bkkhanh, ntdu', 'Họp cập nhật tiến độ Moon', '2025-04-11 14:00:00', '2025-04-11 15:00:00', 'Cancelled', 'WEEKLY', 'We,Fr'),
+('bkkhanh', 6, 'Moonlight Weekly', 'bkkhanh, ntdu', 'Họp cập nhật tiến độ Moon', '2025-04-16 14:00:00', '2025-04-16 15:00:00', 'Confirmed', 'WEEKLY', 'We,Fr'),
+('bkkhanh', 6, 'Moonlight Weekly', 'bkkhanh, ntdu', 'Họp cập nhật tiến độ Moon', '2025-04-18 14:00:00', '2025-04-18 15:00:00', 'Confirmed', 'WEEKLY', 'We,Fr');
 select * from requests;
 
 select * from bookings;

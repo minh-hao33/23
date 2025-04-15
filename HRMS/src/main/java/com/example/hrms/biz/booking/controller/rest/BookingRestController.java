@@ -115,6 +115,19 @@ public class BookingRestController {
         return new Result("Success", "Booking updated successfully.");
     }
 
+    @Operation(summary = "Check booking conflict")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conflict check success",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Result.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid request",
+                    content = @Content) })
+    @PostMapping("/check")
+    public Result checkBookingConflict(@RequestBody @Valid BookingDTO.CheckReq checkReq) {
+        Booking booking = checkReq.toBooking();
+        boolean conflict = bookingService.isConflict(booking);
+        return new Result("Success", conflict ? "Conflict" : "No conflict", String.valueOf(conflict));
+    }
 
     @Operation(summary = "Delete booking")
     @ApiResponses(value = {
