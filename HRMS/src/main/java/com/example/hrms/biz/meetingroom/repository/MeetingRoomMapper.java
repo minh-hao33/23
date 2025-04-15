@@ -20,6 +20,7 @@ public interface MeetingRoomMapper {
         "    m.room_name AS roomName, " +
         "    m.location AS location, " +
         "    m.capacity AS capacity, " +
+        "    b.booking_id AS bookingId, " +
         "    b.username AS username, " +
         "    b.start_time AS startTime, " +
         "    b.end_time AS endTime, " +
@@ -32,11 +33,7 @@ public interface MeetingRoomMapper {
         "FROM " +
         "    meeting_rooms m " +
         "LEFT JOIN " +
-        "    bookings b ON m.room_id = b.room_id AND b.start_time = ( " +
-        "        SELECT MIN(b2.start_time) " +
-        "        FROM bookings b2 " +
-        "        WHERE b2.room_id = m.room_id " +
-        "    ) " +
+        "    bookings b ON m.room_id = b.room_id " +
         "WHERE " +
         "    (#{roomId} IS NULL OR m.room_id = #{roomId}) " +
         "    AND (#{roomName} IS NULL OR m.room_name = #{roomName}) " +
@@ -52,9 +49,9 @@ public interface MeetingRoomMapper {
         "    AND (#{bookingType} IS NULL OR b.booking_type = #{bookingType}) " +
         "    AND (#{weekdays} IS NULL OR b.weekdays LIKE CONCAT('%', #{weekdays}, '%')) " +
         "ORDER BY " +
-        "    m.room_id ASC " +
+        "    m.room_id ASC, b.start_time ASC " +
         "LIMIT #{pageSize} OFFSET #{offset}")
-    List<MeetingRoom> select(@Param("pageSize") int pageSize,
+    List<MeetingRoom> select(@Param("pageSize")  int pageSize,
         @Param("offset") int offset,
         @Param("roomId") Long roomId,
         @Param("roomName") String roomName,

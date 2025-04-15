@@ -24,6 +24,7 @@ public class MeetingRoomService {
         return mapper.count(criteria);
     }
     public List<MeetingRoomDTO.Resp> list(Page page, MeetingRoomCriteria mCriteria) {
+        page.setPageSize(100);
         page.validate();
         log.info("Fetching meeting room list with criteria: {}", mCriteria);
         try {
