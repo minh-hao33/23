@@ -6,7 +6,6 @@ import com.example.hrms.biz.meetingroom.service.MeetingRoomService;
 import com.example.hrms.biz.user.model.User;
 import com.example.hrms.biz.user.service.UserService;
 import com.example.hrms.common.http.criteria.Page;
-import com.example.hrms.common.http.model.Result;
 import com.example.hrms.common.http.model.ResultPageData;
 import com.example.hrms.exception.BadRequestException;
 import com.example.hrms.security.SecurityUtils;
@@ -19,7 +18,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
