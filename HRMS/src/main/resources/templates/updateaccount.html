@@ -41,7 +41,7 @@
 
     body {
       font-family: 'Roboto', sans-serif;
-      background-color: #f5f7fa;
+      background-color: #f8f9fa;
       color: var(--text-color);
       margin: 0;
       padding: 0;
@@ -67,7 +67,7 @@
     }
 
     .ftco-navbar-light {
-      background: #007bff !important;
+      background: #ffff !important;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       flex-shrink: 0;
       width: 100%;
@@ -76,7 +76,7 @@
 
     .navbar-brand {
       font-size: 1.25rem;
-      color: #fff;
+      color: #0078d4;
       margin-right: 1rem;
       white-space: nowrap;
     }
@@ -95,7 +95,7 @@
     }
 
     .nav-link {
-      color: #fff !important;
+      color: #000000 !important;
       padding: 0.5rem 0.75rem;
     }
 
@@ -110,7 +110,7 @@
     }
 
     .card-header {
-      background-color:#007bff !important;
+      background-color:#0078D4 !important;
       border-radius: 12px 12px 0 0 !important;
       border-bottom: none;
     }
@@ -197,11 +197,9 @@
     .container.py-4 {
       margin-top: 70px;
     }
-    .ftco-navbar-light .navbar-nav > .nav-item > .nav-link,
-    .ftco-navbar-light .navbar-brand,
-    .ftco-navbar-light .navbar-nav > .nav-item.active > a,
-    .ftco-navbar-light .navbar-nav > .nav-item > .nav-link:hover {
-      color: #ffffff;
+
+    .ftco-navbar-light .navbar-brand {
+      color: #0078D4 !important;
     }
     .container {
       padding: 200px;
@@ -228,7 +226,7 @@
         <li class="nav-item dropdown" id="userInfo" style="display: none;">
           <a class="nav-link dropdown-toggle" href="#" id="usernameDisplay" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
           <div class="dropdown-menu" aria-labelledby="usernameDisplay">
-            <a class="dropdown-item" href="#">Profile</a>
+            <a class="dropdown-item" href="/users/account">Profile</a>
             <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
           </div>
         </li>
@@ -327,57 +325,6 @@
   </div>
 </main>
 
-<footer class="ftco-footer ftco-bg-dark ftco-section">
-  <div class="container">
-    <div class="row mb-5">
-      <div class="col-md">
-        <div class="ftco-footer-widget mb-4">
-          <h2 class="ftco-heading-2">Plataforma.</h2>
-          <p>away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-          <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-5">
-            <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li>
-            <li class="ftco-animate"><a href="#"><span class="icon-facebook"></span></a></li>
-            <li class="ftco-animate"><a href="#"><span class="icon-instagram"></span></a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="col-md">
-        <div class="ftco-footer-widget mb-4 ml-md-5">
-          <h2 class="ftco-heading-2">Useful Links</h2>
-          <ul class="list-unstyled">
-            <li><a href="#" class="py-2 d-block">Speakers</a></li>
-            <li><a href="#" class="py-2 d-block">Shcedule</a></li>
-            <li><a href="#" class="py-2 d-block">Events</a></li>
-            <li><a href="#" class="py-2 d-block">Blog</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="col-md">
-        <div class="ftco-footer-widget mb-4">
-          <h2 class="ftco-heading-2">Privacy</h2>
-          <ul class="list-unstyled">
-            <li><a href="#" class="py-2 d-block">Career</a></li>
-            <li><a href="#" class="py-2 d-block">About Us</a></li>
-            <li><a href="#" class="py-2 d-block">Contact Us</a></li>
-            <li><a href="#" class="py-2 d-block">Services</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="col-md">
-        <div class="ftco-footer-widget mb-4">
-          <h2 class="ftco-heading-2">Have a Questions?</h2>
-          <div class="block-23 mb-3">
-            <ul>
-              <li><span class="icon icon-map-marker"></span><span class="text">203 Fake St. Mountain View, San Francisco, California, USA</span></li>
-              <li><a href="#"><span class="icon icon-phone"></span><span class="text">+2 392 3929 210</span></a></li>
-              <li><a href="#"><span class="icon icon-envelope"></span><span class="text">info@yourdomain.com</span></a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</footer> <!-- Success Toast Notification -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
   <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header bg-success text-white">
