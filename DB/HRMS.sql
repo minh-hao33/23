@@ -15,8 +15,10 @@ CREATE TABLE Roles (
 CREATE TABLE Departments (
     department_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     department_name VARCHAR(128) NOT NULL UNIQUE,
+    status VARCHAR(10) NOT NULL DEFAULT 'active',
     INDEX (department_name)
 );
+
 
 -- Bảng Quản lý Người Dùng (Users)
 CREATE TABLE Users (

@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -118,42 +119,38 @@ public class UserRestController {
         boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
         if (!passwordMatches) {
             throw new InvalidPasswordException("Invalid password.");}
-
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user.getUsername(), null, SecurityUtils.getAuthorities(user.getRoleName()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         RequestUtils.setSessionAttr(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
-        Authentication authentication = new PreAuthenticatedAuthenticationToken(
-                user, null, SecurityUtils.getAuthorities(user.getRoleName()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
         RequestUtils.session(false).setMaxInactiveInterval(1800);
-        // Tạo response data chứa username và role
         Map<String, String> responseData = new HashMap<>();
         responseData.put("username", user.getUsername());
         responseData.put("role", user.getRoleName().name());
         return new ResultData<>("Success", "Login successful.", responseData);
     }
+    @Operation(summary = "Get current logged-in user info")
+    @GetMapping("/me")
+    public ResultData<UserDTO.Resp> getCurrentUserInfo() {
+        String username = SecurityUtils.getCurrentUsername();
+        User user = userService.getUserByUsername(username);
 
-    @Operation(summary = "Check username and password")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login success",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Result.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request",
-                    content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized",
-                    content = @Content)
-    })
-    @PostMapping("/check-login")
-    public Result checkLogin(@RequestBody UserDTO.Req loginRequest) {
-        User user = userService.getUserByUsername(loginRequest.getUsername());
         if (user == null) {
-            return new Result("Error", "Username not found.");
+            return new ResultData<>("Error", "User not found", null);
         }
-        boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-        if (!passwordMatches) {
-            return new Result("Error", "Invalid password.");
-        }
-        return new Result("Success", "Login successful.");
+        UserDTO.Resp userDto = new UserDTO.Resp();
+        userDto.setUsername(user.getUsername());
+        userDto.setEmployeeName(user.getEmployeeName());
+        userDto.setDepartmentId(user.getDepartmentId());
+        userDto.setDepartmentName(user.getDepartmentName());
+        userDto.setRoleName(user.getRoleName());
+        userDto.setStatus(user.getStatus());
+        userDto.setEmail(user.getEmail());
+        userDto.setIsSupervisor(user.isSupervisor());
+
+        return new ResultData<>("Success", "User info retrieved successfully", userDto);
     }
 
     @PutMapping("/update/{username}")

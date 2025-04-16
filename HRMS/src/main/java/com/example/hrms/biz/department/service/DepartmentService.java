@@ -4,7 +4,7 @@ import com.example.hrms.biz.department.model.Department;
 import com.example.hrms.biz.department.model.criteria.DepartmentCriteria;
 import com.example.hrms.biz.department.model.dto.DepartmentDTO;
 import com.example.hrms.biz.department.repository.DepartmentMapper;
-import com.example.hrms.security.SecurityUtils;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,6 @@ public class DepartmentService {
         return departments;
     }
 
-
     public void insert(DepartmentDTO.Req req) {
         if (departmentMapper.countByName(req.getDepartmentName(), null) > 0) {
             throw new IllegalArgumentException("Department name already exists");
@@ -35,6 +34,7 @@ public class DepartmentService {
 
         Department department = new Department();
         department.setDepartmentName(req.getDepartmentName());
+        department.setStatus("active"); // Đặt trạng thái mặc định là active
         departmentMapper.insertDepartment(department);
 
         if (department.getDepartmentId() == null) {
@@ -54,34 +54,33 @@ public class DepartmentService {
         departmentMapper.updateDepartment(department);
     }
 
-    public void deleteDepartment(Long departmentId) {
+    public void changeDepartmentStatus(Long departmentId, String status) {
         if (findById(departmentId).isEmpty()) {
             throw new RuntimeException("Department not found");
         }
 
-        // Cập nhật user để set department_id của họ thành null
-        departmentMapper.updateUsersToNull(departmentId); // Thêm hàm này trong mapper
+        if (!status.equals("active") && !status.equals("inactive")) {
+            throw new IllegalArgumentException("Invalid status");
+        }
 
-        // Xóa department
-        departmentMapper.deleteDepartment(departmentId);
+        departmentMapper.updateDepartmentStatus(departmentId, status);
+
+        if (status.equals("inactive")) {
+            // Cập nhật user để set employeeName và roleName của họ thành null
+            departmentMapper.updateUsersToNull(departmentId);
+        }
     }
 
-
-
-    public List<Department> listWithEmployeesAndRoles(DepartmentCriteria criteria) {
+    public List<Department> listDepartment(DepartmentCriteria criteria) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = SecurityUtils.getCurrentUsername();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
 
         if (isAdmin) {
             // Lấy tất cả phòng ban, kể cả phòng ban chưa có user
-            return departmentMapper.findAllDepartmentsWithNullableUserInfo();
+            return departmentMapper.listDepartments(criteria);
         } else {
-            // Lấy danh sách user cùng phòng ban với user đang login
-            return departmentMapper.findByDepartmentOfUser(username);
+            throw new AccessDeniedException("Access is denied");
         }
     }
-
-
 }
