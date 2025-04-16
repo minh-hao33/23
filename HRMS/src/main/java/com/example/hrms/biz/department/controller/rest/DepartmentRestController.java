@@ -19,7 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +33,8 @@ public class DepartmentRestController {
         this.departmentService = departmentService;
     }
 
-    @Operation(summary = "List departments based on role")
+    @Operation(summary = "List departments")
+    @PreAuthorize("hasRole('ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get success",
                     content = {@Content(mediaType = "application/json",
@@ -44,19 +44,36 @@ public class DepartmentRestController {
                     content = @Content)})
     @GetMapping("")
     public ResultPageData<List<DepartmentDTO.Resp>> listDepartments(DepartmentCriteria criteria) {
-        List<Department> departments = departmentService.listWithEmployeesAndRoles(criteria);
+        List<Department> departments = departmentService.listDepartment(criteria);
         List<DepartmentDTO.Resp> responseList = departments.stream()
                 .map(dept -> new DepartmentDTO.Resp(
                         dept.getDepartmentId(),
                         dept.getDepartmentName(),
                         dept.getEmployeeName(),
-                        dept.getRoleName()
+                        dept.getRoleName(),
+                        dept.getStatus() // Thêm trạng thái vào response
                 ))
                 .collect(Collectors.toList());
 
         ResultPageData<List<DepartmentDTO.Resp>> response = new ResultPageData<>(criteria, departments.size());
         response.setResultData(responseList);
         return response;
+    }
+
+
+    @Operation(summary = "Change department status")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Department status changed",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Result.class)) }),
+            @ApiResponse(responseCode = "404", description = "Department not found",
+                    content = @Content)
+    })
+    @PutMapping("/{id}/status")
+    public Result changeDepartmentStatus(@PathVariable Long id, @RequestParam String status) {
+        departmentService.changeDepartmentStatus(id, status);
+        return new Result("Success", "Department status changed successfully.");
     }
 
     @Operation(summary = "Get department by ID")
@@ -99,20 +116,5 @@ public class DepartmentRestController {
     public Result updateDepartment(@PathVariable Long id, @RequestBody DepartmentDTO.Req departmentReq) {
         departmentService.updateDepartment(id, departmentReq);
         return new Result("Success", "Department updated successfully.");
-    }
-
-    @Operation(summary = "Delete department")
-    @PreAuthorize("hasRole('ADMIN')")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Department deleted",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Result.class)) }),
-            @ApiResponse(responseCode = "404", description = "Department not found",
-                    content = @Content)
-    })
-    @DeleteMapping("/{id}")
-    public Result deleteDepartment(@PathVariable Long id) {
-        departmentService.deleteDepartment(id);
-        return new Result("Success", "Department deleted successfully.");
     }
 }

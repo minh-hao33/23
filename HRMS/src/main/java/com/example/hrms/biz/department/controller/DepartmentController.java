@@ -29,7 +29,7 @@ public class DepartmentController {
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
 
-        List<Department> departments = departmentService.listWithEmployeesAndRoles(new DepartmentCriteria());
+        List<Department> departments = departmentService.listDepartment(new DepartmentCriteria());
 
         model.addAttribute("departments", departments);
         model.addAttribute("isAdmin", isAdmin);

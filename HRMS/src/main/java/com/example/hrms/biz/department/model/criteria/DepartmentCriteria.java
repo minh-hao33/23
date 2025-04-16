@@ -11,13 +11,15 @@ public class DepartmentCriteria extends Page {
     private String departmentName;
     private String employeeName;
     private String roleName;
+    private String status; // Thêm thuộc tính trạng thái
 
     public DepartmentCriteria() {}
 
-    public DepartmentCriteria(Long departmentId, String departmentName, String roleName, String userName) {
+    public DepartmentCriteria(Long departmentId, String departmentName, String roleName, String userName, String status) {
         this.departmentId = departmentId;
         this.departmentName = departmentName;
         this.employeeName = employeeName;
         this.roleName = roleName;
+        this.status = status; // Khởi tạo thuộc tính trạng thái
     }
 }

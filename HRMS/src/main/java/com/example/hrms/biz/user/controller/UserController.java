@@ -34,4 +34,8 @@ public class UserController {
     public String updateAccountPage() {
         return "updateaccount";
     }
+    @RequestMapping("/account")
+    public String accountPage() {
+        return "account";
+    }
 }

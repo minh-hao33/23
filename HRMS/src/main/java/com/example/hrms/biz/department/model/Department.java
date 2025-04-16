@@ -10,4 +10,5 @@ public class Department {
     private String departmentName;
     private String employeeName;
     private String roleName;
+    private String status; // Thêm thuộc tính trạng thái
 }
