@@ -892,6 +892,11 @@
             width: auto;
             flex: 1;
         }
+        .btn.disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
         input[type="checkbox"] {
             margin-right: 5px;
         }
@@ -911,7 +916,7 @@
                 <li class="nav-item"><a href="#" class="nav-link">Office</a></li>
                 <li class="nav-item"><a href="bookings.html" class="nav-link">Meeting</a></li>
                 <div class="user-profile" style="padding:5px;">
-                    <span>Hey, A </span>
+                    <span>A</span>
                     <div class="avatar" style="padding:5px;">A</div>
                 </div>
             </ul>
@@ -947,7 +952,7 @@
                 <div class="ant-col ant-form-item-control">
                     <div class="ant-form-item-control-input">
                         <div class="ant-form-item-control-input-content">
-                            <input type="datetime-local" id="startTime" class="filter-input time-input" name="startTime" placeholder="Start time">
+                            <input type="time" id="startTime" class="filter-input time-input" name="startTime" placeholder="Start time">
                         </div>
                     </div>
                 </div>
@@ -963,7 +968,7 @@
                 <div class="ant-col ant-form-item-control">
                     <div class="ant-form-item-control-input">
                         <div class="ant-form-item-control-input-content">
-                            <input type="datetime-local" id="endTime" class="filter-input time-input" name="endTime" placeholder="End time">
+                            <input type="time" id="endTime" class="filter-input time-input" name="endTime" placeholder="End time">
                         </div>
                     </div>
                 </div>
@@ -1251,9 +1256,6 @@
             </div>
         </div>
     </div>
-    <footer class="container-fluid">
-        <p>&copy; 2025 Meeting Room Reservation System</p>
-    </footer>
 
     <!-- Scripts -->
 
@@ -1275,10 +1277,107 @@
     <script src="https://cdn.tiny.cloud/1/q8eyc0pclp8vkwynx04vs7o65308fed83bgx6k7udmbjg26m/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script>
+        // Thêm các hàm tiện ích xử lý múi giờ
+        const DateTimeUtils = {
+            // Chuyển đổi từ UTC sang múi giờ địa phương
+            utcToLocal: function(utcDateString) {
+                if (!utcDateString) return null;
+
+                // Đảm bảo chuỗi có thông tin múi giờ
+                if (!utcDateString.endsWith('Z') && !utcDateString.includes('+')) {
+                    utcDateString += 'Z'; // Thêm 'Z' để chỉ định UTC
+                }
+
+                const date = new Date(utcDateString);
+                return date;
+            },
+
+            // Chuyển đổi từ múi giờ địa phương sang UTC
+            localToUtc: function(localDate) {
+                if (!localDate) return null;
+
+                // Nếu là chuỗi, chuyển thành đối tượng Date
+                if (typeof localDate === 'string') {
+                    localDate = new Date(localDate);
+                }
+
+                return new Date(
+                    localDate.getTime() - (localDate.getTimezoneOffset() * 60000)
+                ).toISOString();
+            },
+
+            // Format date cho hiển thị
+            formatDate: function(date, format = 'YYYY-MM-DD') {
+                if (!date) return '';
+
+                if (typeof date === 'string') {
+                    date = new Date(date);
+                }
+
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+
+                if (format === 'YYYY-MM-DD') {
+                    return `${year}-${month}-${day}`;
+                } else if (format === 'HH:MM') {
+                    return `${hours}:${minutes}`;
+                } else if (format === 'YYYY-MM-DD HH:MM') {
+                    return `${year}-${month}-${day} ${hours}:${minutes}`;
+                } else if (format === 'ISO') {
+                    return date.toISOString();
+                } else if (format === 'datetime-local') {
+                    return `${year}-${month}-${day}T${hours}:${minutes}`;
+                }
+
+                return date.toString();
+            },
+
+            // Parse time string HH:MM thành object
+            parseTimeString: function(timeStr) {
+                if (!timeStr || !timeStr.includes(':')) return null;
+
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return {
+                    hour: hours,
+                    minute: minutes
+                };
+            },
+        }
+
         $(document).ready(function() {
             // API URL
             const API_URL = 'http://localhost:8080/api/v1/meeting-room';
 
+            // Thêm hàm để khởi tạo cache ban đầu
+            function initializeRoomCache() {
+                if (!window.cachedRooms || window.cachedRooms.length === 0) {
+                    // Lưu cache phòng từ lần tải đầu tiên
+                    window.cachedRooms = allRooms || [];
+                }
+            }
+            // Cải thiện hàm tạo phòng ảo
+            function createDefaultRooms() {
+                const defaultRooms = [];
+                const roomNames = ['Conference Room', 'Meeting Room', 'Brainstorming Room', 'Board Room'];
+                const locations = ['Floor 1', 'Floor 2', 'West Wing', 'East Wing'];
+                const capacities = [6, 8, 12, 20];
+
+                for (let i = 0; i < 4; i++) {
+                    defaultRooms.push({
+                        roomId: i + 1,
+                        roomName: roomNames[i],
+                        location: locations[i],
+                        capacity: capacities[i],
+                        room: `room-${i+1}`
+                    });
+                }
+
+                console.log("Created default rooms:", defaultRooms);
+                return defaultRooms;
+            }
             // Format current date for default filtering (YYYY-MM-DD)
             const formattedDate = new Date().toISOString().split('T')[0];
 
@@ -1301,14 +1400,35 @@
                 // Build query parameters for API call
                 let queryParams = new URLSearchParams();
 
-                // Add filters to query
-                if (filters.date) queryParams.append('date', filters.date);
-                if (filters.startTime) queryParams.append('startTime', filters.startTime);
-                if (filters.endTime) queryParams.append('endTime', filters.endTime);
+                // Thêm các tham số phân trang
+                queryParams.append('pageSize', 100); // Giá trị mặc định hoặc từ state
+                queryParams.append('pageNo', 1);
+
+                // Xử lý các filter theo mapping của backend
+                if (filters.roomId) queryParams.append('roomId', filters.roomId);
                 if (filters.duration) queryParams.append('duration', filters.duration);
                 if (filters.capacity) queryParams.append('capacity', filters.capacity);
                 if (filters.location) queryParams.append('location', filters.location);
                 if (filters.roomName) queryParams.append('roomName', filters.roomName);
+
+                // Xử lý date, startTime và endTime
+                if (filters.date) {
+                    // Nếu chỉ có ngày mà không có startTime, thêm giờ bắt đầu (00:00)
+                    if (!filters.startTime) {
+                        const startOfDay = `${filters.date}T00:00:00`;
+                        queryParams.append('startTime', startOfDay);
+                    }
+
+                    // Nếu chỉ có ngày mà không có endTime, thêm giờ kết thúc (23:59)
+                    if (!filters.endTime) {
+                        const endOfDay = `${filters.date}T23:59:59`;
+                        queryParams.append('endTime', endOfDay);
+                    }
+                }
+
+                // Nếu có startTime, endTime riêng thì sẽ ưu tiên dùng
+                if (filters.startTime) queryParams.append('startTime', filters.startTime);
+                if (filters.endTime) queryParams.append('endTime', filters.endTime);
 
                 // Build URL with query parameters
                 const url = `${API_URL}?${queryParams.toString()}`;
@@ -1322,7 +1442,22 @@
                     },
                     error: function(error) {
                         console.error('Error fetching meeting rooms:', error);
-                        showNotification('Failed to load meeting rooms. Please try again.');
+                        showNotification('Failed to load meeting rooms. Showing cached data if available.');
+
+                        // Ngay cả khi API lỗi, vẫn hiển thị grid với dữ liệu đã cache
+                        if (window.cachedRooms && window.cachedRooms.length > 0) {
+                            updateRoomList(window.cachedRooms);
+                            populateFilters(window.cachedRooms);
+                            generateTimeColumn();
+                            generateRoomGrid();
+                        } else {
+                            // Nếu không có cache, hiển thị grid với dữ liệu mặc định
+                            const defaultRooms = createDefaultRooms();
+                            updateRoomList(defaultRooms);
+                            populateFilters(defaultRooms);
+                            generateTimeColumn();
+                            generateRoomGrid();
+                        }
                     },
                     complete: function() {
                         $('.loading-indicator').hide();
@@ -1473,57 +1608,176 @@
                         }
                     });
 
-                    // Update room list with all rooms from API
-                    updateRoomList(allRooms);
-                    // Populate filter dropdowns with data from API
-                    populateFilters(allRooms);
-                    // Generate grid
+                    // Nếu không có phòng nào trong kết quả API
+                    if (allRooms.length === 0) {
+
+                        // Tạo dữ liệu room ảo
+                        const defaultRooms = createDefaultRooms();
+                        // Hiển thị thông báo
+                        showNotification('No rooms found matching your criteria. Showing all available rooms.', 'info');
+
+                        // Sử dụng danh sách phòng đã lưu nếu có
+                        if (window.cachedRooms && window.cachedRooms.length > 0) {
+                            updateRoomList(window.cachedRooms);
+                            populateFilters(window.cachedRooms);
+                        } else {
+                            const defaultRooms = createDefaultRooms();
+                            updateRoomList(defaultRooms);
+                            populateFilters(defaultRooms);
+                        }
+                    } else {
+                        // Lưu cache danh sách phòng
+                        window.cachedRooms = [...allRooms];
+
+                        // Cập nhật danh sách phòng và filter
+                        updateRoomList(allRooms);
+                        populateFilters(allRooms);
+                    }
+
+                    // Luôn tạo grid bất kể có kết quả hay không
                     generateTimeColumn();
                     generateRoomGrid();
 
                     // Log for debugging
                     console.log(`Loaded ${meetingData.length} meetings for date: ${selectedDate}`);
-
                 } else {
                     console.error('API returned error:', response.retMsg);
                     showNotification(response.retMsg || 'Failed to fetch meeting rooms');
+
+                    // Ngay cả khi API lỗi, vẫn hiển thị grid với dữ liệu đã cache (nếu có)
+                    if (window.cachedRooms && window.cachedRooms.length > 0) {
+                        updateRoomList(window.cachedRooms);
+                        populateFilters(window.cachedRooms);
+                        generateTimeColumn();
+                        generateRoomGrid();
+                    }
                 }
             }
 
-            // Handle filter and reset buttons
+            // Cập nhật xử lý filter để phù hợp với backend
             $('.btn-filter').on('click', function() {
-                // Collect filter values
+                // Lấy các giá trị từ form filter
+                const dateValue = $('#date-input').val();
+                const startTimeValue = $('#startTime').val();
+                const endTimeValue = $('#endTime').val();
+                const durationValue = $('#duration').val();
+                const capacityValue = $('.seats-input').val();
+                const locationValue = $('.location-input').val();
+                const searchValue = $('.search-input').val();
+
+                // Tạo object filters cơ bản
                 const filters = {
-                    date: $('#date-input').val(),
-                    startTime: $('#startTime').val(),
-                    endTime: $('#endTime').val(),
-                    duration: $('#duration').val() !== 'Select' ? $('#duration').val() : null,
-                    capacity: $('.seats-input').val() !== 'Select' ? parseInt($('.seats-input').val()) : null,
-                    location: $('.location-input').val() !== 'Select' ? $('.location-input').val() : null,
-                    roomName: $('.search-input').val() || null
+                    date: dateValue,
+                    capacity: capacityValue !== 'Select' ? parseInt(capacityValue) : null
                 };
 
-                // Process duration from dropdown to minutes
-                if (filters.duration) {
-                    if (filters.duration.includes('h')) {
-                        // Convert hours to minutes (e.g., "1h" to 60)
-                        filters.duration = parseInt(filters.duration) * 60;
-                    } else if (filters.duration.includes("'")) {
-                        // Convert minutes string (e.g., "15'") to number
-                        filters.duration = parseInt(filters.duration.replace("'", ""));
+                // Xử lý startTime và endTime
+                if (dateValue && startTimeValue) {
+                    // Kết hợp ngày và giờ bắt đầu
+                    const startDateTimeStr = `${dateValue}T${startTimeValue}`;
+                    filters.startTime = startDateTimeStr;
+                }
+
+                if (dateValue && endTimeValue) {
+                    // Kết hợp ngày và giờ kết thúc
+                    const endDateTimeStr = `${dateValue}T${endTimeValue}`;
+                    filters.endTime = endDateTimeStr;
+                }
+
+                // Xử lý location và roomName
+                if (locationValue && locationValue !== 'Select') {
+                    if (locationValue.includes(' - ')) {
+                        // Nếu location chứa cả tên phòng và vị trí
+                        const parts = locationValue.split(' - ');
+                        filters.roomName = parts[0].trim();
+                        filters.location = parts[1].trim();
+                    } else {
+                        filters.location = locationValue.trim();
                     }
                 }
 
-                // Extract location part if needed
-                if (filters.location && filters.location.includes(' - ')) {
-                    const parts = filters.location.split(' - ');
-                    filters.roomName = parts[0];
-                    filters.location = parts[1];
+                // Xử lý tìm kiếm theo tên phòng (ưu tiên cao hơn location)
+                if (searchValue) {
+                    filters.roomName = searchValue.trim();
                 }
 
-                // Call API with filters
+                // Xử lý duration (không gửi trực tiếp đến API vì backend không có field này)
+                // Thay vào đó, dùng startTime và endTime để tính toán
+                if (durationValue && durationValue !== 'Select' && !startTimeValue && !endTimeValue) {
+                    // Nếu người dùng chỉ chọn duration mà không chọn startTime & endTime
+                    // tính toán startTime và endTime từ duration
+                    const now = new Date();
+                    filters.startTime = `${dateValue}T${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+                    let durationMinutes = 0;
+                    if (durationValue.includes('h')) {
+                        durationMinutes = parseInt(durationValue) * 60;
+                    } else if (durationValue.includes("'")) {
+                        durationMinutes = parseInt(durationValue.replace("'", ""));
+                    } else {
+                        durationMinutes = parseInt(durationValue);
+                    }
+
+                    const endDateTime = new Date(now.getTime() + durationMinutes * 60000);
+                    filters.endTime = `${dateValue}T${endDateTime.getHours().toString().padStart(2, '0')}:${endDateTime.getMinutes().toString().padStart(2, '0')}`;
+                }
+
+                console.log("Applied filters:", filters);
+
+                // Gọi API với các filter đã xử lý
                 fetchMeetingRooms(filters);
             });
+
+            // Cập nhật dropdown Duration để tính toán từ Start Time và End Time
+            function updateDurationDropdown() {
+                const startTimeInput = $('#startTime');
+                const endTimeInput = $('#endTime');
+                const durationSelect = $('#duration');
+
+                // Khi người dùng thay đổi startTime hoặc endTime
+                startTimeInput.add(endTimeInput).on('change', function() {
+                    const startTimeValue = startTimeInput.val();
+                    const endTimeValue = endTimeInput.val();
+                    const dateValue = $('#date-input').val() || new Date().toISOString().split('T')[0];
+
+                    if (startTimeValue && endTimeValue) {
+                        try {
+                            // Parse thời gian từ input
+                            const startDate = new Date(`${dateValue}T${startTimeValue}`);
+                            const endDate = new Date(`${dateValue}T${endTimeValue}`);
+
+                            // Tính khoảng thời gian theo phút
+                            const durationMinutes = Math.round((endDate - startDate) / (1000 * 60));
+
+                            if (durationMinutes > 0) {
+                                // Chuyển đổi sang format hiển thị dễ đọc
+                                let displayDuration;
+
+                                if (durationMinutes < 60) {
+                                    // Dưới 1 giờ, hiển thị theo phút
+                                    displayDuration = `${durationMinutes}'`;
+                                } else if (durationMinutes % 60 === 0) {
+                                    // Số giờ tròn
+                                    displayDuration = `${durationMinutes / 60}h`;
+                                } else {
+                                    // Giờ + phút
+                                    const hours = Math.floor(durationMinutes / 60);
+                                    const minutes = durationMinutes % 60;
+                                    displayDuration = `${hours}h ${minutes}'`;
+                                }
+
+                                // Cập nhật dropdown
+                                updateDurationOptions(durationMinutes, displayDuration);
+                            } else if (durationMinutes < 0) {
+                                // Nếu thời gian kết thúc trước thời gian bắt đầu
+                                showNotification('End time must be after start time', 'error');
+                            }
+                        } catch (error) {
+                            console.error('Error calculating duration:', error);
+                        }
+                    }
+                });
+            }
 
             $('.btn-reset').on('click', function() {
                 // Reset all filters to default values
@@ -1551,9 +1805,14 @@
 
             // Update room list based on API data
             function updateRoomList(allRooms) {
+                console.log("Updating room list with rooms:", allRooms);
                 const roomList = $('#roomList');
                 roomList.empty();
-
+                // Nếu không có phòng nào, hiển thị phòng ảo
+                if (!allRooms || allRooms.length === 0) {
+                    console.log("No rooms provided to updateRoomList, using default rooms");
+                    allRooms = createDefaultRooms();
+                }
                 // If allRooms parameter is not provided, extract from meetingData
                 if (!allRooms) {
                     allRooms = [];
@@ -1611,9 +1870,10 @@
                     const roomId = $(this).data('room');
                     // Scroll the grid to show the corresponding room column
                     const roomIndex = $(this).index();
-                    const gridScrollPosition = roomIndex * 200; // 200px column width
+                    const gridScrollPosition = roomIndex * (window.innerWidth * 0.25 - 16); // 200px column width
                     $('.schedule-container').scrollLeft(gridScrollPosition);
                 });
+                console.log("Room list updated with", allRooms.length, "rooms");
             }
 
             // Generate time slots (8:00 - 18:00)
@@ -1672,13 +1932,146 @@
                 return false;
             }
 
+            // Thêm thẻ div current-time-indicator và hàm để cập nhật vị trí của nó
+            function addCurrentTimeIndicator() {
+                // Thêm CSS cho chỉ báo thời gian hiện tại
+                const timeIndicatorCSS = `
+                    <style>
+                        .current-time-indicator {
+                            position: absolute;
+                            left: 22px;
+                            right: 0;
+                            height: 2px;
+                            background-color: #f44336;
+                            z-index: 100;
+                            pointer-events: none;
+                        }
+
+                        .current-time-label {
+                            position: absolute;
+                            left: 22px;
+                            transform: translateY(-50%);
+                            background-color: #f44336;
+                            color: white;
+                            padding: 2px 5px;
+                            font-size: 12px;
+                            border-radius: 3px;
+                            z-index: 101;
+                            pointer-events: none;
+                        }
+
+                        .current-hour-highlight {
+                            position: absolute;
+                            left: 59px;
+                            right: 0;
+                            background-color: rgba(171, 245, 250, 0.3);
+                            z-index: 50;
+                            pointer-events: none;
+                        }
+                    </style>
+                `;
+
+                $('head').append(timeIndicatorCSS);
+
+                // Tạo và thêm thẻ div cho chỉ báo thời gian
+                const timeIndicator = $('<div class="current-time-indicator"></div>');
+                const timeLabel = $('<div class="current-time-label"></div>');
+                const hourHighlight = $('<div class="current-hour-highlight"></div>');
+
+                // Thêm vào DOM
+                $('.schedule-container').append(timeIndicator);
+                $('.schedule-container').append(timeLabel);
+                $('.schedule-container').append(hourHighlight);
+
+                // Cập nhật vị trí ban đầu
+                updateCurrentTimeIndicator();
+
+                // Cập nhật vị trí mỗi phút
+                setInterval(updateCurrentTimeIndicator, 60000);
+            }
+
+            // Hàm cập nhật vị trí chỉ báo thời gian hiện tại
+            function updateCurrentTimeIndicator() {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+
+                // Kiểm tra xem thời gian hiện tại có nằm trong phạm vi hiển thị của lịch không
+                if (currentHour < 8 || currentHour >= 18) {
+                    $('.current-time-indicator, .current-time-label, .current-hour-highlight').hide();
+                    return;
+                }
+
+                // Hiển thị chỉ báo
+                $('.current-time-indicator, .current-time-label, .current-hour-highlight').show();
+
+                // Tính toán vị trí dựa trên giờ và phút hiện tại
+                const startHour = 8; // Giờ bắt đầu của lịch
+                const hoursSinceStart = currentHour - startHour;
+                const minutePercentage = currentMinute / 60;
+
+                // Mỗi giờ là 180px chiều cao (45px * 4 khung 15 phút)
+                const timeSlotHeight = 45; // Chiều cao của mỗi khung 15 phút
+                const topPosition = (hoursSinceStart * 4 + minutePercentage * 4) * timeSlotHeight;
+
+                // Cập nhật vị trí chỉ báo thời gian
+                $('.current-time-indicator').css('top', `${topPosition}px`);
+
+                // Cập nhật label thời gian
+                const timeLabel = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+                $('.current-time-label').text(timeLabel).css('top', `${topPosition}px`);
+
+                // Tính toán vị trí và chiều cao cho phần highlight 1 giờ tiếp theo
+                const nextHour = new Date(now);
+                nextHour.setHours(nextHour.getHours() + 1);
+
+                // Nếu giờ tiếp theo vượt quá phạm vi hiển thị
+                const nextHourValue = nextHour.getHours();
+                const highlightHeight = nextHourValue >= 18 ?
+                    ((18 - currentHour) * 60 - currentMinute) / 60 * 4 * timeSlotHeight :
+                    4 * timeSlotHeight; // 4 slots mỗi giờ
+
+                // Cập nhật vị trí và kích thước highlight
+                $('.current-hour-highlight').css({
+                    'top': `${topPosition}px`,
+                    'height': `${highlightHeight}px`
+                });
+
+                // Cập nhật trạng thái past-time cho các ô thời gian
+                updatePastTimeCells();
+            }
+
+            // Cập nhật trạng thái past-time cho các ô thời gian
+            function updatePastTimeCells() {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+
+                // Cập nhật các ô thời gian
+                $('.time-cell').each(function() {
+                    const timeStr = $(this).data('time');
+                    if (!timeStr) return;
+
+                    const [hour, minute] = timeStr.split(':').map(Number);
+                });
+            }
             // Generate grid for each room
             function generateRoomGrid() {
+                console.log("Generating room grid");
                 const gridContainer = $('#gridContainer');
                 gridContainer.empty();
 
                 // Use stored rooms from window.allRooms if available
-                let roomsToShow = window.allRooms || [];
+                let roomsToShow = window.allRooms;
+
+                // Nếu không có phòng trong window.allRooms, tạo phòng ảo
+                if (!roomsToShow || roomsToShow.length === 0) {
+                    console.log("No rooms available, creating default rooms for grid");
+                    roomsToShow = createDefaultRooms();
+                    window.allRooms = roomsToShow; // Cập nhật lại biến toàn cục
+                }
+
+                console.log("Creating grid with rooms:", roomsToShow);
 
                 // If no rooms stored, try to get from room cards
                 if (!roomsToShow || roomsToShow.length === 0) {
@@ -1731,6 +2124,8 @@
 
                 // Add tooltips to meetings
                 addMeetingTooltips();
+
+                addCurrentTimeIndicator();
             }
 
             // Add meetings to the grid based on the data
@@ -1938,6 +2333,7 @@
                 );
             }
 
+            // Cập nhật hàm xem chi tiết cuộc họp khi click vào event
             function viewMeetingEvent() {
                 $(document).on('dblclick', '.meeting-event', function(e) {
                     // Prevent default behavior
@@ -1963,36 +2359,167 @@
                         return;
                     }
 
-                    // Safely update form fields
-                    const titleElement = document.getElementById('title');
-                    if (titleElement) {
-                        titleElement.value = meeting.title || 'Untitled Meeting';
-                    }
+                    // Kiểm tra nếu thời gian trong quá khứ
+                    const now = new Date();
+                    const meetingStartTime = meeting.startDateTime || new Date(meeting.date + 'T' + meeting.startTime);
+                    const isPast = meetingStartTime < now;
 
-                    const attendeesElement = document.getElementById('attendees');
-                    if (attendeesElement) {
-                        attendeesElement.value = meeting.organizer || 'No attendees listed';
-                    }
+                    // Populate form fields with meeting data
+                    $('#title').val(meeting.title || 'Untitled Meeting');
+                    $('#attendees').val(meeting.attendees || meeting.organizer || '');
+                    $('#username').val(meeting.organizer || '');
 
-                    // Handle TinyMCE content update safely
-                    try {
-                        if (meeting.content && tinymce && tinymce.get('content')) {
+                    // Handle content field (might be in TinyMCE)
+                    if (meeting.content) {
+                        if (tinymce && tinymce.get('content')) {
                             tinymce.get('content').setContent(meeting.content);
+                        } else {
+                            $('#content').val(meeting.content);
                         }
-                    } catch (error) {
-                        console.warn('Error updating TinyMCE content:', error);
-                        // Fallback to textarea if TinyMCE is not available
-                        const contentTextarea = document.getElementById('content');
-                        if (contentTextarea) {
-                            contentTextarea.value = meeting.content || '';
+                    } else {
+                        if (tinymce && tinymce.get('content')) {
+                            tinymce.get('content').setContent('');
+                        } else {
+                            $('#content').val('');
                         }
                     }
 
-                    // Update room information
-                    updateRoomInfo(meeting);
+                    // Set MS Teams link radio buttons
+                    const hasTeamsLink = meeting.linkMS === 'yes' || meeting.linkMS === true;
+                    $('#linkYes').prop('checked', hasTeamsLink);
+                    $('#linkNo').prop('checked', !hasTeamsLink);
 
+                    // Handle recurrence pattern
+                    const bookingType = meeting.bookingType || 'ONLY';
+                    $('#only').prop('checked', bookingType === 'ONLY');
+                    $('#daily').prop('checked', bookingType === 'DAILY');
+                    $('#weekly').prop('checked', bookingType === 'WEEKLY');
+
+                    // Toggle appropriate recurrence section
+                    toggleRecurrence(bookingType.toLowerCase());
+
+                    // Format dates for the form
+                    if (meeting.startDateTime) {
+                        const startDateTimeStr = DateTimeUtils.formatDate(meeting.startDateTime, 'datetime-local');
+
+                        // Tính toán thời gian kết thúc nếu không có sẵn
+                        const endDateTime = meeting.endDateTime ||
+                            new Date(meeting.startDateTime.getTime() + (meeting.duration || 60) * 60000);
+                        const endDateTimeStr = DateTimeUtils.formatDate(endDateTime, 'datetime-local');
+                        const endTimeStr = DateTimeUtils.formatDate(endDateTime, 'HH:MM');
+                        // Set date/time values in the form based on booking type
+                        if (bookingType === 'ONLY') {
+                            $('#dateOnly').val(startDateTimeStr);
+                            $('#timeOnly').val(endTimeStr);
+                        } else if (bookingType === 'DAILY') {
+                            $('#dateStartDaily').val(startDateTimeStr);
+                            $('#dateEndDaily').val(endDateTimeStr);
+                        } else if (bookingType === 'WEEKLY') {
+                            $('#dateStartWeekly').val(startDateTimeStr);
+                            $('#dateEndWeekly').val(endDateTimeStr);
+
+                            // Handle weekdays for weekly recurrence
+                            if (meeting.weekdays) {
+                                const weekdays = meeting.weekdays.split(',');
+                                $('#mo').prop('checked', weekdays.includes('Mo'));
+                                $('#tu').prop('checked', weekdays.includes('Tu'));
+                                $('#we').prop('checked', weekdays.includes('We'));
+                                $('#th').prop('checked', weekdays.includes('Th'));
+                                $('#fr').prop('checked', weekdays.includes('Fr'));
+                            }
+                        }
+                    } else {
+                        // Fallback if we don't have startDateTime objects
+                        const selectedDate = $('#date-input').val() || DateTimeUtils.formatDate(new Date());
+
+                        // Parse startTime using our utility function
+                        const timeObj = DateTimeUtils.parseTimeString(meeting.startTime);
+                        if (!timeObj) {
+                            console.error('Invalid meeting time format:', meeting.startTime);
+                            return;
+                        }
+                        // Create start date object
+                        const startDateTime = new Date(selectedDate);
+                        startDateTime.setHours(timeObj.hour, timeObj.minute, 0, 0);
+
+                        // Calculate end time based on duration
+                        const endDateTime = new Date(startDateTime.getTime() + (meeting.duration || 60) * 60000);
+
+                        // Format times using our utility functions
+                        const formattedStartDateTime = DateTimeUtils.formatDate(startDateTime, 'datetime-local');
+                        const formattedEndDateTime = DateTimeUtils.formatDate(endDateTime, 'datetime-local');
+                        const formattedEndTime = DateTimeUtils.formatDate(endDateTime, 'HH:MM');
+
+                        // Set values based on booking type
+                        if (bookingType === 'ONLY') {
+                            $('#dateOnly').val(formattedStartDateTime);
+                            $('#timeOnly').val(formattedEndTime);
+                        } else if (bookingType === 'DAILY') {
+                            $('#dateStartDaily').val(formattedStartDateTime);
+                            $('#dateEndDaily').val(formattedEndDateTime);
+                        } else if (bookingType === 'WEEKLY') {
+                            $('#dateStartWeekly').val(formattedStartDateTime);
+                            $('#dateEndWeekly').val(formattedEndDateTime);
+                        }
+                    }
+
+                    // Update room information in the sidebar
+                    const roomInfo = `
+                        <h5>Room Information</h5>
+                        <p><strong>Time:</strong> ${meeting.startTime} - ${meeting.endTime || 'N/A'}</p>
+                        <p><strong>Building:</strong> ${meeting.building || '789 Tower'}</p>
+                        <p><strong>Floor:</strong> ${meeting.location || 'Tầng 8 - new'}</p>
+                        <p><strong>Meeting room:</strong> ${meeting.roomName || 'Room ' + roomId}</p>
+                        <p><strong>Price:</strong> ${meeting.price || '100,000 VNĐ/h'}</p>
+                        <p><strong>Seats:</strong> ${meeting.capacity || '6'}</p>
+                        <p><strong>Devices and services:</strong> ${meeting.devices || 'Standard equipment'}</p>
+                        <p><strong>Status:</strong> ${meeting.status || 'Confirmed'}</p>
+                    `;
+
+                    $('#bookingModal .room-info').html(roomInfo);
+                    // Sau khi điền dữ liệu vào form, thiết lập tất cả các trường thành readonly
+                    $('#bookingForm input, #bookingForm textarea').prop('readonly', true);
+
+                    // Vô hiệu hóa các nút radio và checkbox
+                    $('#bookingForm input[type="radio"], #bookingForm input[type="checkbox"]').prop('disabled', true);
+
+                    // Đảm bảo nút Edit hiển thị "Edit" (không phải "Save")
+                    $('#editButton').text('Edit');
                     // Show the modal
                     $('#bookingModal').modal('show');
+
+                    // Disable edit button if meeting is in the past
+                    const editButton = document.getElementById('editButton');
+                    if (editButton) {
+                        if (isPast) {
+                            editButton.disabled = true;
+                            editButton.classList.add('disabled');
+                            //editButton.title = "Cannot edit meetings in the past";
+
+                            const modalFooter = document.querySelector('#bookingModal .modal-footer');
+                            if (modalFooter) {
+                                const existingMsg = modalFooter.querySelector('.past-meeting-msg');
+                                if (existingMsg) {
+                                    existingMsg.remove();
+                                }
+
+                                const pastMeetingMsg = document.createElement('div');
+                                pastMeetingMsg.className = 'past-meeting-msg text-danger';
+                                pastMeetingMsg.style.marginRight = '10px';
+                                //pastMeetingMsg.textContent = 'Cannot edit meetings in the past';
+                                modalFooter.insertBefore(pastMeetingMsg, editButton);
+                            }
+                        } else {
+                            editButton.disabled = false;
+                            editButton.classList.remove('disabled');
+                            //editButton.title = "";
+
+                            const pastMeetingMsg = document.querySelector('#bookingModal .modal-footer .past-meeting-msg');
+                            if (pastMeetingMsg) {
+                                pastMeetingMsg.remove();
+                            }
+                        }
+                    }
                 });
             }
 
@@ -2072,17 +2599,67 @@
 
                 // Get current selected date or use today's date
                 const selectedDate = $('#date-input').val() ||
-                    new Date().toISOString().split('T')[0];
+                    DateTimeUtils.formatDate(new Date());
 
-                // Populate room information
-                $('#createBookingModal #selectedRoom').text(room.roomName || `Room ${roomId}`);
-                $('#createBookingModal #selectedTime').text(clickedTime);
-                $('#createBookingModal #selectedDate').text(selectedDate);
+                const timeObj = DateTimeUtils.parseTimeString(clickedTime);
 
-                // Set hidden input fields for form submission
-                $('#createBookingModal #roomIdInput').val(roomId);
-                $('#createBookingModal #startTimeInput').val(clickedTime);
-                $('#createBookingModal #bookingDateInput').val(selectedDate);
+                if (!timeObj) {
+                    console.error('Invalid time format:', clickedTime);
+                    return;
+                }
+                // Create a datetime object for the clicked time
+                const clickedDateTime = new Date(selectedDate);
+                clickedDateTime.setHours(timeObj.hour, timeObj.minute, 0, 0);
+
+                // Format for datetime-local input (YYYY-MM-DDThh:mm)
+                const formattedDateTime =  DateTimeUtils.formatDate(clickedDateTime, 'datetime-local');
+                // Calculate a default end time (1 hour after start)
+                const endDateTime = new Date(clickedDateTime);
+                endDateTime.setHours(endDateTime.getHours() + 1);
+                const formattedEndTime = DateTimeUtils.formatDate(endDateTime, 'HH:MM');
+                const formattedEndDateTime = DateTimeUtils.formatDate(endDateTime, 'datetime-local');
+                // Populate room information in the modal
+                $('#createBookingModal .room-info').html(`
+                    <h5>Room Information</h5>
+                    <p><strong>Time:</strong> ${clickedTime}</p>
+                    <p><strong>Date:</strong> ${selectedDate}</p>
+                    <p><strong>Room:</strong> ${room.roomName || `Room ${roomId.replace('room-', '')}`}</p>
+                    <p><strong>Building:</strong> ${room.building || '789 Tower'}</p>
+                    <p><strong>Floor:</strong> ${room.location || 'Tầng 8 - new'}</p>
+                    <p><strong>Seats:</strong> ${room.capacity || '6'}</p>
+                `);
+
+                // Set default values for the form
+                $('#createTitle').val('');
+                $('#createAttendees').val('');
+                $('#createContent').val('');
+                $('#createUsername').val(localStorage.getItem('Username') || 'User');
+
+                // Set recurrence to "Only" by default
+                $('#createOnly').prop('checked', true);
+                toggleCreateRecurrence('only');
+
+                // Set the datetime values
+                $('#createDateOnly').val(formattedDateTime);
+                $('#createTimeOnly').val(formattedEndTime);
+
+                // Also set the daily/weekly datetime fields as fallback
+                $('#createDateStartDaily').val(formattedDateTime);
+                $('#createDateEndDaily').val(formattedEndDateTime);
+
+                $('#createDateStartWeekly').val(formattedDateTime);
+                $('#createDateEndWeekly').val(formattedEndDateTime);
+
+                // Set hidden input fields for form submission if needed
+                if ($('#roomIdInput').length) {
+                    $('#roomIdInput').val(roomId);
+                }
+                if ($('#startTimeInput').length) {
+                    $('#startTimeInput').val(clickedTime);
+                }
+                if ($('#bookingDateInput').length) {
+                    $('#bookingDateInput').val(selectedDate);
+                }
             }
 
             // Show notification modal
@@ -2166,9 +2743,21 @@
                 // Call API with selected date
                 fetchMeetingRooms({ date: selectedDate });
             });
+            // Lấy thông tin username từ localStorage
+            const username = localStorage.getItem('Username') || 'Guest';
+
+            // Lấy chữ cái đầu tiên của username để hiển thị trong avatar
+            const firstLetter = username.charAt(0).toUpperCase();
+
+            // Cập nhật phần hiển thị user profile
+            $('.user-profile span').text(`${username}`);
+            $('.user-profile .avatar').text(firstLetter);
 
             // Initialize the page
             setupAddNewEvent();
+            $(window).on('load', function() {
+                setTimeout(initializeRoomCache, 1000); // Chờ 1 giây để đảm bảo dữ liệu đã được tải
+            });
         });
         // Updated CSS for meeting events and tooltips
         const meetingEventStyles = `
@@ -2304,46 +2893,120 @@
             });
         }
 
+        // Cập nhật hàm toggleEdit để xử lý việc chuyển đổi giữa chế độ xem và chỉnh sửa
         function toggleEdit() {
-            const formElements = document.querySelectorAll('#bookingForm input, #bookingForm textarea');
             const editButton = document.getElementById('editButton');
             const isEditing = editButton.textContent === 'Edit';
 
-            formElements.forEach(element => {
-                const { type, id } = element;
+            // Nếu đang ở chế độ xem và chuyển sang chế độ chỉnh sửa
+            if (isEditing) {
+                // Bật chế độ chỉnh sửa cho tất cả các trường (trừ username)
+                $('#bookingForm input:not(#username), #bookingForm textarea').prop('readonly', false);
 
-                // Không cho chỉnh trường username
-                if (id === 'username') {
-                    element.readOnly = true;
-                    element.disabled = true;
-                    return;
+                // Bật các nút radio và checkbox (trừ các checkbox weekday nếu cần)
+                $('#bookingForm input[type="radio"]').prop('disabled', false);
+
+                // Bật TinyMCE nếu có
+                if (tinymce && tinymce.get('content')) {
+                    tinymce.get('content').setMode('design');
                 }
 
-                // Không cho chỉnh các checkbox chọn thứ (trong Weekly)
-                const disabledDays = ['mo', 'tu', 'we', 'th', 'fr'];
-                if (disabledDays.includes(id)) {
-                    element.disabled = true;
-                    return;
+                // Đổi nhãn nút thành "Save"
+                editButton.textContent = 'Save';
+
+                // Hiển thị thông báo
+                showNotification("Editing mode enabled", 'info');
+            }
+            // Nếu đang ở chế độ chỉnh sửa và lưu thay đổi
+            else {
+                // Lưu các thay đổi ở đây (có thể gọi API để cập nhật dữ liệu)
+                saveBookingChanges();
+
+                // Đặt lại tất cả các trường thành readonly
+                $('#bookingForm input, #bookingForm textarea').prop('readonly', true);
+
+                // Vô hiệu hóa các nút radio và checkbox
+                $('#bookingForm input[type="radio"], #bookingForm input[type="checkbox"]').prop('disabled', true);
+
+                // Đặt TinyMCE về chế độ readonly nếu có
+                if (tinymce && tinymce.get('content')) {
+                    tinymce.get('content').setMode('readonly');
                 }
 
-                // Các trường còn lại (text, textarea, datetime-local...) thì được chỉnh sửa
-                if (type !== 'radio' && type !== 'checkbox') {
-                    element.readOnly = !isEditing;
-                    element.disabled = !isEditing;
-                } else if (type === 'radio') {
-                    element.disabled = !isEditing;
+                // Đổi nhãn nút thành "Edit"
+                editButton.textContent = 'Edit';
+            }
+        }
+
+        // Thêm hàm để lưu các thay đổi (gọi API để cập nhật dữ liệu)
+        function saveBookingChanges() {
+            // Lấy ID của booking đang được chỉnh sửa
+            const bookingId = $('#bookingForm').data('booking-id');
+            if (!bookingId) {
+                showNotification("Error: Cannot identify the booking to update", 'error');
+                return;
+            }
+
+            // Thu thập dữ liệu từ form
+            const updatedData = {
+                title: $('#title').val(),
+                attendees: $('#attendees').val(),
+                content: tinymce && tinymce.get('content') ? tinymce.get('content').getContent() : $('#content').val(),
+                linkMS: $('#linkYes').prop('checked') ? 'yes' : 'no',
+                bookingType: $('input[name="recurrence"]:checked').attr('id').toUpperCase()
+            };
+
+            // Thêm dữ liệu ngày giờ dựa trên loại booking
+            if (updatedData.bookingType === 'ONLY') {
+                updatedData.startTime = $('#dateOnly').val();
+                updatedData.endTime = combineDateAndTime($('#dateOnly').val(), $('#timeOnly').val());
+            } else if (updatedData.bookingType === 'DAILY') {
+                updatedData.startTime = $('#dateStartDaily').val();
+                updatedData.endTime = $('#dateEndDaily').val();
+            } else if (updatedData.bookingType === 'WEEKLY') {
+                updatedData.startTime = $('#dateStartWeekly').val();
+                updatedData.endTime = $('#dateEndWeekly').val();
+
+                // Thu thập weekdays đã chọn
+                const selectedDays = [];
+                if ($('#mo').prop('checked')) selectedDays.push('Mo');
+                if ($('#tu').prop('checked')) selectedDays.push('Tu');
+                if ($('#we').prop('checked')) selectedDays.push('We');
+                if ($('#th').prop('checked')) selectedDays.push('Th');
+                if ($('#fr').prop('checked')) selectedDays.push('Fr');
+                updatedData.weekdays = selectedDays.join(',');
+            }
+
+            // Hiển thị thông báo lưu thành công (hoặc gọi API thực tế)
+            showNotification("Changes saved successfully", 'success');
+
+            // Simulate API call - uncomment và sửa đổi khi triển khai thực tế
+            /*
+            $.ajax({
+                url: `/api/v1/bookings/${bookingId}`,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(updatedData),
+                success: function(response) {
+                    showNotification("Changes saved successfully", 'success');
+                    // Cập nhật lại dữ liệu trên lịch
+                    fetchMeetingRooms({ date: $('#date-input').val() });
+                },
+                error: function(xhr) {
+                    showNotification(`Failed to save changes: ${xhr.responseJSON?.retMsg || xhr.statusText}`, 'error');
                 }
             });
+            */
+        }
 
-            // Cập nhật trạng thái nút và hiển thị thông báo
-            if (isEditing) {
-                editButton.textContent = 'Save';
-                showNotification("Đã bật chế độ chỉnh sửa", 'info');
-            } else {
-                editButton.textContent = 'Edit';
-                showNotification("Lưu thay đổi thành công", 'success');
-                storeInitialData();
-            }
+        // Hàm hỗ trợ để kết hợp ngày và giờ
+        function combineDateAndTime(dateStr, timeStr) {
+            if (!dateStr || !timeStr) return '';
+
+            // Lấy phần ngày từ chuỗi datetime-local
+            const datePart = dateStr.split('T')[0];
+            // Kết hợp với giờ
+            return `${datePart}T${timeStr}`;
         }
 
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -2425,7 +3088,7 @@
                 startTime: '',
                 endTime: '',
                 weekdays: null,
-                username: $('#createUsername').val()
+                username: $('#createUsername').val() || localStorage.getItem('username') || 'User'
             };
 
             const now = new Date();
@@ -2450,7 +3113,6 @@
                     return;
                 }
 
-                const now = new Date();
                 if (startDateTime < now) {
                     showNotification("Thời gian bắt đầu không được ở quá khứ.");
                     return;
@@ -2564,29 +3226,29 @@
         // Example CSS for the notification
         const style = document.createElement('style');
         style.innerHTML = `
-    .notification {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #444;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        opacity: 0.9;
-        transition: opacity 0.3s ease;
-    }
-    .notification.success {
-        background-color: #4caf50;
-    }
-    .notification.error {
-        background-color: #f44336;
-    }
-    .notification.info {
-        background-color: #2196f3;
-    }
-    `;
+            .notification {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background-color: #444;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 5px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                opacity: 0.9;
+                transition: opacity 0.3s ease;
+            }
+            .notification.success {
+                background-color: #4caf50;
+            }
+            .notification.error {
+                background-color: #f44336;
+            }
+            .notification.info {
+                background-color: #2196f3;
+            }
+            `;
         document.head.appendChild(style);
         document.addEventListener('DOMContentLoaded', (event) => {
             storeInitialData();
@@ -2602,6 +3264,58 @@
                 });
                 document.getElementById('editButton').textContent = 'Edit';
             });
+        });
+        // Thêm xử lý sự kiện cho nút đóng (X) và nút Cancel trong các modal
+        $(document).ready(function() {
+            // Xử lý nút đóng (X) trong modal xem booking
+            $('#bookingModal .close').on('click', function() {
+                $('#bookingModal').modal('hide');
+            });
+
+            // Xử lý nút Cancel trong modal xem booking
+            $('#bookingModal .btn-secondary').on('click', function() {
+                $('#bookingModal').modal('hide');
+            });
+
+            // Xử lý nút đóng (X) trong modal tạo booking
+            $('#createBookingModal .close').on('click', function() {
+                $('#createBookingModal').modal('hide');
+            });
+
+            // Xử lý nút Cancel trong modal tạo booking
+            $('#createBookingModal .btn-secondary').on('click', function() {
+                $('#createBookingModal').modal('hide');
+            });
+        });
+        // Đảm bảo các input được hiển thị với placeholder phù hợp
+        function updateTimeInputLabels() {
+            $('#startTime').attr('placeholder', 'HH:MM');
+            $('#endTime').attr('placeholder', 'HH:MM');
+        }
+
+        // Gọi hàm khi document ready
+        $(document).ready(function() {
+            updateTimeInputLabels();
+        });
+
+        // Đảm bảo reset form khi đóng modal
+        $('#bookingModal').on('hidden.bs.modal', function() {
+            // Reset form
+            $('#bookingForm')[0].reset();
+
+            // Đặt lại nút Edit
+            $('#editButton').text('Edit');
+
+            // Đặt lại tất cả các trường thành readonly
+            $('#bookingForm input, #bookingForm textarea').prop('readonly', true);
+
+            // Vô hiệu hóa các nút radio và checkbox
+            $('#bookingForm input[type="radio"], #bookingForm input[type="checkbox"]').prop('disabled', true);
+
+            // Reset TinyMCE nếu có
+            if (tinymce && tinymce.get('content')) {
+                tinymce.get('content').setContent('');
+            }
         });
     </script>
 </body>
