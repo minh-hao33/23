@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/icomoon.css">
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/sessionTimeout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -128,6 +129,91 @@
             padding: 0 15px;
             align-items: center;
         }
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 50px auto;
+            max-width: 1200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        .pie-chart {
+            width: 50%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .chart-legend {
+            width: 50%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .legend-color {
+            width: 25px;
+            height: 25px;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+
+        .legend-text {
+            font-size: 16px;
+            font-weight: 500;
+            width: 150px;
+        }
+
+        .legend-value {
+            margin-left: auto;
+            font-weight: bold;
+            text-align: right;
+            min-width: 100px;
+        }
+
+        .total-requests {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                flex-direction: column;
+            }
+            .pie-chart, .chart-legend {
+                width: 100%;
+            }
+        }
+        /* Hover effect on the legend items */
+        .chart-legend .legend-item:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+            border-radius: 5px;
+            transform: scale(1.05);
+        }
+
+        /* Active effect when clicked on a legend item */
+        .chart-legend .legend-item:active {
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        a {
+
+            color: #000000;
+        }
     </style>
 </head>
 <body>
@@ -179,6 +265,40 @@
         <div class="total">Total 0</div>
     </a>
 </section>
+
+<!-- New chart section -->
+<section class="chart-container">
+    <div class="pie-chart">
+        <canvas id="requestsChart"></canvas>
+    </div>
+    <div class="chart-legend">
+        <!-- Pending -->
+        <a href="/requests" class="legend-item" id="pendingLegend">
+            <div class="legend-color" style="background-color: #ff8c00;"></div>
+            <span class="legend-text">Pending Requests</span>
+            <span class="legend-value" id="pendingPercent">0 (0%)</span>
+        </a>
+
+        <!-- Rejected -->
+        <a href="/requests" class="legend-item" id="rejectedLegend">
+            <div class="legend-color" style="background-color: #d32f2f;"></div>
+            <span class="legend-text">Rejected Requests</span>
+            <span class="legend-value" id="rejectedPercent">0 (0%)</span>
+        </a>
+
+        <!-- Approved -->
+        <a href="/requests" class="legend-item" id="approvedLegend">
+            <div class="legend-color" style="background-color: #388e3c;"></div>
+            <span class="legend-text">Approved Requests</span>
+            <span class="legend-value" id="approvedPercent">0 (0%)</span>
+        </a>
+
+        <div class="total-requests">
+            Total Requests: <span id="totalRequests">0</span>
+        </div>
+    </div>
+</section>
+
 
 <section class="overlay">
     <div class="modal">
@@ -238,18 +358,73 @@
                 const requests = data.data || [];
 
                 const Pending = requests.filter(r => r.requestStatus === 'PENDING').length;
-                const Aproved = requests.filter(r => r.requestStatus === 'APPROVED').length;
+                const Approved = requests.filter(r => r.requestStatus === 'APPROVED').length;
                 const Rejected = requests.filter(r => r.requestStatus === 'REJECTED').length;
                 const total = requests.length;
 
+                // Update dashboard items
                 document.querySelector('#pendingRequests .count').textContent = Pending;
                 document.querySelector('#pendingRequests .total').textContent = `Total ${total}`;
 
                 document.querySelector('#deniedRequests .count').textContent = Rejected;
                 document.querySelector('#deniedRequests .total').textContent = `Total ${total}`;
 
-                document.querySelector('#acceptedRequests .count').textContent = Aproved;
+                document.querySelector('#acceptedRequests .count').textContent = Approved;
                 document.querySelector('#acceptedRequests .total').textContent = `Total  ${total}`;
+
+                // Calculate percentages
+                const pendingPercent = total > 0 ? Math.round((Pending / total) * 100) : 0;
+                const rejectedPercent = total > 0 ? Math.round((Rejected / total) * 100) : 0;
+                const approvedPercent = total > 0 ? Math.round((Approved / total) * 100) : 0;
+
+                // Update legend values with both count and percentage
+                document.getElementById('pendingPercent').textContent = `${Pending} (${pendingPercent}%)`;
+                document.getElementById('rejectedPercent').textContent = `${Rejected} (${rejectedPercent}%)`;
+                document.getElementById('approvedPercent').textContent = `${Approved} (${approvedPercent}%)`;
+                document.getElementById('totalRequests').textContent = total;
+
+                // Create pie chart
+                const ctx = document.getElementById('requestsChart').getContext('2d');
+                const requestsChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Pending', 'Rejected', 'Approved'],
+                        datasets: [{
+                            data: [Pending, Rejected, Approved],
+                            backgroundColor: [
+                                '#ff8c00',
+                                '#d32f2f',
+                                '#388e3c'
+                            ],
+                            borderColor: [
+                                '#ffffff',
+                                '#ffffff',
+                                '#ffffff'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
             })
             .catch(error => console.error('Error fetching data:', error));
     });
