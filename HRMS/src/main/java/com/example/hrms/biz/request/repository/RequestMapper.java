@@ -94,12 +94,12 @@ public interface RequestMapper {
                             @Param("approverUsername") String approverUsername,
                             @Param("rejectionReason") String rejectionReason);
 
-    @Select("SELECT COALESCE(SUM(DATEDIFF(end_time, start_time) + 1), 0) " +
-            "FROM requests " +
-            "WHERE request_status = 'APPROVED' " +
-            "AND request_type IN ('PAID_LEAVE') " +
-            "AND username = #{username}")
-    Integer calculateTotalLeaveDays(@Param("username") String username);
+  @Select("SELECT COALESCE(SUM(DATEDIFF(end_time, start_time) + 1), 0) " +
+      "FROM requests " +
+      "WHERE request_status = 'APPROVED' " +
+      "AND request_type IN ('PAID_LEAVE', 'EMPLOYEE_WEDDING_LEAVE', 'CHILD_WEDDING_LEAVE', 'FAMILY_DEATH_LEAVE', 'SICK_LEAVE', 'MATERNITY_LEAVE', 'PATERNITY_LEAVE', 'COMPENSATORY_LEAVE') " +
+      "AND username = #{username}")
+  Integer calculateTotalLeaveDays(@Param("username") String username);
     @Insert("INSERT INTO Requests (username, department_id, request_type, request_reason, request_status, approver_username, start_time, end_time) " +
             "VALUES (#{username}, #{departmentId}, #{requestType}, #{requestReason}, COALESCE(#{requestStatus}, 'PENDING'), #{approverUsername}, #{startTime}, #{endTime})")
     @Options(useGeneratedKeys = true, keyProperty = "requestId")
