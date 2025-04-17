@@ -146,11 +146,12 @@
                 <li class="nav-item" id="request"><a href="/requests" class="nav-link">Request</a></li>
                 <li class="nav-item" id="office"><a href="#" class="nav-link">Office</a></li>
                 <li class="nav-item" id="meeting"><a href="/meeting-room" class="nav-link">Meeting</a></li>
+                <li class="nav-item" id="account"><a href="/users" class="nav-link">Account</a></li>
                 <li class="nav-item cta mr-md-2" id="loginBtn"><a href="/users/login" class="nav-link">Login</a></li>
                 <li class="nav-item dropdown" id="userInfo" style="display: none;">
                     <a class="nav-link dropdown-toggle" href="#" id="usernameDisplay" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                     <div class="dropdown-menu" aria-labelledby="usernameDisplay">
-                        <a class="dropdown-item" href="#">Profile</a>
+                        <a class="dropdown-item" href="/users/account">Profile</a>
                         <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
                     </div>
                 </li>
@@ -199,12 +200,13 @@
             document.getElementById('usernameDisplay').textContent = username;
 
             if (role === 'ADMIN') {
-                // Show all options
+                document.getElementById('meeting').style.display = 'none';
             } else if (role === 'EMPLOYEE') {
                 document.getElementById('office').style.display = 'none';
-                document.getElementById('meeting').style.display = 'none';
+                document.getElementById('account').style.display = 'none';
             } else if (role === 'SUPERVISOR') {
                 document.getElementById('office').style.display = 'none';
+                document.getElementById('meeting').style.display = 'none';
             }
         }
     });
