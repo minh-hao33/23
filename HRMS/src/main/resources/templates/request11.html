@@ -47,19 +47,19 @@
 
     body {
       font-family: 'Roboto', sans-serif;
-      background-color: #f5f7fa;
+      background-color: #f8f9fa;
       color: var(--text-color);
       line-height: 1.6;
     }
 
     .container {
-      width: 95%;
-      max-width: 1400px;
+      max-width: 100%;
       margin: 30px auto;
-      background: white;
+      background: #f8f9fa;
       padding: 30px;
       border-radius: 12px;
       box-shadow: var(--shadow);
+      margin-top: 80px;
     }
 
     .header {
@@ -108,13 +108,15 @@
 
     .filter-box {
       display: flex;
-      gap: 15px;
+      gap: 30px;
       padding: 20px;
       background: #f8f9fa;
       border-radius: 8px;
       min-width: fit-content;
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-      align-items: flex-end;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
     }
 
     .filter-group {
@@ -140,6 +142,7 @@
       transition: var(--transition);
       background: white;
       width: 100%;
+      height: 40px;
     }
 
     .filter-box select:focus,
@@ -151,8 +154,9 @@
 
     .filter-actions {
       display: flex;
-      gap: 10px;
-      margin-left: 10px;
+      gap: 25px;
+      margin-left: 70px;
+      margin-top: 25px;
     }
 
     .btn {
@@ -170,10 +174,14 @@
     }
 
     .btn-primary {
-      background-color: var(--primary-color);
       color: white;
+      background: #0097d4 !important;
     }
-
+    .btn.btn-primary {
+      background: #0097d4 !important;
+      border: 1px solid #0078d4 !important;
+      color: #fff !important;
+    }
     .btn-primary:hover {
       background-color: var(--primary-hover);
       transform: translateY(-2px);
@@ -194,6 +202,7 @@
       overflow-x: auto;
       border-radius: 8px;
       box-shadow: var(--shadow);
+      margin-top: -20px;
     }
 
     table {
@@ -210,7 +219,7 @@
     }
 
     th {
-      background-color: var(--dark-color);
+      background-color: #0097d4;
       color: white;
       font-weight: 500;
       position: sticky;
@@ -662,9 +671,8 @@
       font-weight: 500;
       border-radius: 8px;
       transition: 0.2s;
-      background: #006dcc;
+      background: #0097d4 !important;
     }
-
     .btn-success:hover {
       background-color: #fff;
     }
@@ -883,7 +891,7 @@
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
+      text-align: left;
     }
 
     .modal-content button {
@@ -918,7 +926,7 @@
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
+      text-align: left;
     }
 
     .modal-content button {
@@ -1092,6 +1100,10 @@
     .text-white {
       color: #f8f9fa !important;
     }
+    .element.style {
+      display: block;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
@@ -1208,6 +1220,36 @@
   </div>
 </div>
 <div class="pagination-container" id="pagination"></div>
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <strong class="me-auto">Success</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      <span id="toastMessage"></span>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true" style="z-index: 99999">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">Xác nhận thay đổi trạng thái</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Bạn có chắc chắn muốn thay đổi trạng thái của phòng ban này?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" id="confirmBtn">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Modal xem chi tiết yêu cầu -->
 <div class="modal" id="editRequestModal" tabindex="-1" role="dialog" aria-labelledby="editRequestModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -1327,13 +1369,13 @@
         </div>
         <!-- ✅ Thông tin ngày nghỉ -->
         <div class="form-group">
-          <label>Thông tin ngày nghỉ:</label>
-          <p id="leaveInfo" class="text-info mb-2">Đang tải thông tin...</p>
           <label for="isPaidLeave">Hưởng lương:</label>
           <select id="isPaidLeave" class="form-control">
             <option value="true">Có</option>
             <option value="false">Không </option>
           </select>
+          <label></label>
+          <p id="leaveInfo" class="text-info mb-2">Đang tải thông tin...</p>
         </div>
         <div class="form-group">
           <label>Ngày nghỉ (bắt buộc):</label>
@@ -1359,7 +1401,7 @@
   </div>
 </div>
 <script>
-  const rowsPerPage = 5;
+  const rowsPerPage = 8;
   let currentPage = 1;
 
   function displayTablePage(page) {
@@ -1509,7 +1551,6 @@
     });
     return list;
   }
-
   async function submitCreateRequest() {
     const type = document.getElementById("createRequestType").value;
     const reason = document.getElementById("createRequestReason").value;
@@ -1539,7 +1580,7 @@
     });
 
     if (!isValid || dateRanges.length === 0) {
-      showCustomAlert("Vui lòng nhập đầy đủ và đúng định dạng ngày & giờ nghỉ!");
+      showToast("Vui lòng nhập đầy đủ và đúng định dạng ngày & giờ nghỉ!");
       return;
     }
 
@@ -1565,19 +1606,19 @@
         const result = await response.json();
 
         if (result.status !== "Success") {
-          showCustomAlert("Không thể tạo yêu cầu cho ngày nghỉ: " + result.message);
+          showToast("Không thể tạo yêu cầu cho ngày nghỉ: " + result.message);
           return;
         }
       }
 
-      showCustomAlert("Tạo tất cả yêu cầu thành công!");
+      showToast("Tạo tất cả yêu cầu thành công!");
+      fetchRequests();
       closeCreateModal();
     } catch (error) {
       console.error("Lỗi khi tạo yêu cầu:", error);
-      showCustomAlert("Đã xảy ra lỗi khi gửi yêu cầu.");
+      showToast("Đã xảy ra lỗi khi gửi yêu cầu.");
     }
   }
-
   function showCustomAlert(message) {
     const alertModal = document.createElement("div");
     alertModal.innerHTML = `
@@ -1606,6 +1647,30 @@
     const isPaidSelect = document.getElementById("isPaidLeave");
     const totalDaysPerYear = 12;
 
+    const unpaidLeaveTypes = [
+      "UNPAID_LEAVE",
+      "PERSONAL_LEAVE",
+      "CONTRACEPTIVE_MEASURE_LEAVE",
+      "FAMILY_WEDDING_FUNERAL_LEAVE"
+    ];
+
+    function displayLeaveInfo(usedDays) {
+      const remaining = Math.max(totalDaysPerYear - usedDays, 0);
+      if (isNaN(usedDays)) {
+        infoElement.innerText = "Dữ liệu ngày nghỉ không hợp lệ.";
+        infoElement.className = "text-warning mb-2";
+        return;
+      }
+
+      if (remaining > 0) {
+        infoElement.innerText = `Bạn đã nghỉ ${usedDays} ngày. Còn lại ${remaining} ngày nghỉ có phép.`;
+        infoElement.className = "text-info mb-2";
+      } else {
+        infoElement.innerText = `Bạn đã nghỉ hết ${totalDaysPerYear} ngày phép. Từ giờ nghỉ sẽ tính là không lương.`;
+        infoElement.className = "text-danger mb-2";
+      }
+    }
+
     try {
       const response = await fetch("/api/v1/requests/days-off", {
         method: "GET",
@@ -1619,58 +1684,29 @@
 
       const result = await response.json();
       const usedDays = parseFloat(result.data);
-      const remaining = Math.max(totalDaysPerYear - usedDays, 0);
 
-      if (isNaN(usedDays)) {
-        infoElement.innerText = "Dữ liệu ngày nghỉ không hợp lệ.";
-        infoElement.className = "text-warning mb-2";
-        return;
-      }
-
-      if (remaining > 0) {
-        infoElement.innerText = `Bạn đã nghỉ ${usedDays} ngày. Còn lại ${remaining} ngày nghỉ có phép.`;
-        infoElement.className = "text-info mb-2";
-
-        if (isPaidSelect) {
-          isPaidSelect.value = "true";
-          isPaidSelect.disabled = true;
-        }
-      } else {
-        infoElement.innerText = `Bạn đã nghỉ hết ${totalDaysPerYear} ngày phép. Từ giờ nghỉ sẽ tính là không lương.`;
-        infoElement.className = "text-danger mb-2";
-
-        if (isPaidSelect) {
+      function updatePaidStatusAndDisplay(selectElement) {
+        if (unpaidLeaveTypes.includes(selectElement.value)) {
           isPaidSelect.value = "false";
           isPaidSelect.disabled = true;
-        }
-      }
-
-      // Xử lý khi loại nghỉ là không lương
-      const unpaidLeaveTypes = [
-        "UNPAID_LEAVE",
-        "PERSONAL_LEAVE",
-        "CONTRACEPTIVE_MEASURE_LEAVE",
-        "FAMILY_WEDDING_FUNERAL_LEAVE"
-      ];
-
-      createSelect?.addEventListener("change", function () {
-        if (unpaidLeaveTypes.includes(createSelect.value)) {
-          isPaidSelect.value = "false";
-          isPaidSelect.disabled = true;
+          infoElement.innerText = ""; // Ẩn thông tin ngày nghỉ
         } else {
           isPaidSelect.value = "true";
           isPaidSelect.disabled = true;
+          displayLeaveInfo(usedDays); // Chỉ hiển thị nếu có phép
         }
+      }
+
+      // Gọi lần đầu để xử lý theo loại mặc định (nếu có)
+      if (createSelect) updatePaidStatusAndDisplay(createSelect);
+      if (editSelect) updatePaidStatusAndDisplay(editSelect);
+
+      createSelect?.addEventListener("change", function () {
+        updatePaidStatusAndDisplay(createSelect);
       });
 
       editSelect?.addEventListener("change", function () {
-        if (unpaidLeaveTypes.includes(editSelect.value)) {
-          isPaidSelect.value = "false";
-          isPaidSelect.disabled = true;
-        } else {
-          isPaidSelect.value = "true";
-          isPaidSelect.disabled = true;
-        }
+        updatePaidStatusAndDisplay(editSelect);
       });
 
     } catch (error) {
@@ -1678,7 +1714,6 @@
       infoElement.className = "text-danger mb-2";
     }
   }
-
   async function fetchRequests() {
     try {
       const response = await fetch(API_BASE_URL);
@@ -1912,32 +1947,42 @@
         return;
       }
 
-      const confirmCancel = await showCustomConfirm("Bạn có chắc chắn muốn hủy yêu cầu này?");
-      if (!confirmCancel) return;
+      // Hiển thị modal xác nhận
+      $('#confirmModal').modal('show');
 
-      const response = await fetch(`${API_BASE_URL}/${currentRequestId}`, {
-        method: "DELETE"
-      });
+      // Lắng nghe sự kiện khi người dùng xác nhận hủy yêu cầu
+      document.getElementById('confirmBtn').onclick = async function () {
+        const response = await fetch(`${API_BASE_URL}/${currentRequestId}`, {
+          method: "DELETE",
+          credentials: 'include'
+        });
 
-      if (!response.ok) {
-        throw new Error(`Lỗi khi hủy yêu cầu! Mã lỗi: ${response.status}`);
-      }
+        if (!response.ok) {
+          const errorMsg = `Lỗi khi hủy yêu cầu! Mã lỗi: ${response.status}`;
+          showToast(errorMsg);
+          $('#confirmModal').modal('hide');  // Đóng modal khi có lỗi
+          return;
+        }
 
-      showCustomAlert("Yêu cầu đã bị hủy thành công!");
+        showToast("Yêu cầu đã hủy thành công!");
+        fetchRequests();
 
-      // Xoá dòng có requestId khỏi bảng
-      const rowToDelete = document.querySelector(`#requestsTableBody tr[data-request-id="${currentRequestId}"]`);
-      if (rowToDelete) {
-        rowToDelete.remove();
-      }
+        // Xoá dòng có requestId khỏi bảng
+        const rowToDelete = document.querySelector(`#requestsTableBody tr[data-request-id="${currentRequestId}"]`);
+        if (rowToDelete) {
+          rowToDelete.remove();
+        }
 
-      closeModal(); // Đóng modal nếu có
-      currentRequestId = null; // Reset sau khi xoá xong
+        $('#confirmModal').modal('hide');  // Đóng modal sau khi xác nhận thành công
+        currentRequestId = null; // Reset sau khi xoá xong
+      };
     } catch (error) {
       console.error("Lỗi hủy yêu cầu:", error);
-      showCustomAlert("Có lỗi xảy ra khi hủy yêu cầu! Vui lòng thử lại.");
+      showToast("Có lỗi xảy ra khi hủy yêu cầu! Vui lòng thử lại.");
+      $('#confirmModal').modal('hide');  // Đóng modal khi có lỗi
     }
   }
+
 
   function showCustomAlert(message) {
     const alertModal = document.createElement("div");
@@ -2013,12 +2058,12 @@
 
       if (!response.ok) throw new Error(`Lỗi cập nhật! Mã lỗi: ${response.status}`);
 
-      showCustomAlert("Cập nhật thành công!");
+      showToast("Cập nhật thành công!");
       fetchRequests();         // Cập nhật danh sách yêu cầu
       closeModal();            // Đóng modal
     } catch (error) {
       console.error("Lỗi cập nhật:", error);
-      showCustomAlert("Có lỗi xảy ra khi cập nhật!");
+      showToast("Có lỗi xảy ra khi cập nhật!");
     }
   }
 
@@ -2045,26 +2090,72 @@
     const table = document.querySelector("table");
     const rows = table.querySelectorAll("tr");
 
-    // Chuẩn bị mảng chứa dữ liệu (không lấy cột "Hành động")
     const data = [];
 
     rows.forEach(row => {
       const cells = Array.from(row.querySelectorAll("th, td"));
-      // Bỏ cột cuối cùng (Hành động)
       const rowData = cells.slice(0, -1).map(cell => cell.innerText.trim());
       data.push(rowData);
     });
 
-    // Tạo worksheet và workbook
     const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+    // Tô màu xanh lá cho dòng tiêu đề (dòng đầu tiên)
+    const headerRow = data[0];
+    headerRow.forEach((_, colIndex) => {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: colIndex }); // ô hàng 0, cột colIndex
+      if (!worksheet[cellAddress]) return;
+
+      worksheet[cellAddress].s = {
+        fill: {
+          fgColor: { rgb: "90EE90" } // xanh lá nhạt – mã màu LightGreen
+        },
+        font: {
+          bold: true
+        },
+        alignment: {
+          horizontal: "center"
+        }
+      };
+    });
+
+    // Căn độ rộng cột phù hợp
+    const colWidths = data[0].map((_, colIndex) => {
+      const maxLen = Math.max(...data.map(row => (row[colIndex] ? row[colIndex].length : 0)));
+      return { wch: maxLen + 2 };
+    });
+    worksheet['!cols'] = colWidths;
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Leave Requests");
 
-    // Ghi file Excel
-    XLSX.writeFile(workbook, "Danh_sach_don_nghi_phep.xlsx");
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    const timestamp = `${day}-${month}-${year}_${hours}-${minutes}-${seconds}`;
+
+    XLSX.writeFile(workbook, `Danh_sach_don_nghi_phep_${timestamp}.xlsx`);
   }
+  function showToast(message, isSuccess = true, delay = 8000) {
+    const toastEl = document.getElementById('successToast');
+    const header = toastEl.querySelector('.toast-header');
+    const title = header.querySelector('strong');
 
+    document.getElementById('toastMessage').textContent = message;
 
+    // Reset màu
+    header.classList.remove('bg-success', 'bg-danger');
+    header.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+    title.textContent = isSuccess ? 'Success' : 'Error';
+
+    const toast = new bootstrap.Toast(toastEl, { delay: delay });
+    toast.show();
+  }
 </script>
 <script src="/js/jquery.min.js"></script>
 <script src="/js/jquery-migrate-3.0.1.min.js"></script>
