@@ -7,22 +7,11 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700,800,900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
-  <link rel="stylesheet" href="/css/animate.css">
-  <link rel="stylesheet" href="/css/owl.carousel.min.css">
-  <link rel="stylesheet" href="/css/owl.theme.default.min.css">
-  <link rel="stylesheet" href="/css/magnific-popup.css">
-  <link rel="stylesheet" href="/css/aos.css">
-  <link rel="stylesheet" href="/css/ionicons.min.css">
-  <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
-  <link rel="stylesheet" href="/css/jquery.timepicker.css">
-  <link rel="stylesheet" href="/css/flaticon.css">
-  <link rel="stylesheet" href="/css/icomoon.css">
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/sessionTimeout.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <style>
     :root {
-      --primary-color: #a1cbe4;
+      --primary-color: #1b7cb3;
       --primary-hover: #4786ba;
       --danger-color: #d31616;
       --danger-hover: #17dce3;
@@ -71,6 +60,50 @@
       margin-top: auto;
     }
 
+    /* Modal styles */
+    .modal-content {
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      background-color: #0078D4;
+      color: white;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .password-strength {
+      height: 5px;
+      background-color: #e9ecef;
+      margin-top: 5px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .password-strength-bar {
+      height: 100%;
+      width: 0;
+      transition: width 0.3s ease;
+    }
+
+    .password-hint {
+      font-size: 12px;
+      color: #6c757d;
+      margin-top: 5px;
+    }
 
     /* Các style còn lại giữ nguyên */
     .header h1 {
@@ -168,12 +201,11 @@
       align-items: center;
     }
 
-    .navbar-brand {
-      font-size: 1.25rem;
-      white-space: nowrap;
-      margin-right: 1rem;
-      color: #ffffff
-    }
+      .navbar-brand {
+        font-weight: 600;
+        font-size: 20px;
+        text-transform: uppercase;
+      }
 
     .navbar-toggler {
       order: 2;
@@ -183,7 +215,11 @@
       color: #000;
     }
     .ftco-navbar-light .navbar-nav > .nav-item > .nav-link {
-      color: #000 !important ;
+      font-size: 15px;
+      color: #000000;
+      font-weight: 400;
+      opacity: 1 !important;
+
 
       #ftco-nav {
         order: 1;
@@ -292,12 +328,25 @@
     tr:hover {
       background-color: #f8f9fa;
     }
+    .btn-add-new {
+      background-color: #0078D4; /* Set background color */
+      border-color: #0078D4; /* Set border color */
+      color: white; /* Ensure text color is white for contrast */
+    }
+
+    .btn-add-new:hover {
+      background-color: #005a9e; /* Darker shade for hover effect */
+      border-color: #005a9e; /* Adjust border color if needed */
+    }
+    .btn-department-manager {
+      color: white; /* Set text color to white */
+    }
   </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
   <div class="navbar-container">
-    <a class="navbar-brand" href="/users/home">Meeting CMC Global</a>
+    <a class="navbar-brand" href="/users/home">Request Management System</a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="oi oi-menu"></span> Menu
@@ -306,8 +355,10 @@
     <div class="collapse navbar-collapse" id="ftco-nav">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item active"><a href="/users/home" class="nav-link">Home</a></li>
+        <li class="nav-item" id="request"><a href="/requests" class="nav-link">Request</a></li>
         <li class="nav-item" id="office"><a href="#" class="nav-link">Office</a></li>
-        <li class="nav-item" id="meeting"><a href="#" class="nav-link">Meeting</a></li>
+        <li class="nav-item" id="meeting"><a href="/meeting-room" class="nav-link">Meeting</a></li>
+        <li class="nav-item" id="account"><a href="/users" class="nav-link">Account</a></li>
         <li class="nav-item cta mr-md-2" id="loginBtn"><a href="/users/login" class="nav-link">Login</a></li>
         <li class="nav-item dropdown" id="userInfo" style="display: none;">
           <a class="nav-link dropdown-toggle" href="#" id="usernameDisplay" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
@@ -330,14 +381,14 @@
 
     <div class="filter-container mb-4">
       <div class="filter-box row gx-3">
-        <div class="filter-group col-md-3 col-sm-6 mb-3">
+        <div class="filter-group col-md-4 col-sm-6 mb-3">
           <label for="department">Department</label>
           <select id="department" class="form-select">
             <option value="">All Departments</option>
           </select>
         </div>
 
-        <div class="filter-group col-md-3 col-sm-6 mb-3">
+        <div class="filter-group col-md-4 col-sm-6 mb-3">
           <label for="role">Role</label>
           <select id="role" class="form-select">
             <option value="">All Roles</option>
@@ -354,9 +405,15 @@
           </div>
         </div>
 
-        <div class="filter-group col-md-2 col-sm-4 mb-3 d-flex align-items-end">
-          <button id="addButton" class="btn btn-success w-100" onclick="window.location.href='/users/create'">
+        <div class="filter-group col-md-3 col-sm-4 mb-3 d-flex align-items-end justify-content-between">
+          <button id="addButton" class="btn btn-add-new w-100" data-bs-toggle="modal" data-bs-target="#createAccountModal">
             <i class="fas fa-plus"></i> Add New
+          </button>
+          <button id="departmentManagerBtn" class="btn btn-info btn-department-manager w-100 ms-2" onclick="window.location.href='/departments'">
+            Department
+          </button>
+          <button id="exportExcelBtn" class="btn btn-success w-100 ms-2">
+            <i class="fas fa-file-excel"></i> Export Excel
           </button>
         </div>
       </div>
@@ -397,62 +454,215 @@
   </div>
 </main>
 
-<div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+<!-- Create Account Modal -->
+<div class="modal fade" id="createAccountModal" tabindex="-1" aria-labelledby="createAccountModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createAccountModalLabel">Create New Account</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="createAccountForm">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="username" class="form-label">Username *</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="username" required>
+                  <button class="btn btn-outline-secondary" type="button" onclick="checkUsernameAvailability()">Check</button>
+                </div>
+                <span id="usernameMessage" class="form-text"></span>
+
+                <div id="usernameAvailability" class="form-text"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="employeeName" class="form-label">Employee Name *</label>
+                <input type="text" class="form-control" id="employeeName" required>
+              </div>
+
+              <div class="form-group">
+                <label for="email" class="form-label">Email *</label>
+                <input type="email" class="form-control" id="email" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="password" class="form-label">Password *</label>
+                <input type="password" class="form-control" id="password" required>
+                <div class="password-strength">
+                  <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                </div>
+                <div class="password-hint">
+                  Password must be at least 10 characters, contain uppercase, lowercase, numbers and special characters
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirm Password *</label>
+                <input type="password" class="form-control" id="confirmPassword" required>
+                <div id="passwordMatch" class="form-text"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="modalDepartment" class="form-label">Department *</label>
+                <select class="form-select" id="modalDepartment" required>
+                  <option value="">Select Department</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="modalRole" class="form-label">Role *</label>
+                <select class="form-select" id="modalRole" required>
+                  <option value="">Select Role</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group form-check mt-3">
+            <input type="checkbox" class="form-check-input" id="status" checked>
+            <label class="form-check-label" for="status">Active Account</label>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Account</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <strong class="me-auto">Success</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      <span id="toastMessage">Account created successfully!</span>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editAccountModalLabel">Edit Account</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editAccountForm">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="editUsername" class="form-label">Username</label>
+                <input type="text" class="form-control" id="editUsername" readonly>
+              </div>
+
+              <div class="form-group">
+                <label for="editEmployeeName" class="form-label">Employee Name *</label>
+                <input type="text" class="form-control" id="editEmployeeName" required>
+              </div>
+
+              <div class="form-group">
+                <label for="editEmail" class="form-label">Email *</label>
+                <input type="email" class="form-control" id="editEmail" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="editDepartment" class="form-label">Department *</label>
+                <select class="form-select" id="editDepartment" required>
+                  <option value="">Select Department</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="editRole" class="form-label">Role *</label>
+                <select class="form-select" id="editRole" required>
+                  <option value="">Select Role</option>
+                </select>
+              </div>
+
+              <div class="form-group form-check mt-3">
+                <input type="checkbox" class="form-check-input" id="editStatus">
+                <label class="form-check-label" for="editStatus">Active Account</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Password Reset Section -->
+          <div class="mt-4">
+            <button type="button" class="btn btn-warning" id="resetPasswordBtn">
+              <i class="fas fa-key"></i> Reset Password
+            </button>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Password Reset Modal -->
+<div class="modal fade" id="passwordResetModal" tabindex="-1" aria-labelledby="passwordResetModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="passwordResetModalLabel">Reset Password</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="newPassword" class="form-label">New Password *</label>
+          <input type="password" class="form-control" id="newPassword" required>
+          <div class="password-strength">
+            <div class="password-strength-bar" id="editPasswordStrengthBar"></div>
+          </div>
+          <div class="password-hint">
+            Password must be at least 10 characters, contain uppercase, lowercase, numbers and special characters
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmNewPassword" class="form-label">Confirm Password *</label>
+          <input type="password" class="form-control" id="confirmNewPassword" required>
+          <div id="editPasswordMatch" class="form-text"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmResetBtn">Reset Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const username = localStorage.getItem('Username');
-    const role = localStorage.getItem('Role');
-
-    if (username && role) {
-      // Ẩn nút login
-      document.getElementById('loginBtn').style.display = 'none';
-
-      // Hiện user info
-      document.getElementById('userInfo').style.display = 'block';
-      document.getElementById('usernameDisplay').textContent = username;
-
-      // Xử lý role nếu cần
-      if (role === 'ADMIN') {
-        // Hiện tất cả
-      } else if (role === 'EMPLOYEE') {
-        document.getElementById('office').style.display = 'none';
-        document.getElementById('meeting').style.display = 'none';
-      } else if (role === 'SUPERVISOR') {
-        document.getElementById('office').style.display = 'none';
-      }
-    }
-  });
-
-  function logout() {
-    fetch('/api/v1/users/logout', {
-      method: 'POST',
-      credentials: 'include', // rất quan trọng để gửi cookie/session đi kèm
-    })
-            .then(response => {
-              if (response.ok) {
-                // Xóa dữ liệu localStorage, cookie, session nếu cần
-                localStorage.clear();
-
-                // Xóa cookie bằng cách set expired
-                document.cookie.split(";").forEach(function(c) {
-                  document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-                });
-
-                // Redirect hoặc reload trang
-                window.location.href = "/users/login";
-              } else {
-                alert("Đăng xuất không thành công. Vui lòng thử lại.");
-              }
-            })
-            .catch(error => {
-              console.error("Logout error:", error);
-              alert("Lỗi trong quá trình đăng xuất.");
-            });
-  }
   let allUsers = [];
   let filteredUsers = [];
   let departmentsList = [];
   let currentUserRole = '';
+  let isUsernameAvailable = false;
 
   // Pagination variables
   let currentPage = 1;
@@ -464,7 +674,7 @@
     const errorMessage = document.getElementById('errorMessage');
     errorMessage.textContent = message;
     errorAlert.style.display = 'block';
-    setTimeout(() => errorAlert.style.display = 'none', 5000);
+    setTimeout(() => errorAlert.style.display = 'none', 500);
   }
 
   async function fetchData() {
@@ -503,13 +713,23 @@
               : [];
 
       departmentsList.sort((a, b) => a.departmentName.localeCompare(b.departmentName));
+
+      // Populate department select in filter
       const departmentSelect = document.getElementById('department');
       departmentSelect.innerHTML = '<option value="">All Departments</option>';
+
+      // Populate department select in modal
+      const modalDepartmentSelect = document.getElementById('modalDepartment');
+      modalDepartmentSelect.innerHTML = '<option value="">Select Department</option>';
+
       departmentsList.forEach(dept => {
         const option = document.createElement('option');
         option.value = dept.departmentName;
         option.textContent = dept.departmentName;
         departmentSelect.appendChild(option);
+
+        const modalOption = option.cloneNode(true);
+        modalDepartmentSelect.appendChild(modalOption);
       });
 
     } catch (error) {
@@ -525,13 +745,23 @@
 
       const result = await response.json();
       const roles = Array.isArray(result.data) ? result.data : [];
+
+      // Populate role select in filter
       const roleSelect = document.getElementById('role');
       roleSelect.innerHTML = '<option value="">All Roles</option>';
+
+      // Populate role select in modal
+      const modalRoleSelect = document.getElementById('modalRole');
+      modalRoleSelect.innerHTML = '<option value="">Select Role</option>';
+
       roles.forEach(role => {
         const option = document.createElement('option');
         option.value = role.roleName;
         option.textContent = role.roleName;
         roleSelect.appendChild(option);
+
+        const modalOption = option.cloneNode(true);
+        modalRoleSelect.appendChild(modalOption);
       });
     } catch (error) {
       console.error('Error fetching roles:', error);
@@ -556,8 +786,15 @@
 
   function renderButtonBasedOnRole(userRole) {
     const addButton = document.getElementById('addButton');
-    if (!addButton) return;
-    addButton.style.display = userRole === 'ADMIN' ? 'block' : 'none';
+    const departmentManagerBtn = document.getElementById('departmentManagerBtnContainer');
+
+    if (addButton) {
+      addButton.style.display = userRole === 'ADMIN' ? 'block' : 'none';
+    }
+
+    if (departmentManagerBtn) {
+      departmentManagerBtn.style.display = userRole === 'ADMIN' ? 'block' : 'none';
+    }
   }
 
   function populateTable(users) {
@@ -722,16 +959,83 @@
     populateTable(filteredUsers);
   }
 
-  function editAccount(username) {
-    if (!username) {
-      showError('No username to edit');
-      return;
+  async function editAccount(username) {
+    try {
+      const response = await fetch(`/api/v1/users/getUserByUsername/${username}`);
+      if (!response.ok) throw new Error('Error fetching user data');
+
+      const user = await response.json();
+      currentEditingUser = user;
+
+      // Populate the edit form
+      document.getElementById('editUsername').value = user.username || '';
+      document.getElementById('editEmployeeName').value = user.employeeName || '';
+      document.getElementById('editEmail').value = user.email || '';
+      document.getElementById('editStatus').checked = user.status === 'Active';
+
+      // Populate departments dropdown
+      const departmentSelect = document.getElementById('editDepartment');
+      departmentSelect.innerHTML = '<option value="">Select Department</option>';
+      departmentsList.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept.departmentName;
+        option.textContent = dept.departmentName;
+        departmentSelect.appendChild(option);
+      });
+
+      // Set the department value if available
+      if (user.departmentName) {
+        departmentSelect.value = user.departmentName;
+      } else if (user.departmentId) {
+        const dept = departmentsList.find(d => d.departmentId === user.departmentId);
+        if (dept) departmentSelect.value = dept.departmentName;
+      }
+
+      // Populate roles dropdown
+      const roleSelect = document.getElementById('editRole');
+      roleSelect.innerHTML = '<option value="">Select Role</option>';
+
+      // Fetch roles again to ensure we have the latest
+      const rolesResponse = await fetch('/api/v1/roles/all');
+      if (rolesResponse.ok) {
+        const rolesResult = await rolesResponse.json();
+        const roles = Array.isArray(rolesResult.data) ? rolesResult.data : [];
+
+        roles.forEach(role => {
+          const option = document.createElement('option');
+          option.value = role.roleName;
+          option.textContent = role.roleName;
+          roleSelect.appendChild(option);
+        });
+
+        // Set the role value if available
+        if (user.roleName) {
+          roleSelect.value = user.roleName;
+        }
+      }
+
+      // Disable fields based on current user role
+      if (currentUserRole === 'ADMIN') {
+        document.getElementById('editUsername').readOnly = true;
+        document.getElementById('editEmail').readOnly = true;
+        document.getElementById('editRole').disabled = true;
+      } else if (currentUserRole === 'SUPERVISOR') {
+        document.getElementById('editUsername').readOnly = true;
+        document.getElementById('editEmail').readOnly = true;
+        document.getElementById('editDepartment').disabled = true;
+      }
+
+      // Show the modal
+      editModal.show();
+
+    } catch (error) {
+      console.error('Error editing account:', error);
+      showError('Failed to load user data for editing');
     }
-    window.location.href = `/users/update/${encodeURIComponent(username)}`;
   }
 
   async function deleteAccount(username) {
-    if (!confirm(`Are you sure you want to delete account "${username}"?`)) return;
+
 
     try {
       const response = await fetch(`/api/v1/users/${username}`, {
@@ -748,7 +1052,7 @@
         toastMessageEl.textContent = result.message || 'Deleted successfully';
       }
 
-      const toastEl = document.getElementById('deleteToast');
+      const toastEl = document.getElementById('successToast');
       if (toastEl) {
         const toast = new bootstrap.Toast(toastEl);
         toast.show();
@@ -762,6 +1066,188 @@
     }
   }
 
+  function getDepartmentId(departmentName) {
+    const department = departmentsList.find(d => d.departmentName === departmentName);
+    return department ? department.departmentId : null;
+  }
+
+  function isValidPassword(password) {
+    // At least 10 characters, uppercase, lowercase, number and special character
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
+    return regex.test(password);
+  }
+
+  function checkPasswordStrength(password, targetElementId = 'passwordStrengthBar') {
+    const strengthBar = document.getElementById(targetElementId);
+    if (!strengthBar) return;
+
+    let strength = 0;
+    if (password.length >= 10) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[a-z]/.test(password)) strength += 1;
+    if (/\d/.test(password)) strength += 1;
+    if (/[@$!%*?&]/.test(password)) strength += 1;
+
+    const width = (strength / 5) * 100;
+    strengthBar.style.width = `${width}%`;
+
+    if (strength <= 2) {
+      strengthBar.style.backgroundColor = '#dc3545'; // red
+    } else if (strength <= 4) {
+      strengthBar.style.backgroundColor = '#ffc107'; // yellow
+    } else {
+      strengthBar.style.backgroundColor = '#28a745'; // green
+    }
+  }
+
+  function checkPasswordMatch() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const matchText = document.getElementById('passwordMatch');
+
+    if (!matchText) return;
+
+    if (password && confirmPassword) {
+      if (password === confirmPassword) {
+        matchText.textContent = 'Passwords match';
+        matchText.style.color = 'green';
+      } else {
+        matchText.textContent = 'Passwords do not match';
+        matchText.style.color = 'red';
+      }
+    } else {
+      matchText.textContent = '';
+    }
+  }
+
+  async function checkUsernameAvailability() {
+    const usernameInput = document.getElementById('username');
+    if (!usernameInput) return;
+
+    const username = usernameInput.value.trim();
+    const messageSpan = document.getElementById('usernameMessage'); // Khai báo messageSpan
+
+    if (!username) {
+      showError('Please enter a username to check');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/v1/users/check?username=${username}`);
+
+      if (!response.ok) {
+        throw new Error('Server error');
+      }
+
+      const result = await response.json();
+
+      if (result.status === 'Success') {
+        messageSpan.textContent = 'Username is available';
+        messageSpan.className = 'message text-success';
+        isUsernameAvailable = true;
+        updateEmail();
+      } else {
+        messageSpan.textContent = result.message || 'Username is not available';
+        messageSpan.className = 'message text-danger';
+        isUsernameAvailable = false;
+      }
+    } catch (error) {
+      messageSpan.textContent = 'Error checking username';
+      messageSpan.className = 'message text-danger';
+      isUsernameAvailable = false;
+      console.error('🚨 Username check error:', error);
+    }
+  }
+
+  function updateEmail() {
+    const username = document.getElementById('username').value.trim();
+    const emailField = document.getElementById('email');
+    if (username && /^[a-z0-9_]+$/i.test(username)) {
+      emailField.value = `${username}@cmcglobal.vn`;
+    } else {
+      emailField.value = '';
+    }
+  }
+
+  async function createAccount(event) {
+    event.preventDefault();
+    const errorAlert = document.getElementById('errorAlert');
+    errorAlert.style.display = 'none';
+
+    if (!isUsernameAvailable) {
+      showError('Please check and confirm username availability before creating account');
+      return;
+    }
+
+    const password = document.getElementById('password').value;
+    if (!isValidPassword(password)) {
+      showError('Password must be at least 10 characters, contain both uppercase and lowercase letters, and include a special character');
+      return;
+    }
+
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    if (password !== confirmPassword) {
+      showError('Passwords do not match');
+      return;
+    }
+
+    const accountData = {
+      username: document.getElementById('username').value.trim(),
+      employeeName: document.getElementById('employeeName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      departmentName: document.getElementById('modalDepartment').value,
+      departmentId: getDepartmentId(document.getElementById('modalDepartment').value),
+      roleName: document.getElementById('modalRole').value,
+      password: password,
+      status: document.getElementById('status').checked ? 'Active' : 'Inactive'
+    };
+
+    if (!accountData.departmentName || !accountData.roleName) {
+      showError('Please select department and role');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/v1/users/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(accountData)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Account creation failed');
+      }
+
+      if (result.status === 'Success') {
+        const toast = new bootstrap.Toast(document.getElementById('successToast'));
+        document.getElementById('toastMessage').textContent = 'Account created successfully!';
+        toast.show();
+
+        // Close modal and refresh data
+        const modal = bootstrap.Modal.getInstance(document.getElementById('createAccountModal'));
+        if (modal) modal.hide();
+
+        // Reset form
+        document.getElementById('createAccountForm').reset();
+        document.getElementById('passwordStrengthBar').style.width = '0';
+        document.getElementById('usernameAvailability').textContent = '';
+        document.getElementById('passwordMatch').textContent = '';
+        isUsernameAvailable = false;
+
+        // Refresh user list
+        await fetchData();
+      } else {
+        showError(result.message || 'Failed to create account');
+      }
+    } catch (error) {
+      console.error('Account creation error:', error);
+      showError(error.message || 'Failed to create account');
+    }
+  }
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -770,33 +1256,309 @@
       await fetchRoles();
       await fetchData();
 
+      document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
       document.getElementById('department')?.addEventListener('change', filterData);
       document.getElementById('role')?.addEventListener('change', filterData);
       document.getElementById('keyword')?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') searchAccount();
       });
 
+      // Setup create account form
+      const createAccountForm = document.getElementById('createAccountForm');
+      if (createAccountForm) {
+        createAccountForm.addEventListener('submit', createAccount);
+      }
+
+      // Password strength checker
+      const passwordInput = document.getElementById('password');
+      if (passwordInput) {
+        passwordInput.addEventListener('input', (e) => {
+          checkPasswordStrength(e.target.value);
+        });
+      }
+
+      // Password match checker
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+      if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+      }
+
     } catch (error) {
       console.error('Initialization error:', error);
       showError('App initialization failed');
     }
   });
+  async function resetPassword() {
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+    if (!isValidPassword(newPassword)) {
+      showError('Password must be at least 10 characters, contain both uppercase and lowercase letters, and include a special character');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showError('Passwords do not match');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/v1/users/change-password/${currentEditingUser.username}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password: newPassword })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Password reset failed');
+      }
+
+      // Show success toast
+      const toastMessageEl = document.getElementById('toastMessage');
+      if (toastMessageEl) {
+        toastMessageEl.textContent = 'Password reset successfully!';
+      }
+
+      const toastEl = document.getElementById('successToast');
+      if (toastEl) {
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
+
+      // Close the password reset modal
+      passwordResetModal.hide();
+
+    } catch (error) {
+      console.error('Password reset error:', error);
+      showError(error.message || 'Failed to reset password');
+    }
+  }
+  async function updateAccount(event) {
+    event.preventDefault();
+
+    if (!currentEditingUser) return;
+
+    const userData = {
+      username: document.getElementById('editUsername').value,
+      employeeName: document.getElementById('editEmployeeName').value,
+      email: document.getElementById('editEmail').value,
+      departmentName: document.getElementById('editDepartment').value,
+      departmentId: getDepartmentId(document.getElementById('editDepartment').value),
+      roleName: document.getElementById('editRole').value,
+      status: document.getElementById('editStatus').checked ? 'Active' : 'Inactive'
+    };
+
+    try {
+      const response = await fetch(`/api/v1/users/update/${currentEditingUser.username}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Account update failed');
+      }
+
+      // Show success toast
+      const toastMessageEl = document.getElementById('toastMessage');
+      if (toastMessageEl) {
+        toastMessageEl.textContent = 'Account updated successfully!';
+      }
+
+      const toastEl = document.getElementById('successToast');
+      if (toastEl) {
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
+
+      // Close modal and refresh data
+      editModal.hide();
+      await fetchData();
+
+    } catch (error) {
+      console.error('Account update error:', error);
+      showError(error.message || 'Failed to update account');
+    }
+  }
+  let editModal = null;
+  let passwordResetModal = null;
+  let currentEditingUser = null;
+
+  // Initialize the modals when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    editModal = new bootstrap.Modal(document.getElementById('editAccountModal'));
+    passwordResetModal = new bootstrap.Modal(document.getElementById('passwordResetModal'));
+
+    // Setup password reset button
+    document.getElementById('resetPasswordBtn').addEventListener('click', () => {
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmNewPassword').value = '';
+      document.getElementById('editPasswordMatch').textContent = '';
+      passwordResetModal.show();
+    });
+
+    // Setup confirm reset button
+    document.getElementById('confirmResetBtn').addEventListener('click', resetPassword);
+
+    // Setup edit form submission
+    document.getElementById('editAccountForm').addEventListener('submit', updateAccount);
+
+    // Password strength checker for reset modal
+    document.getElementById('newPassword').addEventListener('input', (e) => {
+      checkPasswordStrength(e.target.value, 'editPasswordStrengthBar');
+    });
+
+    // Password match checker for reset modal
+    document.getElementById('confirmNewPassword').addEventListener('input', () => {
+      const password = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmNewPassword').value;
+      const matchText = document.getElementById('editPasswordMatch');
+
+      if (password && confirmPassword) {
+        if (password === confirmPassword) {
+          matchText.textContent = 'Passwords match';
+          matchText.style.color = 'green';
+        } else {
+          matchText.textContent = 'Passwords do not match';
+          matchText.style.color = 'red';
+        }
+      } else {
+        matchText.textContent = '';
+      }
+    });
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    const username = localStorage.getItem('Username');
+    const role = localStorage.getItem('Role');
+
+    if (username && role) {
+      // Ẩn nút login
+      document.getElementById('loginBtn').style.display = 'none';
+
+      // Hiện user info
+      document.getElementById('userInfo').style.display = 'block';
+      document.getElementById('usernameDisplay').textContent = username;
+
+      // Xử lý role nếu cần
+      if (role === 'ADMIN') {
+        // Hiện tất cả
+      } else if (role === 'EMPLOYEE') {
+        document.getElementById('office').style.display = 'none';
+        document.getElementById('meeting').style.display = 'none';
+      } else if (role === 'SUPERVISOR') {
+        document.getElementById('office').style.display = 'none';
+      }
+    }
+  });
+
+  function logout() {
+    fetch('/api/v1/users/logout', {
+      method: 'POST',
+      credentials: 'include', // rất quan trọng để gửi cookie/session đi kèm
+    })
+            .then(response => {
+              if (response.ok) {
+                // Xóa dữ liệu localStorage, cookie, session nếu cần
+                localStorage.clear();
+
+                // Xóa cookie bằng cách set expired
+                document.cookie.split(";").forEach(function(c) {
+                  document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+
+                // Redirect hoặc reload trang
+                window.location.href = "/users/login";
+              } else {
+                alert("Đăng xuất không thành công. Vui lòng thử lại.");
+              }
+            })
+            .catch(error => {
+              console.error("Logout error:", error);
+              alert("Lỗi trong quá trình đăng xuất.");
+            });
+  }
+
+  function exportToExcel() {
+    if (!allUsers || allUsers.length === 0) {
+      showError("No user data to export.");
+      return;
+    }
+
+    // Chuyển đổi dữ liệu sang định dạng phù hợp
+    const data = allUsers.map(user => ({
+      Username: user.username || '-',
+      Name: user.employeeName || '-',
+      Email: user.email || '-',
+      Role: user.roleName || '-',
+      Department: user.departmentName || (user.departmentId ? 'Updating...' : 'None'),
+      Status: user.status || '-'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+
+    // Style for header row
+    const headerStyle = {
+      fill: {
+        fgColor: { rgb: "0078D4" } // Blue background for the header row
+      },
+      font: {
+        color: { rgb: "FFFFFF" }, // White text color for the header
+        bold: true // Bold text for the header
+      },
+      alignment: {
+        horizontal: "center", // Center align header text
+      }
+    };
+
+    // Apply header style
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      const headerCell = worksheet[XLSX.utils.encode_cell({ r: 0, c: col })];
+      if (headerCell) {
+        headerCell.s = headerStyle;
+      }
+    }
+
+    // Adjust column widths based on content
+    const columnWidths = [];
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      let maxLength = 0;
+      for (let row = range.s.r; row <= range.e.r; row++) {
+        const cell = worksheet[XLSX.utils.encode_cell({ r: row, c: col })];
+        if (cell && cell.v) {
+          maxLength = Math.max(maxLength, cell.v.toString().length);
+        }
+      }
+      columnWidths.push(maxLength + 2); // Add some padding
+    }
+
+    // Set column widths
+    worksheet['!cols'] = columnWidths.map(width => ({ wpx: width * 7 }));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const timestamp = `${day}-${month}-${year}_${hours}-${minutes}-${seconds}`;
+
+    XLSX.writeFile(workbook, `Danh_sach_Account_${timestamp}.xlsx`);
+  }
+
+
 </script>
-
-
-<script src="/js/jquery.min.js"></script>
-<script src="/js/jquery-migrate-3.0.1.min.js"></script>
-<script src="/js/popper.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-<script src="/js/jquery.easing.1.3.js"></script>
-<script src="/js/jquery.waypoints.min.js"></script>
-<script src="/js/jquery.stellar.min.js"></script>
-<script src="/js/owl.carousel.min.js"></script>
-<script src="/js/jquery.magnific-popup.min.js"></script>
-<script src="/js/aos.js"></script>
-<script src="/js/jquery.animateNumber.min.js"></script>
-<script src="/js/scrollax.min.js"></script>
-<script src="/js/main.js"></script>
-
 </body>
 </html>
