@@ -146,4 +146,25 @@ public class BookingRestController {
         bookingService.deleteBooking(id);
         return new Result("Success", "Booking deleted successfully.");
     }
+
+    // Thêm API: Lấy các booking đang diễn ra
+    @Operation(summary = "Get ongoing bookings")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ongoing bookings retrieved",
+                    content = { @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = BookingDTO.Resp.class))) }) })
+    @GetMapping("/ongoing")
+    public List<BookingDTO.Resp> getOngoingBookings(@RequestParam String username) {
+        return bookingService.getOngoingBookings(username);
+    }
+
+    @Operation(summary = "Get upcoming bookings")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Upcoming bookings retrieved",
+                    content = { @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = BookingDTO.Resp.class))) }) })
+    @GetMapping("/upcoming")
+    public List<BookingDTO.Resp> getUpcomingBookings(@RequestParam String username) {
+        return bookingService.getUpcomingBookings(username);
+    }
 }

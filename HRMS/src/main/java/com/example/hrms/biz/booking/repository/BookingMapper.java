@@ -71,4 +71,37 @@ public interface BookingMapper {
             @Result(property = "weekdays", column = "weekdays")
     })
     List<Booking> selectAll();
+    @Select("SELECT booking_id, username, room_id, title, attendees, content, start_time, end_time, status, booking_type, weekdays " +
+            "FROM bookings WHERE username = #{username} AND start_time <= #{now} AND end_time >= #{now}")
+    @Results({
+            @Result(property = "bookingId", column = "booking_id"),
+            @Result(property = "username", column = "username"),
+            @Result(property = "roomId", column = "room_id"),
+            @Result(property = "title", column = "title"),
+            @Result(property = "attendees", column = "attendees"),
+            @Result(property = "content", column = "content"),
+            @Result(property = "startTime", column = "start_time"),
+            @Result(property = "endTime", column = "end_time"),
+            @Result(property = "status", column = "status"),
+            @Result(property = "bookingType", column = "booking_type"),
+            @Result(property = "weekdays", column = "weekdays")
+    })
+    List<Booking> findOngoingBookingsByUsername(@Param("username") String username, @Param("now") LocalDateTime now);
+
+    @Select("SELECT booking_id, username, room_id, title, attendees, content, start_time, end_time, status, booking_type, weekdays " +
+            "FROM bookings WHERE username = #{username} AND start_time > #{currentTime}")
+    @Results({
+            @Result(property = "bookingId", column = "booking_id"),
+            @Result(property = "username", column = "username"),
+            @Result(property = "roomId", column = "room_id"),
+            @Result(property = "title", column = "title"),
+            @Result(property = "attendees", column = "attendees"),
+            @Result(property = "content", column = "content"),
+            @Result(property = "startTime", column = "start_time"),
+            @Result(property = "endTime", column = "end_time"),
+            @Result(property = "status", column = "status"),
+            @Result(property = "bookingType", column = "booking_type"),
+            @Result(property = "weekdays", column = "weekdays")
+    })
+    List<Booking> findUpcomingBookingsByUsername(@Param("username") String username, @Param("currentTime") LocalDateTime currentTime);
 }

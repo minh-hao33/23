@@ -570,8 +570,8 @@
                 return;
             }
 
-            bookingData.startTime = startDateTime.toISOString().slice(0, 19).replace('T', ' ');
-            bookingData.endTime = endDateTime.toISOString().slice(0, 19).replace('T', ' ');
+            bookingData.startTime = new Date(startDateTime.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+            bookingData.endTime = new Date(endDateTime.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
         } else if (selectedType === 'createDaily' || selectedType === 'createWeekly') {
             const start = selectedType === 'createDaily' ? $('#createDateStartDaily').val() : $('#createDateStartWeekly').val();
             const end = selectedType === 'createDaily' ? $('#createDateEndDaily').val() : $('#createDateEndWeekly').val();
@@ -594,8 +594,8 @@
                 return;
             }
 
-            bookingData.startTime = startDate.toISOString().slice(0, 19).replace('T', ' ');
-            bookingData.endTime = endDate.toISOString().slice(0, 19).replace('T', ' ');
+            bookingData.startTime = new Date(startDate.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+            bookingData.endTime = new Date(endDate.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
 
             if (selectedType === 'createWeekly') {
                 const weekdays = getSelectedWeekdays();
