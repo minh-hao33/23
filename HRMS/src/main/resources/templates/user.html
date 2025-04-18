@@ -359,6 +359,7 @@
         <li class="nav-item" id="office"><a href="#" class="nav-link">Office</a></li>
         <li class="nav-item" id="meeting"><a href="/meeting-room" class="nav-link">Meeting</a></li>
         <li class="nav-item" id="account"><a href="/users" class="nav-link">Account</a></li>
+        <li class="nav-item" id="dpment"><a href="/departments" class="nav-link">Department</a></li>
         <li class="nav-item cta mr-md-2" id="loginBtn"><a href="/users/login" class="nav-link">Login</a></li>
         <li class="nav-item dropdown" id="userInfo" style="display: none;">
           <a class="nav-link dropdown-toggle" href="#" id="usernameDisplay" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
@@ -409,19 +410,11 @@
           <button id="addButton" class="btn btn-add-new w-100" data-bs-toggle="modal" data-bs-target="#createAccountModal">
             <i class="fas fa-plus"></i> Add New
           </button>
-          <button id="departmentManagerBtn" class="btn btn-info btn-department-manager w-100 ms-2" onclick="window.location.href='/departments'">
-            Department
-          </button>
           <button id="exportExcelBtn" class="btn btn-success w-100 ms-2">
             <i class="fas fa-file-excel"></i> Export Excel
           </button>
         </div>
       </div>
-    </div>
-    <div id="departmentManagerBtnContainer" class="mb-3" style="display: none;">
-      <button class="btn btn-info" onclick="window.location.href='/departments'">
-        Department Manager
-      </button>
     </div>
     <div class="table-container">
       <table >
@@ -1444,21 +1437,20 @@
     const role = localStorage.getItem('Role');
 
     if (username && role) {
-      // Ẩn nút login
       document.getElementById('loginBtn').style.display = 'none';
-
-      // Hiện user info
       document.getElementById('userInfo').style.display = 'block';
       document.getElementById('usernameDisplay').textContent = username;
 
-      // Xử lý role nếu cần
       if (role === 'ADMIN') {
-        // Hiện tất cả
+        document.getElementById('meeting').style.display = 'none';
       } else if (role === 'EMPLOYEE') {
         document.getElementById('office').style.display = 'none';
-        document.getElementById('meeting').style.display = 'none';
+        document.getElementById('account').style.display = 'none';
+        document.getElementById('dpment').style.display = 'none';
       } else if (role === 'SUPERVISOR') {
         document.getElementById('office').style.display = 'none';
+        document.getElementById('meeting').style.display = 'none';
+        document.getElementById('dpment').style.display = 'none';
       }
     }
   });
@@ -1466,19 +1458,14 @@
   function logout() {
     fetch('/api/v1/users/logout', {
       method: 'POST',
-      credentials: 'include', // rất quan trọng để gửi cookie/session đi kèm
+      credentials: 'include',
     })
             .then(response => {
               if (response.ok) {
-                // Xóa dữ liệu localStorage, cookie, session nếu cần
                 localStorage.clear();
-
-                // Xóa cookie bằng cách set expired
                 document.cookie.split(";").forEach(function(c) {
                   document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
                 });
-
-                // Redirect hoặc reload trang
                 window.location.href = "/users/login";
               } else {
                 alert("Đăng xuất không thành công. Vui lòng thử lại.");

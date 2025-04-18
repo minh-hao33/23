@@ -32,6 +32,26 @@ public class BookingService {
         return bookingMapper.selectById(bookingId);
     }
 
+    public List<BookingDTO.Resp> getOngoingBookings(String username) {
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> ongoingBookings = bookingMapper.findOngoingBookingsByUsername(username, now);
+        return ongoingBookings.stream().map(BookingDTO.Resp::toResponse).collect(Collectors.toList());
+    }
+
+    // This method returns the upcoming bookings as BookingDTO.Resp
+    public List<BookingDTO.Resp> getUpcomingBookings(String username) {
+        // Get current time
+        LocalDateTime now = LocalDateTime.now();
+
+        // Get the list of upcoming bookings
+        List<Booking> bookings = bookingMapper.findUpcomingBookingsByUsername(username, now);
+
+        // Convert the list of Booking entities to BookingDTO.Resp and return
+        return bookings.stream()
+                .map(BookingDTO.Resp::toResponse) // Assuming there's a static method `toResponse` in `BookingDTO.Resp` class
+                .collect(Collectors.toList());
+    }
+
     public void insert(BookingDTO.Req req) {
         Booking booking = req.toBooking();
         List<Booking> bookings = handleBookingType(booking);

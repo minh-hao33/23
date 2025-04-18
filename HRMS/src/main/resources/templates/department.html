@@ -315,7 +315,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="navbar-container">
-        <a class="navbar-brand" href="/users/home">Meeting CMC Global</a>
+        <a class="navbar-brand" href="/users/home">Request Management System</a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="oi oi-menu"></span> Menu
@@ -324,13 +324,16 @@
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active"><a href="/users/home" class="nav-link">Home</a></li>
+                <li class="nav-item" id="request"><a href="/requests" class="nav-link">Request</a></li>
                 <li class="nav-item" id="office"><a href="#" class="nav-link">Office</a></li>
-                <li class="nav-item" id="meeting"><a href="#" class="nav-link">Meeting</a></li>
+                <li class="nav-item" id="meeting"><a href="/meeting-room" class="nav-link">Meeting</a></li>
+                <li class="nav-item" id="account"><a href="/users" class="nav-link">Account</a></li>
+                <li class="nav-item" id="dpment"><a href="/departments" class="nav-link">Department</a></li>
                 <li class="nav-item cta mr-md-2" id="loginBtn"><a href="/users/login" class="nav-link">Login</a></li>
                 <li class="nav-item dropdown" id="userInfo" style="display: none;">
                     <a class="nav-link dropdown-toggle" href="#" id="usernameDisplay" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                     <div class="dropdown-menu" aria-labelledby="usernameDisplay">
-                        <a class="dropdown-item" href="#">Profile</a>
+                        <a class="dropdown-item" href="/users/account">Profile</a>
                         <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
                     </div>
                 </li>
@@ -470,21 +473,20 @@
         const role = localStorage.getItem('Role');
 
         if (username && role) {
-            // Ẩn nút login
             document.getElementById('loginBtn').style.display = 'none';
-
-            // Hiện user info
             document.getElementById('userInfo').style.display = 'block';
             document.getElementById('usernameDisplay').textContent = username;
 
-            // Xử lý role nếu cần
             if (role === 'ADMIN') {
-                // Hiện tất cả
+                document.getElementById('meeting').style.display = 'none';
             } else if (role === 'EMPLOYEE') {
                 document.getElementById('office').style.display = 'none';
-                document.getElementById('meeting').style.display = 'none';
+                document.getElementById('account').style.display = 'none';
+                document.getElementById('dpment').style.display = 'none';
             } else if (role === 'SUPERVISOR') {
                 document.getElementById('office').style.display = 'none';
+                document.getElementById('meeting').style.display = 'none';
+                document.getElementById('dpment').style.display = 'none';
             }
         }
     });
@@ -492,19 +494,14 @@
     function logout() {
         fetch('/api/v1/users/logout', {
             method: 'POST',
-            credentials: 'include', // rất quan trọng để gửi cookie/session đi kèm
+            credentials: 'include',
         })
             .then(response => {
                 if (response.ok) {
-                    // Xóa dữ liệu localStorage, cookie, session nếu cần
                     localStorage.clear();
-
-                    // Xóa cookie bằng cách set expired
                     document.cookie.split(";").forEach(function(c) {
                         document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
                     });
-
-                    // Redirect hoặc reload trang
                     window.location.href = "/users/login";
                 } else {
                     alert("Đăng xuất không thành công. Vui lòng thử lại.");
@@ -515,7 +512,6 @@
                 alert("Lỗi trong quá trình đăng xuất.");
             });
     }
-
 </script>
 <script>
     let currentPage = 0;
