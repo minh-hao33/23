@@ -102,6 +102,23 @@ CREATE TABLE Bookings (
     ) -- Nếu là weekly thì weekdays phải có giá trị, ngược lại phải là NULL
 );
 
+-- Bảng Thông Báo (Notifications)
+CREATE TABLE Notifications (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    sender VARCHAR(64) NOT NULL,
+    receiver VARCHAR(64) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (sender) REFERENCES Users(username),
+    FOREIGN KEY (receiver) REFERENCES Users(username),
+    INDEX (sender),
+    INDEX (receiver),
+    INDEX (created_at),
+    INDEX (is_read)
+);
+
 -- 2. CHÈN DỮ LIỆU MẪU
 -- ==============================================
 -- Chèn dữ liệu vào bảng Roles
@@ -200,5 +217,21 @@ INSERT INTO Bookings (username, room_id, title, attendees, content, start_time, 
 ('bkkhanh', 6, 'Moonlight Weekly', 'bkkhanh, ntdu', 'Họp cập nhật tiến độ Moon', '2025-04-11 14:00:00', '2025-04-11 15:00:00', 'Cancelled', 'WEEKLY', 'We,Fr'),
 ('bkkhanh', 6, 'Moonlight Weekly', 'bkkhanh, ntdu', 'Họp cập nhật tiến độ Moon', '2025-04-16 14:00:00', '2025-04-16 15:00:00', 'Confirmed', 'WEEKLY', 'We,Fr'),
 ('bkkhanh', 6, 'Moonlight Weekly', 'bkkhanh, ntdu', 'Họp cập nhật tiến độ Moon', '2025-04-18 14:00:00', '2025-04-18 15:00:00', 'Confirmed', 'WEEKLY', 'We,Fr');
+
+-- Chèn dữ liệu mẫu vào bảng Notifications
+INSERT INTO Notifications (title, content, sender, receiver, created_at, is_read)
+VALUES 
+('Phê duyệt đơn nghỉ phép', 'Đơn xin nghỉ phép của bạn đã được phê duyệt từ ngày 25/04 đến 27/04', 'bkkhanh', 'pmhao', DATE_SUB(NOW(), INTERVAL 20 MINUTE), false),
+('Lịch họp phòng ban', 'Cuộc họp phòng ban sẽ diễn ra vào 14:00 ngày 22/04 tại phòng họp A', 'bkkhanh', 'ntdu', DATE_SUB(NOW(), INTERVAL 2 HOUR), false),
+('Thông báo cập nhật hệ thống', 'Hệ thống sẽ bảo trì vào tối nay từ 22:00-23:00', 'bkkhanh', 'ntdu', DATE_SUB(NOW(), INTERVAL 1 DAY), true),
+('Thông báo lương tháng 4', 'Lương tháng 4 đã được chuyển vào tài khoản của bạn', 'bkkhanh', 'ntdu', DATE_SUB(NOW(), INTERVAL 5 HOUR), false),
+('Đánh giá hiệu suất', 'Đánh giá hiệu suất quý I/2025 sẽ diễn ra từ 01/05-10/05', 'bkkhanh', 'ntdu', DATE_SUB(NOW(), INTERVAL 2 DAY), true),
+
+('Yêu cầu phê duyệt', 'Có một yêu cầu mới cần bạn phê duyệt từ nhân viên Nguyễn Văn A', 'ntdu', 'pmhao', DATE_SUB(NOW(), INTERVAL 10 MINUTE), false),
+('Lịch phỏng vấn ứng viên', 'Bạn có lịch phỏng vấn ứng viên vào 9:00 sáng mai', 'ntdu', 'bkkhanh', DATE_SUB(NOW(), INTERVAL 3 HOUR), false),
+('Kết quả đánh giá Q1', 'Kết quả đánh giá hiệu suất Q1 đã sẵn sàng để xem xét', 'ntdu', 'bkkhanh', DATE_SUB(NOW(), INTERVAL 8 HOUR), true),
+('Thông báo họp Ban Giám đốc', 'Cuộc họp Ban Giám đốc sẽ diễn ra vào 8:00 ngày mai tại phòng họp VIP', 'ntdu', 'bkkhanh', DATE_SUB(NOW(), INTERVAL 7 HOUR), false),
+('Yêu cầu duyệt ngân sách', 'Có yêu cầu duyệt ngân sách dự án mới từ phòng Kinh doanh', 'ntdu', 'bkkhanh', DATE_SUB(NOW(), INTERVAL 2 DAY), false);
+
 select * from requests;
 select * from bookings;

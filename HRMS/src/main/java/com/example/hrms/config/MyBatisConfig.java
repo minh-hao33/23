@@ -20,7 +20,7 @@ public class MyBatisConfig {
     @Bean
     public MapperScannerConfigurer mapperScannerConfigurer() {
         MapperScannerConfigurer configurer = new MapperScannerConfigurer();
-        configurer.setBasePackage("com.example.hrms.biz.booking.repository,com.example.hrms.biz.meetingroom.repository,com.example.hrms.biz.department.repository,com.example.hrms.biz.request.repository,com.example.hrms.biz.role.repository,com.example.hrms.biz.user.repository");
+        configurer.setBasePackage("com.example.hrms.biz.booking.repository,com.example.hrms.biz.meetingroom.repository,com.example.hrms.biz.department.repository,com.example.hrms.biz.request.repository,com.example.hrms.biz.role.repository,com.example.hrms.biz.user.repository,com.example.hrms.biz.commoncode.notification.repository");
         return configurer;
     }
 }
