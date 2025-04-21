@@ -111,8 +111,6 @@ CREATE TABLE Notifications (
     receiver VARCHAR(64) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_read BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (sender) REFERENCES Users(username),
-    FOREIGN KEY (receiver) REFERENCES Users(username),
     INDEX (sender),
     INDEX (receiver),
     INDEX (created_at),
