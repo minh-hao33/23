@@ -28,18 +28,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/departments/**", "/roles/**", "/api/v1/roles/**",
-                                "/requests/**", "/api/v1/requests/**",
-                                "/api/v1/users/login", "/api/v1/users/all", "/api/v1/users/check", "/api/v1/users/getUserByUsername/**",
+                                "/api/v1/users/login","/users/login", "/users/home",
                                 "/css/**", "/js/**", "/images/**", "/fonts/**",
-                                "/users/login", "/users/home",
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/"
                         ).permitAll()
                         .requestMatchers("/api/v1/meeting-room/**","/api/v1/notifications/**", "/meeting-room/**", "/notification/*").hasRole("EMPLOYEE")
-                        .requestMatchers("/api/v1/users/create/**","/users").hasAnyAuthority("ADMIN", "SUPERVISOR")
-                        .requestMatchers("/api/v1/users/update/**").hasAnyAuthority("ADMIN", "SUPERVISOR")
-                        .requestMatchers("/api/v1/users/delete/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/v1/bookings/**", "/bookings/**").hasAuthority("EMPLOYEE")
+                        .requestMatchers("/users").hasAnyAuthority("ADMIN", "SUPERVISOR")
+//                        .requestMatchers("/api/v1/bookings/**", "/bookings/**").hasAuthority("EMPLOYEE")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))

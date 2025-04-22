@@ -50,8 +50,8 @@ public interface DepartmentMapper {
     List<Department> listAllDepartments();    @Update("UPDATE Departments SET status = #{status} WHERE department_id = #{departmentId}")
     void updateDepartmentStatus(@Param("departmentId") Long departmentId, @Param("status") String status);
 
-    @Update("UPDATE Users SET employee_name = NULL, role_name = NULL WHERE department_id = #{departmentId}")
-    void updateUsersToNull(Long departmentId);
+    @Update("UPDATE Users SET department_id = NULL WHERE department_id = #{departmentId}")
+    void unlinkUsersFromDepartment(Long departmentId);
 
     @Select("""
     SELECT 

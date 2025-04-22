@@ -14,28 +14,20 @@ public class UserController {
         model.addAttribute("user", new Booking());
         return "user";
     }
-
     @RequestMapping("/login")
     public String loginPage() {
         return "login"; // Trả về trang login.html
     }
-
-    @RequestMapping("/create")
-    public String createAccountPage() {
-        return "createaccount"; // Trả về trang create-account.html
-    }
-
     @RequestMapping("/home")
     public String homePage(Model model) {
         return "index";
     }
-
-    @RequestMapping("/update/{username}")
-    public String updateAccountPage() {
-        return "updateaccount";
+    @RequestMapping("/profile")
+    public String profilePage() {
+        return "profile";
     }
-    @RequestMapping("/account")
-    public String accountPage() {
-        return "account";
+    @RequestMapping("/change-password")
+    public String change() {
+        return "change-password";
     }
 }

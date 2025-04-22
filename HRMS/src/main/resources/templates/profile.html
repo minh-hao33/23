@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700,800,900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #1b7cb3;
@@ -53,8 +53,8 @@
         }
 
         .main-content {
-            display: flex;
-            gap: 20px;
+            flex: 1;
+            overflow: auto;
             padding: 20px 1rem;
             min-height: calc(100vh - 70px);
         }
@@ -233,171 +233,6 @@
         .ftco-navbar-light .navbar-nav > .nav-item > .nav-link:hover {
             color: #ffffff;
         }
-        .dashboard-wrapper {
-            width: 75%; /* 70% width for the dashboard */
-        }
-
-        .right-side {
-            width: 25%; /* 30% width for the right-side */
-            padding: 10px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column; /* Đặt các iframe theo chiều dọc */
-            gap: 20px; /* Thêm khoảng cách giữa các iframe */
-        }
-
-        iframe {
-            width: 100%;
-            height: 200px;
-            border: none;
-            overflow: hidden;
-        }
-
-        .dashboard-container {
-            display: flex;
-            gap: 30px;
-            width: 100%; /* Full width of the parent container */
-        }
-
-        /* Card styles */
-        .card {
-            background-color: white;
-            padding: 20px 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-            flex: 1;
-            border-left: 4px solid;
-            display: flex; /* Để các phần tử con nằm ngang */
-            justify-content: space-between; /* Đảm bảo có khoảng cách giữa label và value */
-            align-items: center; /* Căn giữa theo chiều dọc */
-        }
-
-        .label {
-            font-size: 1rem; /* Tăng cỡ chữ cho label */
-            text-transform: uppercase;
-            font-weight: bold;
-            flex: 1; /* Phần trái sẽ chiếm 1 phần */
-        }
-
-        .value {
-            font-size: 2rem; /* Tăng cỡ chữ cho value */
-            font-weight: bold;
-            color: #5a5c69;
-            flex: 1; /* Phần phải sẽ chiếm 1 phần */
-            text-align: right; /* Căn phải cho value */
-        }
-
-
-        /* Specific card styles */
-        #departmentBox {
-            border-color: #4e73df;
-        }
-
-        #departmentBox .label {
-            color: #4e73df;
-        }
-
-        #employeeBox {
-            border-color: #1cc88a;
-        }
-
-        #employeeBox .label {
-            color: #1cc88a;
-        }
-
-        /* Chart container layout */
-        .chart-container {
-            display: flex;
-            justify-content: center;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            padding: 30px;
-            gap: 40px;
-            margin-top: 20px;
-        }
-
-        /* Pie chart and legend container */
-        .pie-chart {
-            width: 50%;
-            max-width: 400px;
-            padding: 20px;
-        }
-
-        .chart-legend {
-            width: 50%;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        /* Legend item styles */
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            text-decoration: none;
-        }
-
-        .legend-color {
-            width: 25px;
-            height: 25px;
-            border-radius: 5px;
-            margin-right: 15px;
-        }
-
-        .legend-text {
-            font-size: 16px;
-            font-weight: 500;
-            width: 150px;
-        }
-
-        .legend-value {
-            margin-left: auto;
-            font-weight: bold;
-            text-align: right;
-            min-width: 100px;
-        }
-
-        .total-requests {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 18px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        /* Hover and active state for legend items */
-        .chart-legend .legend-item:hover {
-            background-color: #f1f1f1;
-            cursor: pointer;
-            border-radius: 5px;
-            transform: scale(1.05);
-        }
-
-        .chart-legend .legend-item:active {
-            transform: scale(1.1);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Responsive adjustments for small screens */
-        @media (max-width: 768px) {
-            .chart-container {
-                flex-direction: column;
-            }
-
-            .dashboard-container {
-                width: 100%;
-                flex-direction: column;
-            }
-
-            .pie-chart, .chart-legend {
-                width: 100%;
-            }
-        }
-
     </style>
 </head>
 <body>
@@ -446,58 +281,55 @@
 </nav>
 
 <main class="main-content">
-    <div class="container-fluid" style="display: flex;">
-        <div class="dashboard-wrapper">
-            <div class="dashboard-container">
-                <div class="card" id="departmentBox">
-                    <div class="label">Departments</div>
-                    <div class="value count">0</div>
-                </div>
-                <div class="card" id="employeeBox">
-                    <div class="label">Employees</div>
-                    <div class="value count">0</div>
-                </div>
-            </div>
-            <div class="chart-container">
-                <div class="pie-chart">
-                    <canvas id="requestsChart"></canvas>
-                </div>
-                <div class="chart-legend">
-                    <a href="/requests" class="legend-item" id="pendingLegend">
-                        <div class="legend-color" style="background-color: #ff8c00;"></div>
-                        <span class="legend-text">Pending Requests</span>
-                        <span class="legend-value" id="pendingPercent">0 (0%)</span>
-                    </a>
-                    <a href="/requests" class="legend-item" id="rejectedLegend">
-                        <div class="legend-color" style="background-color: #d32f2f;"></div>
-                        <span class="legend-text">Rejected Requests</span>
-                        <span class="legend-value" id="rejectedPercent">0 (0%)</span>
-                    </a>
-                    <a href="/requests" class="legend-item" id="approvedLegend">
-                        <div class="legend-color" style="background-color: #388e3c;"></div>
-                        <span class="legend-text">Approved Requests</span>
-                        <span class="legend-value" id="approvedPercent">0 (0%)</span>
-                    </a>
-                    <div class="total-requests">
-                        Total Requests: <span id="totalRequests">0</span>
+    <div class="container-fluid">
+        <h4 class="mb-4 fw-bold">User Profile</h4>
+        <div class="card p-4 shadow-sm">
+            <div class="card-body">
+                <form id="userProfileForm">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label for="userUsername" class="form-label fw-semibold fs-5">Username</label>
+                            <input type="text" class="form-control fs-5" id="userUsername" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="userEmail" class="form-label fw-semibold fs-5">Email</label>
+                            <input type="email" class="form-control fs-5" id="userEmail" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="userEmployeeName" class="form-label fw-semibold fs-5">Employee Name</label>
+                            <input type="text" class="form-control fs-5" id="userEmployeeName" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="userDepartmentName" class="form-label fw-semibold fs-5">Department</label>
+                            <input type="text" class="form-control fs-5" id="userDepartmentName" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="userRoleName" class="form-label fw-semibold fs-5">Role</label>
+                            <input type="text" class="form-control fs-5" id="userRoleName" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="userStatus" class="form-label fw-semibold fs-5">Status</label>
+                            <input type="text" class="form-control fs-5" id="userStatus" readonly>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
-        </div>
-
-        <div class="right-side">
-            <iframe src="https://thoitiet247.vn/widget/embed/ha-noi?style=3&day=3&td=%23ffffff&ntd=%234f7ffa&mvb=%23e5eeff&mv=%23335fd1&mdk=%23e5eeff&htd=true"
-                    id="widget-hn" width="100%" height="450px" scrolling="no" frameborder="0"
-                    allowtransparency="true" style="border:none;overflow:hidden;"></iframe>
-            <iframe src="https://thoitiet247.vn/widget/embed/da-nang?style=3&day=3&td=%23ffffff&ntd=%234f7ffa&mvb=%23e5eeff&mv=%23335fd1&mdk=%23e5eeff&htd=true"
-                        id="widge-dn" width="100%" height="450px" scrolling="no" frameborder="0"
-                        allowtransparency="true" style="border:none;overflow:hidden;"></iframe>
-            <iframe src="https://thoitiet247.vn/widget/embed/ho-chi-minh?style=3&day=3&td=%23ffffff&ntd=%234f7ffa&mvb=%23e5eeff&mv=%23335fd1&mdk=%23e5eeff&htd=true"
-                    id="widget-hcm" width="100%" height="450px" scrolling="no" frameborder="0"
-                    allowtransparency="true" style="border:none;overflow:hidden;"></iframe>
         </div>
     </div>
 </main>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMessage">
+                Thành công!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -556,88 +388,42 @@
                 alert("Lỗi trong quá trình đăng xuất.");
             });
     }
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const username = localStorage.getItem('Username');
-        const role = localStorage.getItem('Role');
-
-        if (username && role) {
-            const loginBtn = document.getElementById('loginBtn');
-            const userInfo = document.getElementById('userInfo');
-            const usernameDisplay = document.getElementById('usernameDisplay');
-
-            if (loginBtn && userInfo && usernameDisplay) {
-                loginBtn.style.display = 'none';
-                userInfo.style.display = 'block';
-                usernameDisplay.textContent = username;
+    fetch('/api/v1/users/me', {
+        method: 'GET',
+        credentials: 'include'
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'Success' && data.data) {
+                const user = data.data;
+                document.getElementById('userUsername').value = user.username || '';
+                document.getElementById('userEmail').value = user.email || '';
+                document.getElementById('userEmployeeName').value = user.employeeName || '';
+                document.getElementById('userDepartmentName').value = user.departmentName || '';
+                document.getElementById('userRoleName').value = user.roleName || '';
+                document.getElementById('userStatus').value = user.status || '';
+            } else {
+                showToast("Không thể tải thông tin người dùng.", "danger");
             }
+        })
+        .catch(error => {
+            console.error("Lỗi khi lấy thông tin user:", error);
+            showToast("Lỗi khi tải dữ liệu user.", "danger");
+        });
 
-            if (role === 'EMPLOYEE') {
-                document.querySelectorAll('.dashboard a').forEach(link => {
-                    link.removeAttribute('href');
-                    link.style.cursor = 'default';
-                });
-            }
-        }
+    function showToast(message, type = 'success') {
+        const toastEl = document.getElementById('successToast');
+        const toastBody = document.getElementById('toastMessage');
 
-        fetch('/api/v1/departments')
-            .then(res => res.json())
-            .then(data => {
-                document.querySelector('#departmentBox .count').textContent = data.total || data.length || 0;
-            });
+        // Đổi màu theo type
+        toastEl.classList.remove('bg-success', 'bg-danger');
+        toastEl.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
 
-        fetch('/api/v1/users')
-            .then(res => res.json())
-            .then(data => {
-                document.querySelector('#employeeBox .count').textContent = data.total || data.length || 0;
-            });
+        toastBody.textContent = message;
 
-        fetch('/api/v1/requests')
-            .then(response => response.json())
-            .then(data => {
-                const requests = data.data || [];
-                const Pending = requests.filter(r => r.requestStatus === 'PENDING').length;
-                const Approved = requests.filter(r => r.requestStatus === 'APPROVED').length;
-                const Rejected = requests.filter(r => r.requestStatus === 'REJECTED').length;
-                const total = requests.length;
-
-                document.getElementById('pendingPercent').textContent = `${Pending} (${Math.round(Pending / total * 100 || 0)}%)`;
-                document.getElementById('rejectedPercent').textContent = `${Rejected} (${Math.round(Rejected / total * 100 || 0)}%)`;
-                document.getElementById('approvedPercent').textContent = `${Approved} (${Math.round(Approved / total * 100 || 0)}%)`;
-                document.getElementById('totalRequests').textContent = total;
-
-                const ctx = document.getElementById('requestsChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Pending', 'Rejected', 'Approved'],
-                        datasets: [{
-                            data: [Pending, Rejected, Approved],
-                            backgroundColor: ['#ff8c00', '#d32f2f', '#388e3c'],
-                            borderColor: ['#ffffff', '#ffffff', '#ffffff'],
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                        return `${context.label}: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            });
-    });
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
 </script>
 </body>
 </html>

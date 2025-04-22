@@ -67,9 +67,10 @@ public class DepartmentService {
         departmentMapper.updateDepartmentStatus(departmentId, status);
 
         if (status.equals("inactive")) {
-            // Cập nhật user để set employeeName và roleName của họ thành null
-            departmentMapper.updateUsersToNull(departmentId);
+            // Gỡ liên kết giữa user và phòng ban
+            departmentMapper.unlinkUsersFromDepartment(departmentId);
         }
+
     }
 
     public List<Department> listDepartment(DepartmentCriteria criteria) {
