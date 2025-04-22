@@ -7,23 +7,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700,800,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
-    <link rel="stylesheet" href="/css/animate.css">
-    <link rel="stylesheet" href="/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
-    <link rel="stylesheet" href="/css/magnific-popup.css">
-    <link rel="stylesheet" href="/css/aos.css">
-    <link rel="stylesheet" href="/css/ionicons.min.css">
-    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="/css/jquery.timepicker.css">
-    <link rel="stylesheet" href="/css/flaticon.css">
-    <link rel="stylesheet" href="/css/icomoon.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="/js/sessionTimeout.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #a1cbe4;
+            --primary-color: #1b7cb3;
             --primary-hover: #4786ba;
             --danger-color: #d31616;
             --danger-hover: #17dce3;
@@ -34,7 +22,7 @@
             --dark-color: #1fbec3;
             --light-color: #ecf0f1;
             --border-color: #dfe6e9;
-            --text-color: #2d3436;
+            --text-color: #030303;
             --text-light: #070707;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
@@ -65,15 +53,58 @@
             flex: 1;
             overflow: auto;
             padding: 20px 0;
-            min-height: calc(100vh - 60px - 10px); /* 80px là navbar, 200px là footer, chỉnh tùy vào thực tế */
+            min-height: calc(100vh - 60px - 10px);
         }
 
         footer {
             margin-top: auto;
         }
 
+        /* Modal styles */
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
 
-        /* Các style còn lại giữ nguyên */
+        .modal-header {
+            background-color: #0078D4;
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .password-strength {
+            height: 5px;
+            background-color: #e9ecef;
+            margin-top: 5px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .password-hint {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
         .header h1 {
             font-size: 28px;
             font-weight: 500;
@@ -170,29 +201,35 @@
         }
 
         .navbar-brand {
-            font-size: 1.25rem;
-            white-space: nowrap;
-            margin-right: 1rem;
-            color: #ffffff
+            font-weight: 600;
+            font-size: 20px;
+            text-transform: uppercase;
         }
 
         .navbar-toggler {
             order: 2;
             margin-left: auto;
         }
+
         .ftco-navbar-light .navbar-nav > .nav-item.active > a {
             color: #000;
         }
-        .ftco-navbar-light .navbar-nav > .nav-item > .nav-link {
-            color: #000;
 
-            #ftco-nav {
-                order: 1;
-                flex-grow: 1;
-            }
+        .ftco-navbar-light .navbar-nav > .nav-item > .nav-link {
+            font-size: 15px;
+            color: #000000 !important;
+            font-weight: 400;
+            opacity: 1 !important;
+            padding-left: 20px;
         }
+
+        #ftco-nav {
+            order: 1;
+            flex-grow: 1;
+        }
+
         .ftco-navbar-light .navbar-brand {
-            color: #0078D4;
+            color: #0078D4 !important;
         }
 
         .navbar-nav {
@@ -215,15 +252,121 @@
             color: #FFFFFF;
         }
 
-        .dropdown-menu {
-            position: absolute;
-        }
-
         .content-padding {
             padding-left: 15px;
             padding-right: 15px;
         }
 
+        /* Dropdown styles - Updated */
+        .nav-item.dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle::after {
+            display: inline-block;
+            margin-left: 0.255em;
+            vertical-align: 0.255em;
+            content: "";
+            border-top: 0.3em solid;
+            border-right: 0.3em solid transparent;
+            border-bottom: 0;
+            border-left: 0.3em solid transparent;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0; /* Căn trái với phần tử gốc */
+            transform: none; /* Bỏ dịch chuyển giữa */
+            min-width: 180px;
+            padding: 0.25rem 0;
+            margin: 0.125rem 0 0;
+            font-size: 13px;
+            background-color: white;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: block;
+            text-align: left; /* Căn lề trái nội dung */
+        }
+
+        .nav-item.dropdown:hover .dropdown-menu,
+        .nav-item.dropdown.show .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.4rem 1rem; /* Thu nhỏ padding và căn trái */
+            font-size: 15px; /* Giảm kích thước font */
+            color: var(--text-color);
+            background-color: transparent;
+            border: 0;
+            transition: background-color 0.2s ease;
+            text-align: left;
+        }
+
+
+        .dropdown-item:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .dropdown-divider {
+            height: 0;
+            margin: 0.5rem 0;
+            overflow: hidden;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #0078D4;
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-add-new {
+            background-color: #0078D4;
+            border-color: #0078D4;
+            color: white;
+        }
+
+        .btn-add-new:hover {
+            background-color: #005a9e;
+            border-color: #005a9e;
+        }
+
+        .btn-department-manager {
+            color: white;
+        }
+
+        /* Responsive styles */
         @media (min-width: 1200px) {
             .navbar-container {
                 max-width: 100%;
@@ -251,65 +394,37 @@
                 margin: 0.25rem 0;
                 width: 100%;
             }
+
+            /* Adjust dropdown for mobile */
+            .nav-item.dropdown .dropdown-menu {
+                position: static;
+                transform: none;
+                box-shadow: none;
+                border: none;
+                display: none;
+                opacity: 1;
+                visibility: visible;
+                width: 100%;
+            }
+
+            .nav-item.dropdown.show .dropdown-menu {
+                display: block;
+            }
         }
 
         @media (max-width: 768px) {
             .filter-group {
                 min-width: 100%;
             }
-            .container {
-                padding: 20px;
-            }
+
             .pagination-container {
                 flex-wrap: wrap;
             }
         }
+
         .ftco-navbar-light .navbar-nav > .nav-item > .nav-link:hover {
-            color: #ffffff; }
-        .table-container {
-            overflow-x: auto;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
+            color: #ffffff;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            min-width: 800px;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background-color: #0078D4;
-            color: white;
-            font-weight: 500;
-            position: sticky;
-            top: 0;
-        }
-
-        tr:hover {
-            background-color: #f8f9fa;
-        }
-        .status {
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .status-active {
-            background-color: #28a745;  /* Màu xanh cho 'active' */
-        }
-
-        .status-inactive {
-            background-color: #dc3545;  /* Màu đỏ cho 'inactive' */
-        }
-
     </style>
 </head>
 <body>
@@ -330,7 +445,7 @@
                 <li class="nav-item" id="account"><a href="/users" class="nav-link">Account</a></li>
                 <li class="nav-item" id="dpment"><a href="/departments" class="nav-link">Department</a></li>
                 <li class="nav-item cta mr-md-2" id="loginBtn"><a href="/users/login" class="nav-link">Login</a></li>
-                <li class="nav-item dropdown" id="userInfo" style="display: none;">
+                <li class="nav-item dropdown" id="userInfo">
                     <a class="nav-link dropdown-toggle" href="#" id="usernameDisplay" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                     <div class="dropdown-menu" aria-labelledby="usernameDisplay">
                         <a class="dropdown-item" href="/users/account">Profile</a>
@@ -466,7 +581,7 @@
         <button class="close-btn">Đóng</button>
     </div>
 </section>
-<div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const username = localStorage.getItem('Username');
@@ -540,22 +655,22 @@
                 data.data.forEach((item, index) => {
                     const safeName = item.departmentName.replace(/'/g, "\\'");
                     const row = `
-                    <tr>
-                        <td>${page * itemsPerPage + index + 1}</td>
-                        <td>${item.departmentName}</td>
-                        <td>${item.employeeName}</td>
-                        <td>${item.roleName}</td>
-                        <td>${item.status}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary me-1" onclick="openEditModal(${item.departmentId}, '${safeName}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-secondary" onclick="toggleStatus(${item.departmentId}, '${item.status}')">
-                                ${item.status === 'active' ? 'Inactive' : 'Active'}
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                  <tr>
+                      <td>${page * itemsPerPage + index + 1}</td>
+                      <td>${item.departmentName}</td>
+                      <td>${item.employeeName}</td>
+                      <td>${item.roleName}</td>
+                      <td>${item.status}</td>
+                      <td>
+                          <button class="btn btn-sm btn-primary me-1" onclick="openEditModal(${item.departmentId}, '${safeName}')">
+                              <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm btn-secondary" onclick="toggleStatus(${item.departmentId}, '${item.status}')">
+                              ${item.status === 'active' ? 'Inactive' : 'Active'}
+                          </button>
+                      </td>
+                  </tr>
+              `;
                     tableBody.insertAdjacentHTML('beforeend', row);
                 });
             })
@@ -691,21 +806,5 @@
     }
 
 </script>
-
-
-<script src="/js/jquery.min.js"></script>
-<script src="/js/jquery-migrate-3.0.1.min.js"></script>
-<script src="/js/popper.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-<script src="/js/jquery.easing.1.3.js"></script>
-<script src="/js/jquery.waypoints.min.js"></script>
-<script src="/js/jquery.stellar.min.js"></script>
-<script src="/js/owl.carousel.min.js"></script>
-<script src="/js/jquery.magnific-popup.min.js"></script>
-<script src="/js/aos.js"></script>
-<script src="/js/jquery.animateNumber.min.js"></script>
-<script src="/js/scrollax.min.js"></script>
-<script src="/js/main.js"></script>
-
 </body>
 </html>
