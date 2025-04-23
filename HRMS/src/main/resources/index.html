@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Meeting CMC Global</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700,800,900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #1b7cb3;
+            --primary-hover: #4786ba;
+            --danger-color: #d31616;
+            --danger-hover: #17dce3;
+            --success-color: #2ecc71;
+            --success-hover: #27ae60;
+            --warning-color: #f39c12;
+            --warning-hover: #d35400;
+            --dark-color: #1fbec3;
+            --light-color: #ecf0f1;
+            --border-color: #dfe6e9;
+            --text-color: #030303;
+            --text-light: #070707;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        html, body {
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            line-height: 2.3;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ftco-navbar-light {
+            background: #ffff !important;
+            flex-shrink: 0;
+            position: static;
+            width: 100%;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 4px rgba(239, 243, 244, 0.1);
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            padding: 20px 1rem;
+            min-height: calc(100vh - 70px);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .navbar-container {
+            display: flex;
+            width: 100%;
+            padding: 0 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        .navbar-toggler {
+            order: 2;
+            margin-left: auto;
+        }
+
+        .ftco-navbar-light .navbar-nav > .nav-item.active > a {
+            color: #000;
+        }
+
+        .ftco-navbar-light .navbar-nav > .nav-item > .nav-link {
+            font-size: 15px;
+            color: #000000 !important;
+            font-weight: 400;
+            opacity: 1 !important;
+            padding-left: 20px;
+        }
+
+        #ftco-nav {
+            order: 1;
+            flex-grow: 1;
+        }
+
+        .ftco-navbar-light .navbar-brand {
+            color: #0078D4 !important;
+        }
+
+        .navbar-nav {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin: 0 0.5rem;
+            white-space: nowrap;
+        }
+
+        .nav-link {
+            padding: 0.5rem 0.75rem;
+            color: #FFFFFF;
+        }
+
+        .dropdown-toggle::after {
+            display: inline-block;
+            margin-left: 0.255em;
+            vertical-align: 0.255em;
+            content: "";
+            border-top: 0.3em solid;
+            border-right: 0.3em solid transparent;
+            border-bottom: 0;
+            border-left: 0.3em solid transparent;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0; /* Căn trái với phần tử gốc */
+            transform: none; /* Bỏ dịch chuyển giữa */
+            min-width: 180px;
+            padding: 0.25rem 0;
+            margin: 0.125rem 0 0;
+            font-size: 13px;
+            background-color: white;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: block;
+            text-align: left; /* Căn lề trái nội dung */
+        }
+
+        .nav-item.dropdown .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            /* Các thuộc tính khác giữ nguyên */
+        }
+
+        .nav-item.dropdown.show .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.4rem 1rem; /* Thu nhỏ padding và căn trái */
+            font-size: 15px; /* Giảm kích thước font */
+            color: var(--text-color);
+            background-color: transparent;
+            border: 0;
+            transition: background-color 0.2s ease;
+            text-align: left;
+        }
+
+
+        .dropdown-item:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        /* Responsive styles */
+        @media (min-width: 1200px) {
+            container-fluid {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+
+        @media (max-width: 992px) {
+            .navbar-toggler {
+                order: 3;
+            }
+            #ftco-nav {
+                order: 4;
+                flex-basis: 100%;
+            }
+            .navbar-nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .nav-item {
+                margin: 0.25rem 0;
+                width: 100%;
+            }
+
+            /* Adjust dropdown for mobile */
+            .nav-item.dropdown .dropdown-menu {
+                position: static;
+                transform: none;
+                box-shadow: none;
+                border: none;
+                display: none;
+                opacity: 1;
+                visibility: visible;
+                width: 100%;
+            }
+
+            .nav-item.dropdown.show .dropdown-menu {
+                display: block;
+            }
+        }
+
+        .ftco-navbar-light .navbar-nav > .nav-item > .nav-link:hover {
+            color: #ffffff;
+        }
+        .dashboard-wrapper {
+            width: 75%; /* 70% width for the dashboard */
+        }
+
+        .right-side {
+            width: 25%; /* 30% width for the right-side */
+            padding: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column; /* Đặt các iframe theo chiều dọc */
+            gap: 20px; /* Thêm khoảng cách giữa các iframe */
+        }
+
+        iframe {
+            width: 100%;
+            height: 200px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            gap: 30px;
+            width: 100%; /* Full width of the parent container */
+        }
+
+        /* Card styles */
+        .card {
+            background-color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            flex-direction: row;
+            border-left: 4px solid;
+            display: flex; /* Để các phần tử con nằm ngang */
+            justify-content: space-between; /* Đảm bảo có khoảng cách giữa label và value */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            flex-wrap: nowrap;
+        }
+
+        .label {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .value {
+            flex: 1;
+            font-size: 2rem;
+            color: #5a5c69;
+            font-weight: bold;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* Specific card styles */
+        #departmentBox {
+            border-color: #4e73df;
+        }
+
+        #departmentBox .label {
+            color: #4e73df;
+        }
+
+        #employeeBox {
+            border-color: #1cc88a;
+        }
+
+        #employeeBox .label {
+            color: #1cc88a;
+        }
+
+        /* Chart container layout */
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        /* Pie chart and legend container */
+        .pie-chart {
+            width: 50%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .chart-legend {
+            width: 50%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Legend item styles */
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            text-decoration: none;
+        }
+
+        .legend-color {
+            width: 25px;
+            height: 25px;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+
+        .legend-text {
+            font-size: 16px;
+            font-weight: 500;
+            width: 150px;
+        }
+
+        .legend-value {
+            margin-left: auto;
+            font-weight: bold;
+            text-align: right;
+            min-width: 100px;
+        }
+
+        .total-requests {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Hover and active state for legend items */
+        .chart-legend .legend-item:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+            border-radius: 5px;
+            transform: scale(1.05);
+        }
+
+        .chart-legend .legend-item:active {
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive adjustments for small screens */
+        @media (max-width: 768px) {
+            .chart-container {
+                flex-direction: column;
+            }
+
+            .dashboard-container {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .pie-chart, .chart-legend {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+    <div class="navbar-container">
+        <a class="navbar-brand" href="/users/home">Request Management System</a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="oi oi-menu"></span> Menu
+        </button>
+
+        <div class="collapse navbar-collapse" id="ftco-nav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active"><a href="/users/home" class="nav-link">Home</a></li>
+                <li class="nav-item" id="request"><a href="/requests" class="nav-link">Request</a></li>
+                <li class="nav-item" id="office"><a href="#" class="nav-link">Office</a></li>
+                <li class="nav-item" id="meeting"><a href="/meeting-room" class="nav-link">Meeting</a></li>
+                <li class="nav-item" id="account"><a href="/users" class="nav-link">Account</a></li>
+                <li class="nav-item" id="dpment"><a href="/departments" class="nav-link">Department</a></li>
+                <li class="nav-item cta mr-md-2" id="loginBtn"><a href="/users/login" class="nav-link">Login</a></li>
+                <li class="nav-item dropdown" id="userInfo" style="display:none;">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="/images/person_1.jpg" class="rounded-circle me-2" alt="User Avatar" width="32" height="32">
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end p-2 shadow" style="width: 250px;" aria-labelledby="userMenu">
+                        <!-- User Info -->
+                        <li class="d-flex align-items-center mb-2 px-2">
+                            <img src="/images/person_1.jpg" class="rounded-circle me-2" alt="User Avatar" width="40" height="40">
+                            <div>
+                                <div id="dropdownUsername" class="fw-semibold"></div>
+                                <small id="dropdownRole" class="text-muted"></small>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <!-- Menu items -->
+                        <li><a class="dropdown-item d-flex align-items-center" href="/users/profile"><i class="fas fa-user me-2"></i> Profile</a></li>
+                        <li><a class="dropdown-item d-flex align-items-center" href="/users/change-password"><i class="fas fa-gear me-2"></i> Change Password</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <!-- Logout -->
+                        <li><a class="dropdown-item d-flex align-items-center text-danger" href="#" onclick="logout()"><i class="fas fa-right-from-bracket me-2"></i> Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="container-fluid" style="display: flex;">
+        <div class="dashboard-wrapper">
+            <div class="dashboard-container">
+                <div class="card" id="departmentBox">
+                    <div class="label">Departments</div>
+                    <div class="value count">0</div>
+                </div>
+
+                <div class="card" id="employeeBox">
+                    <div class="label">Employees</div>
+                    <div class="value count">0</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="pie-chart">
+                    <canvas id="requestsChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <a href="/requests" class="legend-item" id="pendingLegend">
+                        <div class="legend-color" style="background-color: #ff8c00;"></div>
+                        <span class="legend-text">Pending Requests</span>
+                        <span class="legend-value" id="pendingPercent">0 (0%)</span>
+                    </a>
+                    <a href="/requests" class="legend-item" id="rejectedLegend">
+                        <div class="legend-color" style="background-color: #d32f2f;"></div>
+                        <span class="legend-text">Rejected Requests</span>
+                        <span class="legend-value" id="rejectedPercent">0 (0%)</span>
+                    </a>
+                    <a href="/requests" class="legend-item" id="approvedLegend">
+                        <div class="legend-color" style="background-color: #388e3c;"></div>
+                        <span class="legend-text">Approved Requests</span>
+                        <span class="legend-value" id="approvedPercent">0 (0%)</span>
+                    </a>
+                    <div class="total-requests">
+                        Total Requests: <span id="totalRequests">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-side">
+            <iframe src="https://thoitiet247.vn/widget/embed/ha-noi?style=3&day=3&td=%23ffffff&ntd=%234f7ffa&mvb=%23e5eeff&mv=%23335fd1&mdk=%23e5eeff&htd=true"
+                    id="widget-hn" width="100%" height="450px" scrolling="no" frameborder="0"
+                    allowtransparency="true" style="border:none;overflow:hidden;"></iframe>
+            <iframe src="https://thoitiet247.vn/widget/embed/da-nang?style=3&day=3&td=%23ffffff&ntd=%234f7ffa&mvb=%23e5eeff&mv=%23335fd1&mdk=%23e5eeff&htd=true"
+                        id="widge-dn" width="100%" height="450px" scrolling="no" frameborder="0"
+                        allowtransparency="true" style="border:none;overflow:hidden;"></iframe>
+            <iframe src="https://thoitiet247.vn/widget/embed/ho-chi-minh?style=3&day=3&td=%23ffffff&ntd=%234f7ffa&mvb=%23e5eeff&mv=%23335fd1&mdk=%23e5eeff&htd=true"
+                    id="widget-hcm" width="100%" height="450px" scrolling="no" frameborder="0"
+                    allowtransparency="true" style="border:none;overflow:hidden;"></iframe>
+        </div>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const username = localStorage.getItem('Username');
+        const role = localStorage.getItem('Role');
+// Toggle dropdown on click
+        userMenu.addEventListener('click', function (event) {
+            event.preventDefault(); // Ngừng sự kiện mặc định
+            userInfo.classList.toggle('show'); // Thêm hoặc bỏ class "show"
+        });
+
+        // Đảm bảo khi click ra ngoài thì dropdown sẽ đóng
+        document.addEventListener('click', function (event) {
+            if (!userInfo.contains(event.target)) {
+                userInfo.classList.remove('show');
+            }
+        });
+        if (username && role) {
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('dropdownUsername').textContent = username;
+            document.getElementById('dropdownRole').textContent = role.charAt(0) + role.slice(1).toLowerCase();
+
+            if (role === 'ADMIN') {
+                document.getElementById('meeting').style.display = 'none';
+            } else if (role === 'EMPLOYEE') {
+                document.getElementById('office').style.display = 'none';
+                document.getElementById('account').style.display = 'none';
+                document.getElementById('dpment').style.display = 'none';
+            } else if (role === 'SUPERVISOR') {
+                document.getElementById('office').style.display = 'none';
+                document.getElementById('meeting').style.display = 'none';
+                document.getElementById('dpment').style.display = 'none';
+            }
+        }
+    });
+
+    function logout() {
+        fetch('/api/v1/users/logout', {
+            method: 'POST',
+            credentials: 'include',
+        })
+            .then(response => {
+                if (response.ok) {
+                    localStorage.clear();
+                    document.cookie.split(";").forEach(function(c) {
+                        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                    });
+                    window.location.href = "/users/login";
+                } else {
+                    alert("Đăng xuất không thành công. Vui lòng thử lại.");
+                }
+            })
+            .catch(error => {
+                console.error("Logout error:", error);
+                alert("Lỗi trong quá trình đăng xuất.");
+            });
+    }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const username = localStorage.getItem('Username');
+        const role = localStorage.getItem('Role');
+
+        if (username && role) {
+            const loginBtn = document.getElementById('loginBtn');
+            const userInfo = document.getElementById('userInfo');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+
+            if (loginBtn && userInfo && usernameDisplay) {
+                loginBtn.style.display = 'none';
+                userInfo.style.display = 'block';
+                usernameDisplay.textContent = username;
+            }
+
+            if (role === 'EMPLOYEE') {
+                document.querySelectorAll('.dashboard a').forEach(link => {
+                    link.removeAttribute('href');
+                    link.style.cursor = 'default';
+                });
+            }
+        }
+
+        fetch('/api/v1/departments')
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector('#departmentBox .count').textContent = data.total || data.length || 0;
+            });
+
+        fetch('/api/v1/users')
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector('#employeeBox .count').textContent = data.total || data.length || 0;
+            });
+
+        fetch('/api/v1/requests')
+            .then(response => response.json())
+            .then(data => {
+                const requests = data.data || [];
+                const Pending = requests.filter(r => r.requestStatus === 'PENDING').length;
+                const Approved = requests.filter(r => r.requestStatus === 'APPROVED').length;
+                const Rejected = requests.filter(r => r.requestStatus === 'REJECTED').length;
+                const total = requests.length;
+
+                document.getElementById('pendingPercent').textContent = `${Pending} (${Math.round(Pending / total * 100 || 0)}%)`;
+                document.getElementById('rejectedPercent').textContent = `${Rejected} (${Math.round(Rejected / total * 100 || 0)}%)`;
+                document.getElementById('approvedPercent').textContent = `${Approved} (${Math.round(Approved / total * 100 || 0)}%)`;
+                document.getElementById('totalRequests').textContent = total;
+
+                const ctx = document.getElementById('requestsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Pending', 'Rejected', 'Approved'],
+                        datasets: [{
+                            data: [Pending, Rejected, Approved],
+                            backgroundColor: ['#ff8c00', '#d32f2f', '#388e3c'],
+                            borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        return `${context.label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+    });
+</script>
+</body>
+</html>
